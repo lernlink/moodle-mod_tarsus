@@ -41,9 +41,21 @@ $string['col_activity'] = 'Activity';
 $string['col_material'] = 'Material';
 $string['col_type'] = 'Type';
 $string['col_status'] = 'Brain status';
+$string['col_actions'] = 'Actions';
 $string['nomaterials'] = 'This course has no indexable material yet.';
 $string['learnerplaceholder'] = 'The Tarsus Zero learning experience will appear here.';
 $string['previewchat'] = 'Preview the learner chat';
+
+// Per-resource index actions.
+$string['action_index'] = 'Index';
+$string['action_reindex'] = 'Re-index';
+$string['action_remove'] = 'Remove';
+$string['action_retry'] = 'Retry';
+$string['confirmremove_title'] = 'Remove from the Brain?';
+$string['confirmremove_body'] = 'This material will be removed from the Brain and will no longer be used to answer questions. You can re-index it again later.';
+$string['invalidaction'] = 'Unknown index action requested.';
+$string['invalidresource'] = 'The resource does not belong to this course.';
+$string['actionfailed'] = 'The requested action could not be applied to this resource.';
 
 // Learner RAG chat UI strings.
 $string['send'] = 'Send';

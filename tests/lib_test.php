@@ -94,7 +94,12 @@ final class lib_test extends \advanced_testcase {
         $this->assertTrue($context['canmanage']);
         $this->assertTrue($context['hasactivities']);
         $this->assertNotEmpty($context['activities']);
-        $this->assertSame('badge-light', $context['activities'][0]['bits'][0]['badgeclass']);
+        $bit = $context['activities'][0]['bits'][0];
+        $this->assertSame('badge-light', $bit['badgeclass']);
+        $this->assertNotEmpty($bit['resourceid']);
+        $this->assertTrue($bit['canindex']);
+        $this->assertFalse($bit['canremove']);
+        $this->assertTrue($bit['hasurl']);
         $this->assertStringContainsString('action=indexcourse', $context['indexurl']);
     }
 }

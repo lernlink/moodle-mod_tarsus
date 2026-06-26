@@ -139,7 +139,7 @@ class send_chat_message extends external_api {
                 'status'  => 'blocked',
                 'answer'  => '',
                 'sources' => [],
-                'error'   => get_string('guardrail_blocked_' . $e->getMessage(), 'mod_tarsuszero'),
+                'error'   => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'),
             ];
         } catch (transport_exception $e) {
             // Safe user-facing feedback for server/connection errors.

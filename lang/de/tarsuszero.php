@@ -41,9 +41,21 @@ $string['col_activity'] = 'Aktivität';
 $string['col_material'] = 'Material';
 $string['col_type'] = 'Typ';
 $string['col_status'] = 'Brain-Status';
+$string['col_actions'] = 'Aktionen';
 $string['nomaterials'] = 'Dieser Kurs enthält noch kein indexierbares Material.';
 $string['learnerplaceholder'] = 'Das Tarsus-Zero-Lernerlebnis erscheint hier.';
 $string['previewchat'] = 'Lernenden-Chat in der Vorschau';
+
+// Per-resource index actions.
+$string['action_index'] = 'Indexieren';
+$string['action_reindex'] = 'Neu indexieren';
+$string['action_remove'] = 'Entfernen';
+$string['action_retry'] = 'Erneut versuchen';
+$string['confirmremove_title'] = 'Aus dem Brain entfernen?';
+$string['confirmremove_body'] = 'Dieses Material wird aus dem Brain entfernt und nicht mehr zur Beantwortung von Fragen verwendet. Sie können es später erneut indexieren.';
+$string['invalidaction'] = 'Unbekannte Index-Aktion angefordert.';
+$string['invalidresource'] = 'Die Ressource gehört nicht zu diesem Kurs.';
+$string['actionfailed'] = 'Die angeforderte Aktion konnte nicht auf diese Ressource angewendet werden.';
 
 // Learner RAG chat UI strings.
 $string['send'] = 'Senden';

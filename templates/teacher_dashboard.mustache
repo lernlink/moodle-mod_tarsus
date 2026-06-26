@@ -17,16 +17,21 @@
 {{!
     @template mod_tarsuszero/teacher_dashboard
 
-    Teacher reconciliation list: course material with per-bit brain status.
+    Teacher reconciliation list: course material with per-bit brain status and
+    per-resource index actions (index, re-index, remove, retry).
 
     Context variables required for this template:
-    * canmanage - bool, whether to show the index action.
+    * cmid - int, the course module id (AJAX action target).
+    * canmanage - bool, whether to show the index actions.
     * indexurl - string, URL that enqueues a full course index.
     * hasactivities - bool, whether any indexable activities exist.
-    * activities - array of { name, modname, bits: [ { title, type, statuslabel, badgeclass } ] }.
+    * activities - array of { name, modname, bits: [ {
+          resourceid, title, type, url, hasurl, statuslabel, badgeclass,
+          inflight, canindex, canreindex, canremove, canretry } ] }.
 
     Example context (json):
     {
+        "cmid": 2,
         "canmanage": true,
         "indexurl": "https://example.org/mod/tarsuszero/view.php?id=2&action=indexcourse&sesskey=abc",
         "hasactivities": true,
@@ -35,13 +40,26 @@
                 "name": "Cell biology",
                 "modname": "page",
                 "bits": [
-                    { "title": "Cell biology", "type": "text", "statuslabel": "Indexed", "badgeclass": "badge-success" }
+                    {
+                        "resourceid": "site:3:mod_page:2:main",
+                        "title": "Cell biology",
+                        "type": "text",
+                        "url": "https://example.org/mod/page/view.php?id=2",
+                        "hasurl": true,
+                        "statuslabel": "Indexed",
+                        "badgeclass": "badge-success",
+                        "inflight": false,
+                        "canindex": false,
+                        "canreindex": true,
+                        "canremove": true,
+                        "canretry": false
+                    }
                 ]
             }
         ]
     }
 }}
-<div class="mod-tarsuszero-dashboard">
+<div class="mod-tarsuszero-dashboard" data-region="tarsus-dashboard" data-cmid="{{cmid}}">
     {{#canmanage}}
         <div class="mb-3">
             <a href="{{indexurl}}" class="btn btn-primary" role="button">
@@ -59,16 +77,50 @@
                     <th scope="col">{{#str}}col_material, mod_tarsuszero{{/str}}</th>
                     <th scope="col">{{#str}}col_type, mod_tarsuszero{{/str}}</th>
                     <th scope="col">{{#str}}col_status, mod_tarsuszero{{/str}}</th>
+                    {{#canmanage}}
+                        <th scope="col">{{#str}}col_actions, mod_tarsuszero{{/str}}</th>
+                    {{/canmanage}}
                 </tr>
             </thead>
             <tbody>
                 {{#activities}}
                     {{#bits}}
-                        <tr>
+                        <tr data-region="tarsus-resource" data-resourceid="{{resourceid}}">
                             <td>{{name}}</td>
-                            <td>{{title}}</td>
+                            <td>
+                                {{#hasurl}}<a href="{{url}}">{{title}}</a>{{/hasurl}}
+                                {{^hasurl}}{{title}}{{/hasurl}}
+                            </td>
                             <td>{{type}}</td>
-                            <td><span class="badge {{badgeclass}}">{{statuslabel}}</span></td>
+                            <td class="text-nowrap">
+                                <span class="badge {{badgeclass}}" data-region="status-badge">{{statuslabel}}</span>
+                                <span class="spinner-border spinner-border-sm text-muted ml-1" role="status"
+                                      data-region="status-spinner" {{^inflight}}hidden{{/inflight}}>
+                                    <span class="sr-only">{{#str}}loading, core{{/str}}</span>
+                                </span>
+                            </td>
+                            {{#canmanage}}
+                                <td class="text-nowrap">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary" data-action="index"
+                                                {{^canindex}}hidden{{/canindex}}>
+                                            {{#str}}action_index, mod_tarsuszero{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-action="reindex"
+                                                {{^canreindex}}hidden{{/canreindex}}>
+                                            {{#str}}action_reindex, mod_tarsuszero{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" data-action="retry"
+                                                {{^canretry}}hidden{{/canretry}}>
+                                            {{#str}}action_retry, mod_tarsuszero{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" data-action="remove"
+                                                {{^canremove}}hidden{{/canremove}}>
+                                            {{#str}}action_remove, mod_tarsuszero{{/str}}
+                                        </button>
+                                    </div>
+                                </td>
+                            {{/canmanage}}
                         </tr>
                     {{/bits}}
                 {{/activities}}
@@ -80,3 +132,10 @@
         <div class="alert alert-info">{{#str}}nomaterials, mod_tarsuszero{{/str}}</div>
     {{/hasactivities}}
 </div>
+{{#canmanage}}
+    {{#js}}
+        require(['mod_tarsuszero/dashboard'], function(Dashboard) {
+            Dashboard.init({{cmid}}, '[data-region="tarsus-dashboard"]');
+        });
+    {{/js}}
+{{/canmanage}}

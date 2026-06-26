@@ -17,7 +17,7 @@
 namespace mod_tarsuszero\output;
 
 use local_tarsus\index\course_report;
-use local_tarsus\index\status;
+use mod_tarsuszero\local\status_presenter;
 use renderable;
 use renderer_base;
 use templatable;
@@ -30,17 +30,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_dashboard implements renderable, templatable {
-
-    /** @var array<string, string> Status value => Bootstrap badge modifier. */
-    private const BADGES = [
-        status::NOT_INDEXED => 'badge-light',
-        status::PENDING => 'badge-warning',
-        status::PENDING_CONFIRMATION => 'badge-warning',
-        status::PENDING_REINDEX => 'badge-warning',
-        status::PENDING_DELETION => 'badge-secondary',
-        status::INDEXED => 'badge-success',
-        status::ERROR => 'badge-danger',
-    ];
 
     /**
      * Constructor.
@@ -69,11 +58,16 @@ class teacher_dashboard implements renderable, templatable {
         foreach ($report as $activity) {
             $bits = [];
             foreach ($activity['bits'] as $bit) {
-                $bits[] = [
+                $controls = status_presenter::present(
+                    $bit['resourceid'],
+                    $bit['status'],
+                    $bit['statuslabel']
+                );
+                $bits[] = $controls + [
                     'title' => $bit['title'],
                     'type' => $bit['type'],
-                    'statuslabel' => $bit['statuslabel'],
-                    'badgeclass' => self::BADGES[$bit['status']] ?? 'badge-light',
+                    'url' => $activity['url'],
+                    'hasurl' => !empty($activity['url']),
                 ];
             }
             $activities[] = [
@@ -90,6 +84,7 @@ class teacher_dashboard implements renderable, templatable {
         ]);
 
         return [
+            'cmid' => $this->cmid,
             'canmanage' => $this->canmanage,
             'indexurl' => $indexurl->out(false),
             'hasactivities' => !empty($activities),

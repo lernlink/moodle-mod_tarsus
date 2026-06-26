@@ -41,4 +41,20 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_set_resource_action' => [
+        'classname'   => 'mod_tarsuszero\external\set_resource_action',
+        'methodname'  => 'execute',
+        'description' => 'Trigger a per-resource index action (index, reindex, remove, retry).',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
+    'mod_tarsuszero_get_index_status' => [
+        'classname'   => 'mod_tarsuszero\external\get_index_status',
+        'methodname'  => 'execute',
+        'description' => 'Return the live index status of every bit in the course for dashboard polling.',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];
