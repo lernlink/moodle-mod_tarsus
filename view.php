@@ -80,12 +80,16 @@ if ($canmanage) {
         'mod_tarsuszero/teacher_dashboard',
         $dashboard->export_for_template($OUTPUT)
     );
-} else {
-    $chat = new \mod_tarsuszero\output\learner_chat($cm->id);
-    echo $OUTPUT->render_from_template(
-        'mod_tarsuszero/learner_chat',
-        $chat->export_for_template($OUTPUT)
-    );
+
+    // Show the learner chat below the dashboard so managers can verify answers
+    // without leaving the page.
+    echo $OUTPUT->heading(get_string('previewchat', 'mod_tarsuszero'), 4, 'mt-4');
 }
+
+$chat = new \mod_tarsuszero\output\learner_chat($cm->id);
+echo $OUTPUT->render_from_template(
+    'mod_tarsuszero/learner_chat',
+    $chat->export_for_template($OUTPUT)
+);
 
 echo $OUTPUT->footer();

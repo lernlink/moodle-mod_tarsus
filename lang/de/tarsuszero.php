@@ -43,6 +43,7 @@ $string['col_type'] = 'Typ';
 $string['col_status'] = 'Brain-Status';
 $string['nomaterials'] = 'Dieser Kurs enthält noch kein indexierbares Material.';
 $string['learnerplaceholder'] = 'Das Tarsus-Zero-Lernerlebnis erscheint hier.';
+$string['previewchat'] = 'Lernenden-Chat in der Vorschau';
 
 // Learner RAG chat UI strings.
 $string['send'] = 'Senden';
