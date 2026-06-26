@@ -18,15 +18,15 @@ namespace mod_tarsuszero\external;
 
 defined('MOODLE_INTERNAL') || die();
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_multiple_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_multiple_structure;
+use core_external\external_value;
 use context_module;
 use local_tarsus\client\client_factory;
-use local_tarsus\client\blocked_exception;
 use local_tarsus\client\transport_exception;
+use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
 use moodle_exception;
@@ -105,7 +105,7 @@ class send_chat_message extends external_api {
 
             // Record local context-level usage.
             $usage = new usage_meter();
-            $usage->record((int) $coursecontext->id, $credits);
+            $usage->record((int) $coursecontext->id, (int) $USER->id, 'search_grounded', $credits);
 
             // Save chat interaction to local DB.
             $chat = new \stdClass();
