@@ -44,5 +44,17 @@ $string['col_status'] = 'Brain status';
 $string['nomaterials'] = 'This course has no indexable material yet.';
 $string['learnerplaceholder'] = 'The Tarsus Zero learning experience will appear here.';
 
+// Learner RAG chat UI strings.
+$string['send'] = 'Send';
+$string['sources'] = 'Sources';
+$string['chat_placeholder'] = 'Ask a question about the course materials...';
+$string['loading_history'] = 'Loading conversation history...';
+$string['chat_welcome'] = 'Hello! I am your Tarsus Zero virtual assistant. Ask me anything about your course materials, and I will find grounded answers for you!';
+$string['guardrail_blocked_killswitch'] = 'API calls are disabled by system administrators at the moment.';
+$string['guardrail_blocked_breaker'] = 'The Tarsus system is undergoing high latency and is temporarily resting. Please try again in a few minutes.';
+$string['guardrail_blocked_budget'] = 'Daily query budget limits reached for this context. Pleases try again tomorrow.';
+$string['guardrail_blocked_ratelimit'] = 'Too many requests. Please wait a few seconds and try again.';
+$string['transport_error'] = 'Could not contact the Brain. Please check your network connection and try again.';
+
 // Privacy.
 $string['privacy:metadata'] = 'The Tarsus Zero activity stores no personal data itself; indexation and usage data are handled by the local_tarsus plugin.';

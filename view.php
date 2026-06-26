@@ -81,7 +81,11 @@ if ($canmanage) {
         $dashboard->export_for_template($OUTPUT)
     );
 } else {
-    echo $OUTPUT->notification(get_string('learnerplaceholder', 'mod_tarsuszero'), 'info');
+    $chat = new \mod_tarsuszero\output\learner_chat($cm->id);
+    echo $OUTPUT->render_from_template(
+        'mod_tarsuszero/learner_chat',
+        $chat->export_for_template($OUTPUT)
+    );
 }
 
 echo $OUTPUT->footer();

@@ -1,0 +1,46 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsuszero/chat_message
+
+    Single chat message inside the RAG chat flow.
+
+    Context variables required for this template:
+    * islearner - bool, whether message comes from learner.
+    * isbrain - bool, whether message is from the Tarsus response.
+    * text - string, message text.
+    * hassources - bool, whether the message displays grounding sources.
+    * sources - array of { title, resourceid }.
+}}
+<div class="d-flex flex-column mb-3 {{#islearner}}align-items-end{{/islearner}}{{^islearner}}align-items-start{{/islearner}}">
+    <div class="card {{#islearner}}bg-primary text-white{{/islearner}}{{^islearner}}bg-light{{/islearner}}" style="max-width: 80%; border-radius: 12px;">
+        <div class="card-body p-2">
+            <p class="card-text mb-1" style="white-space: pre-wrap;">{{text}}</p>
+            {{#hassources}}
+                <hr class="my-1 {{#islearner}}border-white{{/islearner}}{{^islearner}}border-secondary{{/islearner}}">
+                <div class="sources-list" style="font-size: 0.8rem; opacity: 0.9;">
+                    <strong>{{#str}}sources, mod_tarsuszero{{/str}}:</strong>
+                    <ul class="list-unstyled mb-0 pl-1">
+                        {{#sources}}
+                            <li>📚 {{title}}</li>
+                        {{/sources}}
+                    </ul>
+                </div>
+            {{/hassources}}
+        </div>
+    </div>
+</div>
