@@ -37,7 +37,8 @@
     <div class="tarsus-chat-alert alert alert-danger d-none mb-3" role="alert"></div>
 
     <!-- Subinput field -->
-    <form class="tarsus-chat-form card p-2 bg-light">
+    <form class="tarsus-chat-form card p-2 bg-light" method="post" action="view.php">
+        <input type="hidden" name="id" value="{{cmid}}">
         <div class="input-group">
             <input type="text" class="tarsus-chat-input form-control" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
             <div class="input-group-append">
