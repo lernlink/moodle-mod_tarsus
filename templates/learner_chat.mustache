@@ -40,7 +40,7 @@
     <form class="tarsus-chat-form card p-2 bg-light" method="post" action="view.php">
         <input type="hidden" name="id" value="{{cmid}}">
         <div class="d-flex align-items-center" style="gap: 0.5rem;">
-            <input type="text" class="tarsus-chat-input form-control" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
+            <input type="text" class="tarsus-chat-input form-control flex-grow-1" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
             <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit">
                 <span class="tarsus-chat-spinner spinner-border spinner-border-sm mr-2 d-none" role="status" aria-hidden="true"></span>
                 {{#str}}send, mod_tarsuszero{{/str}}
