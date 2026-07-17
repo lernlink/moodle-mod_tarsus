@@ -1,0 +1,60 @@
+<?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Upgrade steps for mod_tarsuszero.
+ *
+ * @package    mod_tarsuszero
+ * @copyright  2026 lern.link GmbH
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Upgrade mod_tarsuszero.
+ *
+ * @param int $oldversion The previously installed version.
+ * @return bool
+ */
+function xmldb_tarsuszero_upgrade(int $oldversion): bool {
+    global $DB;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2026062605) {
+        // Add tarsuszero_inclusions table that tracks which indexed resources a
+        // teacher has explicitly included in a specific activity instance.
+        $table = new xmldb_table('tarsuszero_inclusions');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('tarsuszeroid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('resourceid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('tarsuszeroid', XMLDB_KEY_FOREIGN, ['tarsuszeroid'], 'tarsuszero', ['id']);
+        $table->add_index('tarsuszeroid_resourceid', XMLDB_INDEX_UNIQUE, ['tarsuszeroid', 'resourceid']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026062605, 'tarsuszero');
+    }
+
+    return true;
+}

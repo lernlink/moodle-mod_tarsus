@@ -33,6 +33,8 @@ const SELECTORS = {
     ACTION_BUTTON: '[data-action]',
     STATUS_BADGE: '[data-region="status-badge"]',
     STATUS_SPINNER: '[data-region="status-spinner"]',
+    INCLUDE_CELL: '[data-region="tarsus-include-cell"]',
+    INCLUDE_TOGGLE: '[data-region="tarsus-include-toggle"]',
 };
 
 const BADGE_CLASSES = [
@@ -164,6 +166,34 @@ const sendAction = (root, row, resourceid, action) => {
 };
 
 /**
+ * Toggle the inclusion state of a resource and persist it via AJAX.
+ *
+ * The checkbox state is applied optimistically by the browser on change;
+ * we only revert it if the server call fails.
+ *
+ * @param {Element} row The resource row element.
+ * @param {Element} checkbox The inclusion toggle checkbox.
+ */
+const sendInclusion = (row, checkbox) => {
+    const resourceid = row.getAttribute('data-resourceid');
+    const included = checkbox.checked;
+    checkbox.disabled = true;
+
+    Ajax.call([{
+        methodname: 'mod_tarsuszero_set_resource_inclusion',
+        args: {cmid: cmid, resourceid: resourceid, included: included},
+    }])[0].then(() => {
+        checkbox.disabled = false;
+        return null;
+    }).catch((error) => {
+        // Revert optimistic update on failure.
+        checkbox.checked = !included;
+        checkbox.disabled = false;
+        Notification.exception(error);
+    });
+};
+
+/**
  * Handle a click on an action button via event delegation.
  *
  * @param {Element} root The dashboard root element.
@@ -212,6 +242,16 @@ export const init = (id, rootSelector) => {
         return;
     }
     root.addEventListener('click', (event) => handleClick(root, event));
+    root.addEventListener('change', (event) => {
+        const toggle = event.target.closest(SELECTORS.INCLUDE_TOGGLE);
+        if (!toggle || toggle.disabled) {
+            return;
+        }
+        const row = toggle.closest(SELECTORS.RESOURCE_ROW);
+        if (row) {
+            sendInclusion(row, toggle);
+        }
+    });
     if (hasInflight(root)) {
         startPolling(root);
     }

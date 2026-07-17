@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/tarsuszero/db" VERSION="2026062601" COMMENT="Schema for mod_tarsuszero."
+<XMLDB PATH="mod/tarsuszero/db" VERSION="2026062605" COMMENT="Schema for mod_tarsuszero."
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -36,6 +36,21 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="tarsus_userid" UNIQUE="false" FIELDS="tarsuszeroid, userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="tarsuszero_inclusions" COMMENT="Tracks which indexed resources a teacher has included in a specific tarsuszero activity instance.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tarsuszeroid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsuszero table."/>
+        <FIELD NAME="resourceid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Namespaced resource id from local_tarsus."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="tarsuszeroid" TYPE="foreign" FIELDS="tarsuszeroid" REFTABLE="tarsuszero" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="tarsuszeroid_resourceid" UNIQUE="true" FIELDS="tarsuszeroid, resourceid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

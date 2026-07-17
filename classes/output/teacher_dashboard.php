@@ -17,6 +17,7 @@
 namespace mod_tarsuszero\output;
 
 use local_tarsus\index\course_report;
+use local_tarsus\index\status;
 use mod_tarsuszero\local\status_presenter;
 use renderable;
 use renderer_base;
@@ -57,7 +58,19 @@ class teacher_dashboard implements renderable, templatable {
      * @return array<string, mixed>
      */
     public function export_for_template(renderer_base $output): array {
+        global $DB;
+
         $report = (new course_report())->for_course($this->courseid);
+
+        // Load the set of included resource ids for this activity instance.
+        $tarsuszeroid = (int) get_coursemodule_from_id('tarsuszero', $this->cmid, 0, false, MUST_EXIST)->instance;
+        $includedids = $DB->get_fieldset_select(
+            'tarsuszero_inclusions',
+            'resourceid',
+            'tarsuszeroid = :tid',
+            ['tid' => $tarsuszeroid]
+        );
+        $includedset = array_flip($includedids);
 
         // Flatten every material bit into a single list so the reconciliation
         // list can be paged uniformly regardless of the owning activity.
@@ -69,6 +82,7 @@ class teacher_dashboard implements renderable, templatable {
                     $bit['status'],
                     $bit['statuslabel']
                 );
+                $isindexed = ($bit['status'] === status::INDEXED);
                 $resources[] = $controls + [
                     'name' => $activity['name'],
                     'modname' => $activity['modname'],
@@ -76,6 +90,8 @@ class teacher_dashboard implements renderable, templatable {
                     'type' => $bit['type'],
                     'url' => $activity['url'],
                     'hasurl' => !empty($activity['url']),
+                    'caninclude' => $isindexed,
+                    'isincluded' => $isindexed && isset($includedset[$bit['resourceid']]),
                 ];
             }
         }

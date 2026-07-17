@@ -22,14 +22,15 @@
 
     Context variables required for this template:
     * cmid - int, the course module id (AJAX action target).
-    * canmanage - bool, whether to show the index actions.
+    * canmanage - bool, whether to show the inclusion toggle and index actions.
     * indexurl - string, URL that enqueues a full course index.
     * hasactivities - bool, whether any indexable materials exist.
     * hasmultiplepages - bool, whether the paging bar should be shown.
     * pagingbar - string, rendered Moodle paging bar (previous/next arrows).
     * resources - array of {
           name, modname, resourceid, title, type, url, hasurl, statuslabel,
-          badgeclass, inflight, canindex, canreindex, canremove, canretry }.
+          badgeclass, inflight, canindex, canreindex, canremove, canretry,
+          caninclude, isincluded }.
 
     Example context (json):
     {
@@ -54,7 +55,9 @@
                 "canindex": false,
                 "canreindex": true,
                 "canremove": true,
-                "canretry": false
+                "canretry": false,
+                "caninclude": true,
+                "isincluded": true
             }
         ]
     }
@@ -74,10 +77,10 @@
             <thead>
                 <tr>
                     <th scope="col">{{#str}}col_activity, mod_tarsuszero{{/str}}</th>
-                    <th scope="col">{{#str}}col_material, mod_tarsuszero{{/str}}</th>
                     <th scope="col">{{#str}}col_type, mod_tarsuszero{{/str}}</th>
                     <th scope="col">{{#str}}col_status, mod_tarsuszero{{/str}}</th>
                     {{#canmanage}}
+                        <th scope="col">{{#str}}col_included, mod_tarsuszero{{/str}}</th>
                         <th scope="col">{{#str}}col_actions, mod_tarsuszero{{/str}}</th>
                     {{/canmanage}}
                 </tr>
@@ -85,10 +88,9 @@
             <tbody>
                 {{#resources}}
                     <tr data-region="tarsus-resource" data-resourceid="{{resourceid}}">
-                        <td>{{name}}</td>
                         <td>
-                            {{#hasurl}}<a href="{{url}}">{{title}}</a>{{/hasurl}}
-                            {{^hasurl}}{{title}}{{/hasurl}}
+                            {{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}
+                            {{^hasurl}}{{name}}{{/hasurl}}
                         </td>
                         <td>{{type}}</td>
                         <td class="text-nowrap">
@@ -99,6 +101,14 @@
                             </span>
                         </td>
                         {{#canmanage}}
+                            <td data-region="tarsus-include-cell" {{^caninclude}}hidden{{/caninclude}}>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           data-region="tarsus-include-toggle"
+                                           aria-label="{{#str}}col_included, mod_tarsuszero{{/str}}"
+                                           {{#isincluded}}checked{{/isincluded}}>
+                                </div>
+                            </td>
                             <td class="text-nowrap">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <button type="button" class="btn btn-outline-primary" data-action="index"

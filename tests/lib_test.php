@@ -30,6 +30,17 @@ use mod_tarsuszero\output\teacher_dashboard;
 final class lib_test extends \advanced_testcase {
 
     /**
+     * Load lib.php before each test so global module functions are available.
+     *
+     * @return void
+     */
+    protected function setUp(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/tarsuszero/lib.php');
+        parent::setUp();
+    }
+
+    /**
      * Adding, updating and deleting an instance round-trips through the DB.
      *
      * @return void

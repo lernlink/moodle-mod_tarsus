@@ -57,4 +57,12 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_set_resource_inclusion' => [
+        'classname'   => 'mod_tarsuszero\external\set_resource_inclusion',
+        'methodname'  => 'execute',
+        'description' => 'Include or exclude an indexed resource from a specific tarsuszero activity scope.',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];
