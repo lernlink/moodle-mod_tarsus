@@ -112,7 +112,6 @@ final class lib_test extends \advanced_testcase {
         $this->assertFalse($bit['canremove']);
         $this->assertTrue($bit['hasurl']);
         $this->assertFalse($context['hasmultiplepages']);
-        $this->assertStringContainsString('action=indexcourse', $context['indexurl']);
     }
 
     /**

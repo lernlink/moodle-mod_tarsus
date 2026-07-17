@@ -24,11 +24,9 @@
 
 require(__DIR__ . '/../../config.php');
 
-use local_tarsus\task\index_course_task;
 use mod_tarsuszero\output\teacher_dashboard;
 
 $id = required_param('id', PARAM_INT); // Course module id.
-$action = optional_param('action', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT); // Zero-based reconciliation page.
 
 $cm = get_coursemodule_from_id('tarsuszero', $id, 0, false, MUST_EXIST);
@@ -43,20 +41,6 @@ $canmanage = has_capability('mod/tarsuszero:manage', $context);
 
 $viewurl = new moodle_url('/mod/tarsuszero/view.php', ['id' => $cm->id]);
 
-// Handle the "index this course" action.
-if ($action === 'indexcourse') {
-    require_sesskey();
-    require_capability('mod/tarsuszero:manage', $context);
-
-    index_course_task::queue((int) $course->id);
-
-    redirect(
-        $viewurl,
-        get_string('indexqueued', 'mod_tarsuszero'),
-        null,
-        \core\output\notification::NOTIFY_SUCCESS
-    );
-}
 
 $PAGE->set_url($viewurl);
 $PAGE->set_context($context);

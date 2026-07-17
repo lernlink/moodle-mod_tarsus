@@ -108,16 +108,9 @@ class teacher_dashboard implements renderable, templatable {
         $baseurl = new \moodle_url('/mod/tarsuszero/view.php', ['id' => $this->cmid]);
         $pagingbar = $output->render(new \paging_bar($total, $page, self::PER_PAGE, $baseurl));
 
-        $indexurl = new \moodle_url('/mod/tarsuszero/view.php', [
-            'id' => $this->cmid,
-            'action' => 'indexcourse',
-            'sesskey' => sesskey(),
-        ]);
-
         return [
             'cmid' => $this->cmid,
             'canmanage' => $this->canmanage,
-            'indexurl' => $indexurl->out(false),
             'hasactivities' => $total > 0,
             'resources' => $pageresources,
             'hasmultiplepages' => $pagecount > 1,

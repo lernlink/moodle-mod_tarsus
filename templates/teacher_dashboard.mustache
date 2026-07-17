@@ -23,7 +23,6 @@
     Context variables required for this template:
     * cmid - int, the course module id (AJAX action target).
     * canmanage - bool, whether to show the inclusion toggle and index actions.
-    * indexurl - string, URL that enqueues a full course index.
     * hasactivities - bool, whether any indexable materials exist.
     * hasmultiplepages - bool, whether the paging bar should be shown.
     * pagingbar - string, rendered Moodle paging bar (previous/next arrows).
@@ -36,7 +35,6 @@
     {
         "cmid": 2,
         "canmanage": true,
-        "indexurl": "https://example.org/mod/tarsuszero/view.php?id=2&action=indexcourse&sesskey=abc",
         "hasactivities": true,
         "hasmultiplepages": false,
         "pagingbar": "",
@@ -63,15 +61,6 @@
     }
 }}
 <div class="mod-tarsuszero-dashboard" data-region="tarsus-dashboard" data-cmid="{{cmid}}">
-    {{#canmanage}}
-        <div class="mb-3">
-            <a href="{{indexurl}}" class="btn btn-primary" role="button">
-                {{#str}}indexcourse, mod_tarsuszero{{/str}}
-            </a>
-            <p class="text-muted mt-2">{{#str}}indexcourse_help, mod_tarsuszero{{/str}}</p>
-        </div>
-    {{/canmanage}}
-
     {{#hasactivities}}
         <table class="table table-striped">
             <thead>
