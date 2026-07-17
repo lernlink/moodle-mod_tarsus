@@ -24,10 +24,12 @@
     * cmid - int, the course module id (AJAX action target).
     * canmanage - bool, whether to show the index actions.
     * indexurl - string, URL that enqueues a full course index.
-    * hasactivities - bool, whether any indexable activities exist.
-    * activities - array of { name, modname, bits: [ {
-          resourceid, title, type, url, hasurl, statuslabel, badgeclass,
-          inflight, canindex, canreindex, canremove, canretry } ] }.
+    * hasactivities - bool, whether any indexable materials exist.
+    * hasmultiplepages - bool, whether the paging bar should be shown.
+    * pagingbar - string, rendered Moodle paging bar (previous/next arrows).
+    * resources - array of {
+          name, modname, resourceid, title, type, url, hasurl, statuslabel,
+          badgeclass, inflight, canindex, canreindex, canremove, canretry }.
 
     Example context (json):
     {
@@ -35,26 +37,24 @@
         "canmanage": true,
         "indexurl": "https://example.org/mod/tarsuszero/view.php?id=2&action=indexcourse&sesskey=abc",
         "hasactivities": true,
-        "activities": [
+        "hasmultiplepages": false,
+        "pagingbar": "",
+        "resources": [
             {
                 "name": "Cell biology",
                 "modname": "page",
-                "bits": [
-                    {
-                        "resourceid": "site:3:mod_page:2:main",
-                        "title": "Cell biology",
-                        "type": "text",
-                        "url": "https://example.org/mod/page/view.php?id=2",
-                        "hasurl": true,
-                        "statuslabel": "Indexed",
-                        "badgeclass": "badge-success",
-                        "inflight": false,
-                        "canindex": false,
-                        "canreindex": true,
-                        "canremove": true,
-                        "canretry": false
-                    }
-                ]
+                "resourceid": "site:3:mod_page:2:main",
+                "title": "Cell biology",
+                "type": "text",
+                "url": "https://example.org/mod/page/view.php?id=2",
+                "hasurl": true,
+                "statuslabel": "Indexed",
+                "badgeclass": "badge-success",
+                "inflight": false,
+                "canindex": false,
+                "canreindex": true,
+                "canremove": true,
+                "canretry": false
             }
         ]
     }
@@ -83,49 +83,50 @@
                 </tr>
             </thead>
             <tbody>
-                {{#activities}}
-                    {{#bits}}
-                        <tr data-region="tarsus-resource" data-resourceid="{{resourceid}}">
-                            <td>{{name}}</td>
-                            <td>
-                                {{#hasurl}}<a href="{{url}}">{{title}}</a>{{/hasurl}}
-                                {{^hasurl}}{{title}}{{/hasurl}}
-                            </td>
-                            <td>{{type}}</td>
+                {{#resources}}
+                    <tr data-region="tarsus-resource" data-resourceid="{{resourceid}}">
+                        <td>{{name}}</td>
+                        <td>
+                            {{#hasurl}}<a href="{{url}}">{{title}}</a>{{/hasurl}}
+                            {{^hasurl}}{{title}}{{/hasurl}}
+                        </td>
+                        <td>{{type}}</td>
+                        <td class="text-nowrap">
+                            <span class="badge {{badgeclass}}" data-region="status-badge">{{statuslabel}}</span>
+                            <span class="spinner-border spinner-border-sm text-muted ml-1" role="status"
+                                  data-region="status-spinner" {{^inflight}}hidden{{/inflight}}>
+                                <span class="sr-only">{{#str}}loading, core{{/str}}</span>
+                            </span>
+                        </td>
+                        {{#canmanage}}
                             <td class="text-nowrap">
-                                <span class="badge {{badgeclass}}" data-region="status-badge">{{statuslabel}}</span>
-                                <span class="spinner-border spinner-border-sm text-muted ml-1" role="status"
-                                      data-region="status-spinner" {{^inflight}}hidden{{/inflight}}>
-                                    <span class="sr-only">{{#str}}loading, core{{/str}}</span>
-                                </span>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary" data-action="index"
+                                            {{^canindex}}hidden{{/canindex}}>
+                                        {{#str}}action_index, mod_tarsuszero{{/str}}
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-action="reindex"
+                                            {{^canreindex}}hidden{{/canreindex}}>
+                                        {{#str}}action_reindex, mod_tarsuszero{{/str}}
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" data-action="retry"
+                                            {{^canretry}}hidden{{/canretry}}>
+                                        {{#str}}action_retry, mod_tarsuszero{{/str}}
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" data-action="remove"
+                                            {{^canremove}}hidden{{/canremove}}>
+                                        {{#str}}action_remove, mod_tarsuszero{{/str}}
+                                    </button>
+                                </div>
                             </td>
-                            {{#canmanage}}
-                                <td class="text-nowrap">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-primary" data-action="index"
-                                                {{^canindex}}hidden{{/canindex}}>
-                                            {{#str}}action_index, mod_tarsuszero{{/str}}
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary" data-action="reindex"
-                                                {{^canreindex}}hidden{{/canreindex}}>
-                                            {{#str}}action_reindex, mod_tarsuszero{{/str}}
-                                        </button>
-                                        <button type="button" class="btn btn-outline-warning" data-action="retry"
-                                                {{^canretry}}hidden{{/canretry}}>
-                                            {{#str}}action_retry, mod_tarsuszero{{/str}}
-                                        </button>
-                                        <button type="button" class="btn btn-outline-danger" data-action="remove"
-                                                {{^canremove}}hidden{{/canremove}}>
-                                            {{#str}}action_remove, mod_tarsuszero{{/str}}
-                                        </button>
-                                    </div>
-                                </td>
-                            {{/canmanage}}
-                        </tr>
-                    {{/bits}}
-                {{/activities}}
+                        {{/canmanage}}
+                    </tr>
+                {{/resources}}
             </tbody>
         </table>
+        {{#hasmultiplepages}}
+            {{{pagingbar}}}
+        {{/hasmultiplepages}}
     {{/hasactivities}}
 
     {{^hasactivities}}

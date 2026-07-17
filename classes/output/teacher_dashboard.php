@@ -31,17 +31,22 @@ use templatable;
  */
 class teacher_dashboard implements renderable, templatable {
 
+    /** @var int Number of course materials shown per page. */
+    private const PER_PAGE = 10;
+
     /**
      * Constructor.
      *
      * @param int  $cmid      The course module id (action target).
      * @param int  $courseid  The course id to report on.
      * @param bool $canmanage Whether the viewer may trigger indexing.
+     * @param int  $page      Zero-based page of the reconciliation list.
      */
     public function __construct(
         private int $cmid,
         private int $courseid,
-        private bool $canmanage
+        private bool $canmanage,
+        private int $page = 0
     ) {
     }
 
@@ -54,28 +59,38 @@ class teacher_dashboard implements renderable, templatable {
     public function export_for_template(renderer_base $output): array {
         $report = (new course_report())->for_course($this->courseid);
 
-        $activities = [];
+        // Flatten every material bit into a single list so the reconciliation
+        // list can be paged uniformly regardless of the owning activity.
+        $resources = [];
         foreach ($report as $activity) {
-            $bits = [];
             foreach ($activity['bits'] as $bit) {
                 $controls = status_presenter::present(
                     $bit['resourceid'],
                     $bit['status'],
                     $bit['statuslabel']
                 );
-                $bits[] = $controls + [
+                $resources[] = $controls + [
+                    'name' => $activity['name'],
+                    'modname' => $activity['modname'],
                     'title' => $bit['title'],
                     'type' => $bit['type'],
                     'url' => $activity['url'],
                     'hasurl' => !empty($activity['url']),
                 ];
             }
-            $activities[] = [
-                'name' => $activity['name'],
-                'modname' => $activity['modname'],
-                'bits' => $bits,
-            ];
         }
+
+        $total = count($resources);
+        $pagecount = (int) ceil($total / self::PER_PAGE);
+        $page = max(0, $this->page);
+        if ($pagecount > 0 && $page >= $pagecount) {
+            $page = $pagecount - 1;
+        }
+
+        $pageresources = array_slice($resources, $page * self::PER_PAGE, self::PER_PAGE);
+
+        $baseurl = new \moodle_url('/mod/tarsuszero/view.php', ['id' => $this->cmid]);
+        $pagingbar = $output->render(new \paging_bar($total, $page, self::PER_PAGE, $baseurl));
 
         $indexurl = new \moodle_url('/mod/tarsuszero/view.php', [
             'id' => $this->cmid,
@@ -87,8 +102,10 @@ class teacher_dashboard implements renderable, templatable {
             'cmid' => $this->cmid,
             'canmanage' => $this->canmanage,
             'indexurl' => $indexurl->out(false),
-            'hasactivities' => !empty($activities),
-            'activities' => $activities,
+            'hasactivities' => $total > 0,
+            'resources' => $pageresources,
+            'hasmultiplepages' => $pagecount > 1,
+            'pagingbar' => $pagingbar,
         ];
     }
 }

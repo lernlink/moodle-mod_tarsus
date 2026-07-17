@@ -29,6 +29,7 @@ use mod_tarsuszero\output\teacher_dashboard;
 
 $id = required_param('id', PARAM_INT); // Course module id.
 $action = optional_param('action', '', PARAM_ALPHA);
+$page = optional_param('page', 0, PARAM_INT); // Zero-based reconciliation page.
 
 $cm = get_coursemodule_from_id('tarsuszero', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
@@ -75,7 +76,7 @@ if (trim($moduleinstance->intro ?? '') !== '') {
 }
 
 if ($canmanage) {
-    $dashboard = new teacher_dashboard($cm->id, (int) $course->id, $canmanage);
+    $dashboard = new teacher_dashboard($cm->id, (int) $course->id, $canmanage, $page);
     echo $OUTPUT->render_from_template(
         'mod_tarsuszero/teacher_dashboard',
         $dashboard->export_for_template($OUTPUT)

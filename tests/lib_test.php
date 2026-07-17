@@ -93,13 +93,51 @@ final class lib_test extends \advanced_testcase {
 
         $this->assertTrue($context['canmanage']);
         $this->assertTrue($context['hasactivities']);
-        $this->assertNotEmpty($context['activities']);
-        $bit = $context['activities'][0]['bits'][0];
+        $this->assertNotEmpty($context['resources']);
+        $bit = $context['resources'][0];
         $this->assertSame('badge-light', $bit['badgeclass']);
         $this->assertNotEmpty($bit['resourceid']);
         $this->assertTrue($bit['canindex']);
         $this->assertFalse($bit['canremove']);
         $this->assertTrue($bit['hasurl']);
+        $this->assertFalse($context['hasmultiplepages']);
         $this->assertStringContainsString('action=indexcourse', $context['indexurl']);
+    }
+
+    /**
+     * The reconciliation list pages at ten materials, exposing a paging bar.
+     *
+     * @return void
+     */
+    public function test_dashboard_pages_materials(): void {
+        global $PAGE;
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        for ($i = 0; $i < 12; $i++) {
+            $this->getDataGenerator()->create_module('page', [
+                'course' => $course->id,
+                'content' => '<p>Body ' . $i . '</p>',
+                'contentformat' => FORMAT_HTML,
+            ]);
+        }
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+
+        // First page: capped at ten materials, with a paging bar shown.
+        $first = (new teacher_dashboard($tz->cmid, (int) $course->id, true, 0))
+            ->export_for_template($PAGE->get_renderer('core'));
+        $this->assertCount(10, $first['resources']);
+        $this->assertTrue($first['hasmultiplepages']);
+        $this->assertNotEmpty($first['pagingbar']);
+
+        // Second page: the remaining materials.
+        $second = (new teacher_dashboard($tz->cmid, (int) $course->id, true, 1))
+            ->export_for_template($PAGE->get_renderer('core'));
+        $this->assertCount(2, $second['resources']);
+
+        // Out-of-range pages clamp to the last available page.
+        $clamped = (new teacher_dashboard($tz->cmid, (int) $course->id, true, 99))
+            ->export_for_template($PAGE->get_renderer('core'));
+        $this->assertCount(2, $clamped['resources']);
     }
 }
