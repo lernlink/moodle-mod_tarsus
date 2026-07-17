@@ -111,24 +111,26 @@
                                 </div>
                                 {{/caninclude}}
                             </td>
-                            <td class="text-nowrap">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <button type="button" class="btn btn-outline-primary" data-action="index"
-                                            {{^canindex}}hidden{{/canindex}}>
+                            <td>
+                                <div style="min-width:9rem">
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100"
+                                            data-action="index" {{^canindex}}hidden{{/canindex}}>
                                         {{#str}}action_index, mod_tarsuszero{{/str}}
                                     </button>
-                                    <button type="button" class="btn btn-outline-secondary" data-action="reindex"
-                                            {{^canreindex}}hidden{{/canreindex}}>
-                                        {{#str}}action_reindex, mod_tarsuszero{{/str}}
-                                    </button>
-                                    <button type="button" class="btn btn-outline-warning" data-action="retry"
-                                            {{^canretry}}hidden{{/canretry}}>
-                                        {{#str}}action_retry, mod_tarsuszero{{/str}}
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger" data-action="remove"
-                                            {{^canremove}}hidden{{/canremove}}>
-                                        {{#str}}action_remove, mod_tarsuszero{{/str}}
-                                    </button>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill"
+                                                data-action="reindex" {{^canreindex}}hidden{{/canreindex}}>
+                                            {{#str}}action_reindex, mod_tarsuszero{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning flex-fill"
+                                                data-action="retry" {{^canretry}}hidden{{/canretry}}>
+                                            {{#str}}action_retry, mod_tarsuszero{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
+                                                data-action="remove" {{^canremove}}hidden{{/canremove}}>
+                                            {{#str}}action_remove, mod_tarsuszero{{/str}}
+                                        </button>
+                                    </div>
                                 </div>
                             </td>
                         {{/canmanage}}
