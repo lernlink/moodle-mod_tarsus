@@ -277,8 +277,9 @@ const bulkIndex = (root) => {
  * Reconcile the current page against the brain in one batch call.
  *
  * @param {Element} root The dashboard root element.
+ * @param {boolean} silent Whether to swallow failures instead of alerting.
  */
-const bulkSync = (root) => {
+const bulkSync = (root, silent) => {
     const resourceids = pageResourceIds(root);
     if (!resourceids.length) {
         return;
@@ -294,6 +295,11 @@ const bulkSync = (root) => {
         return null;
     }).catch((error) => {
         setBulkBusy(root, false);
+        if (silent) {
+            // A guardrail or a brain outage must not greet the teacher with a modal.
+            window.console.debug('tarsus: page status sync failed', error);
+            return;
+        }
         Notification.exception(error);
     });
 };
@@ -310,7 +316,7 @@ const handleClick = (root, event) => {
         if (bulk.getAttribute('data-bulk') === 'index') {
             bulkIndex(root);
         } else {
-            bulkSync(root);
+            bulkSync(root, false);
         }
         return;
     }
@@ -370,4 +376,8 @@ export const init = (id, rootSelector) => {
     if (hasInflight(root)) {
         startPolling(root);
     }
+
+    // The brain answers a whole page in one call, so the listed statuses are
+    // read live on open rather than waiting for the next cron run.
+    bulkSync(root, true);
 };
