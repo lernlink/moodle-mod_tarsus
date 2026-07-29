@@ -65,4 +65,12 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_sync_page_status' => [
+        'classname'   => 'mod_tarsuszero\external\sync_page_status',
+        'methodname'  => 'execute',
+        'description' => 'Reconcile one page of course material against the brain in a single batch call.',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
 ];

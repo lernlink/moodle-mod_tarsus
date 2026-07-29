@@ -42,6 +42,12 @@ $string['col_type'] = 'Type';
 $string['col_status'] = 'Status';
 $string['col_included'] = 'Included';
 $string['col_actions'] = 'Actions';
+
+// Bulk actions on the current page.
+$string['bulk_index'] = 'Index this page';
+$string['bulk_sync'] = 'Sync this page with the brain';
+$string['bulk_help'] = 'Bulk actions apply only to the materials listed on this page. The brain answers up to 10 resources per call, so one page costs one call.';
+$string['toomanyresources'] = 'Too many resources in one batch: at most {$a} may be checked per call.';
 $string['included_on'] = 'Included in this activity';
 $string['included_off'] = 'Excluded from this activity';
 $string['invalidinclusion'] = 'Only indexed resources can be included in an activity.';

@@ -62,6 +62,21 @@
 }}
 <div class="mod-tarsuszero-dashboard" data-region="tarsus-dashboard" data-cmid="{{cmid}}">
     {{#hasactivities}}
+        {{#canmanage}}
+            <div class="d-flex flex-wrap gap-2 mb-3" data-region="tarsus-bulk">
+                <button type="button" class="btn btn-sm btn-primary" data-bulk="index">
+                    {{#str}}bulk_index, mod_tarsuszero{{/str}}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bulk="sync">
+                    {{#str}}bulk_sync, mod_tarsuszero{{/str}}
+                </button>
+                <span class="spinner-border spinner-border-sm text-muted align-self-center" role="status"
+                      data-region="tarsus-bulk-spinner" hidden>
+                    <span class="sr-only">{{#str}}loading, core{{/str}}</span>
+                </span>
+            </div>
+            <p class="text-muted small">{{#str}}bulk_help, mod_tarsuszero{{/str}}</p>
+        {{/canmanage}}
         <table class="table table-striped">
             <thead>
                 <tr>

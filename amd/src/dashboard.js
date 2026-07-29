@@ -31,6 +31,8 @@ import {get_string as getString} from 'core/str';
 const SELECTORS = {
     RESOURCE_ROW: '[data-region="tarsus-resource"]',
     ACTION_BUTTON: '[data-action]',
+    BULK_BUTTON: '[data-bulk]',
+    BULK_SPINNER: '[data-region="tarsus-bulk-spinner"]',
     STATUS_BADGE: '[data-region="status-badge"]',
     STATUS_SPINNER: '[data-region="status-spinner"]',
     INCLUDE_CELL: '[data-region="tarsus-include-cell"]',
@@ -194,12 +196,125 @@ const sendInclusion = (row, checkbox) => {
 };
 
 /**
+ * The resource ids of every row rendered on the current page.
+ *
+ * @param {Element} root The dashboard root element.
+ * @return {string[]}
+ */
+const pageResourceIds = (root) => {
+    return Array.from(root.querySelectorAll(SELECTORS.RESOURCE_ROW))
+        .map((row) => row.getAttribute('data-resourceid'));
+};
+
+/**
+ * Toggle the busy state of the bulk toolbar.
+ *
+ * @param {Element} root The dashboard root element.
+ * @param {boolean} busy Whether a bulk call is in flight.
+ */
+const setBulkBusy = (root, busy) => {
+    root.querySelectorAll(SELECTORS.BULK_BUTTON).forEach((button) => {
+        button.disabled = busy;
+    });
+    const spinner = root.querySelector(SELECTORS.BULK_SPINNER);
+    if (spinner) {
+        spinner.hidden = !busy;
+    }
+};
+
+/**
+ * Apply a list of presentational payloads to their matching rows.
+ *
+ * @param {Element} root The dashboard root element.
+ * @param {Object[]} resources The presentational payloads.
+ */
+const updateRows = (root, resources) => {
+    resources.forEach((data) => {
+        const row = root.querySelector(
+            SELECTORS.RESOURCE_ROW + '[data-resourceid="' + CSS.escape(data.resourceid) + '"]'
+        );
+        if (row) {
+            updateRow(row, data);
+        }
+    });
+};
+
+/**
+ * Queue every indexable row on the current page in a single request.
+ *
+ * core/ajax batches the calls, so one page costs one round trip.
+ *
+ * @param {Element} root The dashboard root element.
+ */
+const bulkIndex = (root) => {
+    const calls = Array.from(root.querySelectorAll(SELECTORS.RESOURCE_ROW))
+        .filter((row) => {
+            const button = row.querySelector('[data-action="index"]');
+            return button && !button.hidden;
+        })
+        .map((row) => ({
+            methodname: 'mod_tarsuszero_set_resource_action',
+            args: {cmid: cmid, resourceid: row.getAttribute('data-resourceid'), action: 'index'},
+        }));
+
+    if (!calls.length) {
+        return;
+    }
+
+    setBulkBusy(root, true);
+    Promise.all(Ajax.call(calls)).then((results) => {
+        updateRows(root, results);
+        setBulkBusy(root, false);
+        startPolling(root);
+        return null;
+    }).catch((error) => {
+        setBulkBusy(root, false);
+        Notification.exception(error);
+    });
+};
+
+/**
+ * Reconcile the current page against the brain in one batch call.
+ *
+ * @param {Element} root The dashboard root element.
+ */
+const bulkSync = (root) => {
+    const resourceids = pageResourceIds(root);
+    if (!resourceids.length) {
+        return;
+    }
+
+    setBulkBusy(root, true);
+    Ajax.call([{
+        methodname: 'mod_tarsuszero_sync_page_status',
+        args: {cmid: cmid, resourceids: resourceids},
+    }])[0].then((response) => {
+        updateRows(root, response.resources);
+        setBulkBusy(root, false);
+        return null;
+    }).catch((error) => {
+        setBulkBusy(root, false);
+        Notification.exception(error);
+    });
+};
+
+/**
  * Handle a click on an action button via event delegation.
  *
  * @param {Element} root The dashboard root element.
  * @param {Event} event The click event.
  */
 const handleClick = (root, event) => {
+    const bulk = event.target.closest(SELECTORS.BULK_BUTTON);
+    if (bulk && !bulk.disabled) {
+        if (bulk.getAttribute('data-bulk') === 'index') {
+            bulkIndex(root);
+        } else {
+            bulkSync(root);
+        }
+        return;
+    }
+
     const button = event.target.closest(SELECTORS.ACTION_BUTTON);
     if (!button || button.disabled) {
         return;

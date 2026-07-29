@@ -42,6 +42,12 @@ $string['col_type'] = 'Typ';
 $string['col_status'] = 'Status';
 $string['col_included'] = 'Einbezogen';
 $string['col_actions'] = 'Aktionen';
+
+// Sammelaktionen für die aktuelle Seite.
+$string['bulk_index'] = 'Diese Seite indexieren';
+$string['bulk_sync'] = 'Diese Seite mit dem Brain abgleichen';
+$string['bulk_help'] = 'Sammelaktionen gelten nur für die auf dieser Seite gelisteten Materialien. Das Brain beantwortet bis zu 10 Ressourcen pro Aufruf, eine Seite kostet also einen Aufruf.';
+$string['toomanyresources'] = 'Zu viele Ressourcen in einem Stapel: höchstens {$a} pro Aufruf.';
 $string['included_on'] = 'In dieser Aktivität einbezogen';
 $string['included_off'] = 'Aus dieser Aktivität ausgeschlossen';
 $string['invalidinclusion'] = 'Nur indexierte Ressourcen können in eine Aktivität einbezogen werden.';
