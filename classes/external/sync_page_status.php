@@ -26,6 +26,7 @@ use core_external\external_value;
 use context_module;
 use local_tarsus\client\client_interface;
 use local_tarsus\guardrail\blocked_exception;
+use local_tarsus\index\deletion_sweeper;
 use local_tarsus\index\repository;
 use local_tarsus\index\status;
 use local_tarsus\index\status_sync;
@@ -96,6 +97,11 @@ class sync_page_status extends external_api {
         } catch (blocked_exception $e) {
             throw new moodle_exception('blocked_' . $e->reason, 'local_tarsus');
         }
+
+        // Deliveries that failed when their content left Moodle have nowhere
+        // else to be retried from: the activity is gone, so it appears on no
+        // list and offers no button. This is the moment to finish them.
+        deletion_sweeper::sweep();
 
         return ['resources' => self::present($params['resourceids'])];
     }
