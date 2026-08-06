@@ -60,10 +60,11 @@ class status_presenter {
      * @return bool
      */
     public static function is_inflight(string $status): bool {
+        // pendingreindex is not in flight: with no background queue it is a
+        // stable "content changed" state that waits for the teacher to act.
         return in_array($status, [
             status::PENDING,
             status::PENDING_CONFIRMATION,
-            status::PENDING_REINDEX,
             status::PENDING_DELETION,
         ], true);
     }
@@ -78,6 +79,7 @@ class status_presenter {
         return match ($status) {
             status::NOT_INDEXED => ['index'],
             status::INDEXED => ['reindex', 'remove'],
+            status::PENDING_REINDEX => ['reindex', 'remove'],
             status::ERROR => ['retry', 'remove'],
             default => [],
         };

@@ -53,20 +53,41 @@ final class resource_action_test extends \advanced_testcase {
     }
 
     /**
-     * Indexing a not-indexed resource moves it to a pending, in-flight state.
+     * Indexing a text bit runs the light upload inline: the click already
+     * returns the awaiting-confirmation state, not just "queued".
      *
      * @return void
      */
-    public function test_index_action_queues_resource(): void {
+    public function test_index_action_uploads_inline(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
         $data = $this->setup_course();
 
         $result = set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'index');
 
-        $this->assertSame(status::PENDING, $result['status']);
+        $this->assertSame(status::PENDING_CONFIRMATION, $result['status']);
         $this->assertTrue($result['inflight']);
         $this->assertFalse($result['canindex']);
+    }
+
+    /**
+     * Removing an indexed resource untracks it within the same click.
+     *
+     * @return void
+     */
+    public function test_remove_action_untracks_inline(): void {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $data = $this->setup_course();
+
+        set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'index');
+        (new \local_tarsus\index\repository())->mark_indexed($data['resourceid'], 'bit-1', 'hash-1');
+
+        $result = set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'remove');
+
+        $this->assertSame(status::NOT_INDEXED, $result['status']);
+        $this->assertTrue($result['canindex']);
+        $this->assertNull((new \local_tarsus\index\repository())->get($data['resourceid']));
     }
 
     /**
@@ -87,7 +108,31 @@ final class resource_action_test extends \advanced_testcase {
             return $row['resourceid'] === $data['resourceid'];
         });
         $this->assertCount(1, $found);
-        $this->assertSame(status::PENDING, reset($found)['status']);
+        $this->assertSame(status::PENDING_CONFIRMATION, reset($found)['status']);
+    }
+
+    /**
+     * A blocked action surfaces the reason and reverts the row.
+     *
+     * @return void
+     */
+    public function test_blocked_action_surfaces_and_reverts(): void {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $data = $this->setup_course();
+
+        set_config('killswitch', 1, 'local_tarsus');
+
+        try {
+            set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'index');
+            $this->fail('Expected the kill switch to block the action.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('blocked_killswitch', $e->errorcode);
+        }
+
+        // The row must not stay mid-flight: the Index action is available again.
+        $row = (new \local_tarsus\index\repository())->get($data['resourceid']);
+        $this->assertSame(status::NOT_INDEXED, $row->status);
     }
 
     /**

@@ -16,9 +16,10 @@
 /**
  * Per-resource index actions for the teacher dashboard.
  *
- * Wires the Index / Re-index / Remove / Retry buttons to AJAX calls and polls
- * the brain status while any resource is mid-flight so badges and buttons stay
- * live without a page reload.
+ * Wires the Index / Re-index / Remove / Retry buttons to AJAX calls. Every
+ * action runs synchronously on the server, so the response already carries
+ * the final row state. There is no background polling: the page reconciles
+ * against the brain once on open and whenever the sync button is pressed.
  *
  * @module     mod_tarsuszero/dashboard
  * @copyright  2026 lern.link GmbH
@@ -43,10 +44,7 @@ const BADGE_CLASSES = [
     'badge-light', 'badge-warning', 'badge-secondary', 'badge-success', 'badge-danger',
 ];
 
-const POLL_INTERVAL = 4000;
-
 let cmid = 0;
-let pollTimer = null;
 
 /**
  * Apply a presentational payload to a single resource row.
@@ -81,71 +79,16 @@ const updateRow = (row, data) => {
 };
 
 /**
- * Whether any visible row is still mid-flight.
- *
- * @param {Element} root The dashboard root element.
- * @return {boolean}
- */
-const hasInflight = (root) => {
-    return Array.from(root.querySelectorAll(SELECTORS.STATUS_SPINNER))
-        .some((spinner) => !spinner.hidden);
-};
-
-/**
- * Poll the brain status and refresh every row, stopping when all are settled.
- *
- * @param {Element} root The dashboard root element.
- */
-const poll = (root) => {
-    Ajax.call([{
-        methodname: 'mod_tarsuszero_get_index_status',
-        args: {cmid: cmid},
-    }])[0].then((response) => {
-        response.resources.forEach((data) => {
-            const row = root.querySelector(
-                SELECTORS.RESOURCE_ROW + '[data-resourceid="' + CSS.escape(data.resourceid) + '"]'
-            );
-            if (row) {
-                updateRow(row, data);
-            }
-        });
-        if (!hasInflight(root)) {
-            stopPolling();
-        }
-        return response;
-    }).catch(Notification.exception);
-};
-
-/**
- * Start the polling loop if it is not already running.
- *
- * @param {Element} root The dashboard root element.
- */
-const startPolling = (root) => {
-    if (pollTimer === null) {
-        pollTimer = window.setInterval(() => poll(root), POLL_INTERVAL);
-    }
-};
-
-/**
- * Stop the polling loop.
- */
-const stopPolling = () => {
-    if (pollTimer !== null) {
-        window.clearInterval(pollTimer);
-        pollTimer = null;
-    }
-};
-
-/**
  * Send a single resource action to the server and refresh the row.
  *
- * @param {Element} root The dashboard root element.
+ * The server processes the action synchronously, so the response is the
+ * row's final state, not an intermediate "queued" one.
+ *
  * @param {Element} row The resource row element.
  * @param {string} resourceid The namespaced resource id.
  * @param {string} action The action verb.
  */
-const sendAction = (root, row, resourceid, action) => {
+const sendAction = (row, resourceid, action) => {
     row.querySelectorAll(SELECTORS.ACTION_BUTTON).forEach((button) => {
         button.disabled = true;
     });
@@ -155,9 +98,6 @@ const sendAction = (root, row, resourceid, action) => {
         args: {cmid: cmid, resourceid: resourceid, action: action},
     }])[0].then((data) => {
         updateRow(row, data);
-        if (data.inflight) {
-            startPolling(root);
-        }
         return data;
     }).catch((error) => {
         row.querySelectorAll(SELECTORS.ACTION_BUTTON).forEach((button) => {
@@ -240,37 +180,47 @@ const updateRows = (root, resources) => {
 };
 
 /**
- * Queue every indexable row on the current page in a single request.
+ * Index every indexable row on the current page, one request at a time.
  *
- * core/ajax batches the calls, so one page costs one round trip.
+ * Each action is processed synchronously on the server, so batching all
+ * rows into one request would serialise every upload into a single long
+ * request and risk web server limits. Sequential requests keep each one
+ * short and let the rows update as they complete.
  *
  * @param {Element} root The dashboard root element.
  */
 const bulkIndex = (root) => {
-    const calls = Array.from(root.querySelectorAll(SELECTORS.RESOURCE_ROW))
+    const rows = Array.from(root.querySelectorAll(SELECTORS.RESOURCE_ROW))
         .filter((row) => {
             const button = row.querySelector('[data-action="index"]');
             return button && !button.hidden;
-        })
-        .map((row) => ({
-            methodname: 'mod_tarsuszero_set_resource_action',
-            args: {cmid: cmid, resourceid: row.getAttribute('data-resourceid'), action: 'index'},
-        }));
+        });
 
-    if (!calls.length) {
+    if (!rows.length) {
         return;
     }
 
     setBulkBusy(root, true);
-    Promise.all(Ajax.call(calls)).then((results) => {
-        updateRows(root, results);
-        setBulkBusy(root, false);
-        startPolling(root);
-        return null;
-    }).catch((error) => {
-        setBulkBusy(root, false);
-        Notification.exception(error);
-    });
+    const runNext = (queue) => {
+        if (!queue.length) {
+            setBulkBusy(root, false);
+            return;
+        }
+        const row = queue.shift();
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_set_resource_action',
+            args: {cmid: cmid, resourceid: row.getAttribute('data-resourceid'), action: 'index'},
+        }])[0].then((data) => {
+            updateRow(row, data);
+            runNext(queue);
+            return data;
+        }).catch((error) => {
+            // Keep going: one failed resource must not stall the rest.
+            window.console.debug('tarsus: bulk index failed for a row', error);
+            runNext(queue);
+        });
+    };
+    runNext(rows);
 };
 
 /**
@@ -339,7 +289,7 @@ const handleClick = (root, event) => {
             getString('action_remove', 'mod_tarsuszero'),
         ]).then(([title, body, yes]) => {
             Notification.saveCancelPromise(title, body, yes).then(() => {
-                sendAction(root, row, resourceid, action);
+                sendAction(row, resourceid, action);
                 return null;
             }).catch(() => null);
             return null;
@@ -347,7 +297,7 @@ const handleClick = (root, event) => {
         return;
     }
 
-    sendAction(root, row, resourceid, action);
+    sendAction(row, resourceid, action);
 };
 
 /**
@@ -373,11 +323,8 @@ export const init = (id, rootSelector) => {
             sendInclusion(row, toggle);
         }
     });
-    if (hasInflight(root)) {
-        startPolling(root);
-    }
-
     // The brain answers a whole page in one call, so the listed statuses are
-    // read live on open rather than waiting for the next cron run.
+    // read live on open. There is no background polling: pressing the sync
+    // button (or reloading) is the explicit way to refresh afterwards.
     bulkSync(root, true);
 };

@@ -23,6 +23,7 @@ use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use context_module;
+use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\index\repository;
 use local_tarsus\index\status;
 use local_tarsus\indexer;
@@ -91,7 +92,7 @@ class set_resource_action extends external_api {
         }
 
         $indexer = new indexer();
-        $queued = match ($params['action']) {
+        $marked = match ($params['action']) {
             'index' => $indexer->index_resource($params['resourceid']),
             'reindex' => $indexer->reindex_resource($params['resourceid']),
             'remove' => $indexer->remove_resource($params['resourceid']),
@@ -99,9 +100,21 @@ class set_resource_action extends external_api {
             default => false,
         };
 
-        if (!$queued) {
+        if (!$marked) {
             throw new moodle_exception('actionfailed', 'mod_tarsuszero');
         }
+
+        // The whole action runs inside this request — no background queue.
+        // Allow a slow file upload to finish (the client caps uploads at
+        // 300 seconds), then execute; on failure the row is reverted by
+        // execute_now() and the reason surfaces to the teacher.
+        \core_php_time_limit::raise(330);
+        try {
+            $indexer->execute_now($params['resourceid']);
+        } catch (blocked_exception $e) {
+            throw new moodle_exception('blocked_' . $e->reason, 'local_tarsus');
+        }
+        // A transport_exception is a moodle_exception already and surfaces as-is.
 
         $row = (new repository())->get($params['resourceid']);
         $newstatus = $row->status ?? status::NOT_INDEXED;
