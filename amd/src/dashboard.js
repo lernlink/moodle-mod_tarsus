@@ -76,6 +76,17 @@ const updateRow = (row, data) => {
         button.hidden = !map[action];
         button.disabled = false;
     });
+
+    // The inclusion switch follows the live status: only indexed content may
+    // be in an activity's scope, and content that left the brain leaves the
+    // scope with it.
+    const toggle = row.querySelector(SELECTORS.INCLUDE_TOGGLE);
+    if (toggle) {
+        toggle.disabled = !data.caninclude;
+        if (!data.caninclude) {
+            toggle.checked = false;
+        }
+    }
 };
 
 /**

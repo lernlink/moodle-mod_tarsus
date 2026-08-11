@@ -106,14 +106,13 @@
                         </td>
                         {{#canmanage}}
                             <td>
-                                {{#caninclude}}
                                 <div class="form-check form-switch mb-0" data-region="tarsus-include-cell">
                                     <input class="form-check-input" type="checkbox" role="switch"
                                            data-region="tarsus-include-toggle"
                                            aria-label="{{#str}}col_included, mod_tarsuszero{{/str}}"
-                                           {{#isincluded}}checked{{/isincluded}}>
+                                           {{#isincluded}}checked{{/isincluded}}
+                                           {{^caninclude}}disabled{{/caninclude}}>
                                 </div>
-                                {{/caninclude}}
                             </td>
                             <td>
                                 <div style="min-width:9rem">

@@ -65,6 +65,7 @@ $string['confirmremove_body'] = 'Dieses Material wird aus dem Brain entfernt und
 $string['invalidaction'] = 'Unbekannte Index-Aktion angefordert.';
 $string['invalidresource'] = 'Die Ressource gehört nicht zu diesem Kurs.';
 $string['actionfailed'] = 'Die angeforderte Aktion konnte nicht auf diese Ressource angewendet werden.';
+$string['includenotindexed'] = 'Nur indexierte Ressourcen können einbezogen werden. Zuerst indexieren, dann einschalten.';
 
 // Learner RAG chat UI strings.
 $string['send'] = 'Senden';
@@ -72,6 +73,7 @@ $string['sources'] = 'Quellen';
 $string['chat_placeholder'] = 'Stelle eine Frage zu den Kursmaterialien...';
 $string['loading_history'] = 'Unterhaltungshistorie wird geladen...';
 $string['chat_welcome'] = 'Hallo! Ich bin dein Tarsus-Zero-Assistent. Stelle mir eine Frage zu deinen Kursunterlagen, und ich suche fundierte Antworten für dich heraus!';
+$string['chat_noscope'] = 'Diesem Assistenten stehen noch keine Materialien zur Verfügung. Eine Lehrkraft muss zuerst Kursinhalte indexieren und in der Spalte "Einbezogen" einschalten.';
 $string['guardrail_blocked_killswitch'] = 'Schnittstellenaufrufe sind derzeit von Systemadministratoren deaktiviert.';
 $string['guardrail_blocked_breaker'] = 'Das Tarsus-System ist überlastet und ruht kurzzeitig. Bitte versuche es in wenigen Minuten noch einmal.';
 $string['guardrail_blocked_budget'] = 'Die täglichen Budget-Guthaben für diesen Bereich sind aufgebraucht. Bitte versuche es morgen erneut.';

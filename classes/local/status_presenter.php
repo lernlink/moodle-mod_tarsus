@@ -108,6 +108,8 @@ class status_presenter {
             'canreindex' => in_array('reindex', $actions, true),
             'canremove' => in_array('remove', $actions, true),
             'canretry' => in_array('retry', $actions, true),
+            // Only content the brain holds may be put in an activity's scope.
+            'caninclude' => $status === status::INDEXED,
         ];
     }
 }

@@ -65,6 +65,7 @@ $string['confirmremove_body'] = 'This material will be removed from the Brain an
 $string['invalidaction'] = 'Unknown index action requested.';
 $string['invalidresource'] = 'The resource does not belong to this course.';
 $string['actionfailed'] = 'The requested action could not be applied to this resource.';
+$string['includenotindexed'] = 'Only indexed resources can be included. Index it first, then switch it on.';
 
 // Learner RAG chat UI strings.
 $string['send'] = 'Send';
@@ -72,6 +73,7 @@ $string['sources'] = 'Sources';
 $string['chat_placeholder'] = 'Ask a question about the course materials...';
 $string['loading_history'] = 'Loading conversation history...';
 $string['chat_welcome'] = 'Hello! I am your Tarsus Zero virtual assistant. Ask me anything about your course materials, and I will find grounded answers for you!';
+$string['chat_noscope'] = 'No materials are available to this assistant yet. A teacher has to index course content and switch it on in the Included column first.';
 $string['guardrail_blocked_killswitch'] = 'API calls are disabled by system administrators at the moment.';
 $string['guardrail_blocked_breaker'] = 'The Tarsus system is undergoing high latency and is temporarily resting. Please try again in a few minutes.';
 $string['guardrail_blocked_budget'] = 'Daily query budget limits reached for this context. Pleases try again tomorrow.';

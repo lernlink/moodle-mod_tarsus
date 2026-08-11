@@ -70,6 +70,8 @@ class set_resource_action extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid, string $resourceid, string $action): array {
+        global $DB;
+
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid' => $cmid,
             'resourceid' => $resourceid,
@@ -117,6 +119,15 @@ class set_resource_action extends external_api {
         // A transport_exception is a moodle_exception already and surfaces as-is.
 
         $row = (new repository())->get($params['resourceid']);
+
+        // A resource that really left the brain leaves every activity's
+        // inclusion set with it: keeping the choice would silently resurrect
+        // it on a later re-index. (Chat filters at read time as well, so
+        // rows removed by observers are equally harmless.)
+        if ($params['action'] === 'remove' && $row === null) {
+            $DB->delete_records('tarsuszero_inclusions', ['resourceid' => $params['resourceid']]);
+        }
+
         $newstatus = $row->status ?? status::NOT_INDEXED;
 
         return status_presenter::present(
@@ -142,6 +153,7 @@ class set_resource_action extends external_api {
             'canreindex' => new external_value(PARAM_BOOL, 'Whether the re-index action is available.'),
             'canremove' => new external_value(PARAM_BOOL, 'Whether the remove action is available.'),
             'canretry' => new external_value(PARAM_BOOL, 'Whether the retry action is available.'),
+            'caninclude' => new external_value(PARAM_BOOL, 'Whether the resource may be included in an activity scope.'),
         ]);
     }
 }

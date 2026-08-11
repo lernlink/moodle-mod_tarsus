@@ -17,7 +17,6 @@
 namespace mod_tarsuszero\output;
 
 use local_tarsus\index\course_report;
-use local_tarsus\index\status;
 use mod_tarsuszero\local\status_presenter;
 use renderable;
 use renderer_base;
@@ -82,7 +81,6 @@ class teacher_dashboard implements renderable, templatable {
                     $bit['status'],
                     $bit['statuslabel']
                 );
-                $isindexed = ($bit['status'] === status::INDEXED);
                 $resources[] = $controls + [
                     'name' => $activity['name'],
                     'modname' => $activity['modname'],
@@ -90,8 +88,9 @@ class teacher_dashboard implements renderable, templatable {
                     'type' => $bit['type'],
                     'url' => $activity['url'],
                     'hasurl' => !empty($activity['url']),
-                    'caninclude' => $isindexed,
-                    'isincluded' => $isindexed && isset($includedset[$bit['resourceid']]),
+                    // caninclude comes from the presenter; the stored choice
+                    // only counts while the resource is actually indexed.
+                    'isincluded' => $controls['caninclude'] && isset($includedset[$bit['resourceid']]),
                 ];
             }
         }

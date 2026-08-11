@@ -28,6 +28,10 @@ use local_tarsus\client\client_factory;
 use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
+use local_tarsus\index\repository;
+use local_tarsus\index\status;
+use local_tarsus\material\resolver;
+use local_tarsus\pseudonymizer;
 use local_tarsus\usage_meter;
 use moodle_exception;
 
@@ -82,25 +86,37 @@ class send_chat_message extends external_api {
 
         require_capability('mod/tarsuszero:view', $context);
 
+        // The answer may only be grounded in what the teacher included in
+        // this activity — and of that, only what is actually live in the
+        // brain right now. An empty scope must never reach the API: the
+        // brain reads an empty restriction list as "search everything",
+        // which would cross course boundaries on the shared brain.
+        $allowed = self::allowed_resource_ids((int) $cm->instance);
+        if ($allowed === []) {
+            return [
+                'status'  => 'noscope',
+                'answer'  => '',
+                'sources' => [],
+                'error'   => get_string('chat_noscope', 'mod_tarsuszero'),
+            ];
+        }
+
         // Grounded answers cost ~6 credits according to spec.
         $estimatedcredits = 6;
 
         $client   = client_factory::get_client();
         $pipeline = new pipeline();
-
-        // The query operates in the course context to maintain course-level isolation inside the shared brain.
-        // Form context namespace string (course context).
         $coursecontext = \context_course::instance($cm->course);
-        $namespacescope = 'course:' . $coursecontext->id;
+        $pseudonym = pseudonymizer::pseudonymize((int) $USER->id);
 
         try {
             // Outbound API request through the guardrail pipeline.
-            $response = $pipeline->execute(function() use ($client, $namespacescope, $querytext) {
-                return $client->search_grounded($namespacescope, $querytext);
+            $response = $pipeline->execute(function() use ($client, $querytext, $pseudonym, $allowed) {
+                return $client->search_grounded($querytext, $pseudonym, $allowed);
             }, $estimatedcredits);
 
             $answer  = (string) ($response['answer'] ?? '');
-            $sources = $response['sources'] ?? [];
+            $sources = self::present_sources($response['sources'] ?? []);
             $credits = (int) ($response['credits'] ?? 6);
 
             // Record local context-level usage.
@@ -118,18 +134,10 @@ class send_chat_message extends external_api {
 
             $chat->id = $DB->insert_record('tarsuszero_chats', $chat);
 
-            $formatted_sources = [];
-            foreach ($sources as $src) {
-                $formatted_sources[] = [
-                    'title'      => (string) ($src['title'] ?? ''),
-                    'resourceid' => (string) ($src['resourceid'] ?? ''),
-                ];
-            }
-
             return [
                 'status'  => 'success',
                 'answer'  => $answer,
-                'sources' => $formatted_sources,
+                'sources' => $sources,
                 'error'   => '',
             ];
 
@@ -153,13 +161,72 @@ class send_chat_message extends external_api {
     }
 
     /**
+     * The resource ids allowed to ground this activity's answers.
+     *
+     * The teacher's inclusion set, filtered down to rows the brain actually
+     * holds right now. Filtering at read time means a resource that was
+     * removed or replaced after being included silently drops out of scope —
+     * no cleanup ordering to get wrong.
+     *
+     * @param int $tarsuszeroid The activity instance id.
+     * @return string[] Namespaced resource ids, possibly empty.
+     */
+    private static function allowed_resource_ids(int $tarsuszeroid): array {
+        global $DB;
+
+        $included = $DB->get_fieldset_select(
+            'tarsuszero_inclusions',
+            'resourceid',
+            'tarsuszeroid = :tid',
+            ['tid' => $tarsuszeroid]
+        );
+
+        $repo = new repository();
+        $allowed = [];
+        foreach ($included as $resourceid) {
+            $row = $repo->get($resourceid);
+            if ($row !== null && $row->status === status::INDEXED) {
+                $allowed[] = $resourceid;
+            }
+        }
+
+        return $allowed;
+    }
+
+    /**
+     * Shape sources for the client, filling titles in from local material.
+     *
+     * The brain returns bare source ids; the human-readable name lives on
+     * our side of the fence.
+     *
+     * @param array $sources Sources as returned by the client.
+     * @return array<int, array{title: string, resourceid: string}>
+     */
+    private static function present_sources(array $sources): array {
+        $resolver = new resolver();
+
+        $formatted = [];
+        foreach ($sources as $src) {
+            $resourceid = (string) ($src['resourceid'] ?? '');
+            $title = (string) ($src['title'] ?? '');
+            if ($title === '' && $resourceid !== '') {
+                $material = $resolver->resolve_by_resource_id($resourceid);
+                $title = $material !== null ? $material->title : $resourceid;
+            }
+            $formatted[] = ['title' => $title, 'resourceid' => $resourceid];
+        }
+
+        return $formatted;
+    }
+
+    /**
      * Declares return structure.
      *
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status'  => new external_value(PARAM_ALPHA, 'Status (success, blocked, error).'),
+            'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
             'answer'  => new external_value(PARAM_RAW, 'The grounded answer.'),
             'sources' => new external_multiple_structure(
                 new external_single_structure([

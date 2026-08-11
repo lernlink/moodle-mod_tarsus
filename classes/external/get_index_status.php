@@ -98,6 +98,7 @@ class get_index_status extends external_api {
                     'canreindex' => new external_value(PARAM_BOOL, 'Whether the re-index action is available.'),
                     'canremove' => new external_value(PARAM_BOOL, 'Whether the remove action is available.'),
                     'canretry' => new external_value(PARAM_BOOL, 'Whether the retry action is available.'),
+                    'caninclude' => new external_value(PARAM_BOOL, 'Whether the resource may be included in an activity scope.'),
                 ])
             ),
         ]);

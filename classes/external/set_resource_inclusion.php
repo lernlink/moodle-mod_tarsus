@@ -23,6 +23,8 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use local_tarsus\index\repository;
+use local_tarsus\index\status;
 use local_tarsus\material\resource_id;
 use moodle_exception;
 
@@ -84,6 +86,14 @@ class set_resource_inclusion extends external_api {
         $tarsuszeroid = (int) $cm->instance;
 
         if ($params['included']) {
+            // Only content the brain actually holds may be put in scope:
+            // including anything else would promise material the chat can
+            // never ground an answer in.
+            $row = (new repository())->get($params['resourceid']);
+            if ($row === null || $row->status !== status::INDEXED) {
+                throw new moodle_exception('includenotindexed', 'mod_tarsuszero');
+            }
+
             // Insert only if not already present (idempotent).
             $exists = $DB->record_exists('tarsuszero_inclusions', [
                 'tarsuszeroid' => $tarsuszeroid,

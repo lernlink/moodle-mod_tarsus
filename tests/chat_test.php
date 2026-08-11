@@ -43,6 +43,37 @@ final class chat_test extends \advanced_testcase {
     }
 
     /**
+     * Create a page in the course, mark it indexed and include it in the activity.
+     *
+     * @param \stdClass $course The course.
+     * @param \stdClass $tz     The tarsuszero activity record.
+     * @param string    $content The page body.
+     * @return string The included resource id.
+     */
+    private function make_included_page(\stdClass $course, \stdClass $tz, string $content = '<p>Body</p>'): string {
+        global $DB;
+
+        $page = $this->getDataGenerator()->create_module('page', [
+            'course' => $course->id,
+            'content' => $content,
+            'contentformat' => FORMAT_HTML,
+        ]);
+        $cm = get_fast_modinfo($course->id)->get_cm($page->cmid);
+
+        $resourceid = (new \local_tarsus\indexer())->index_cm($cm)[0];
+        (new \local_tarsus\index\repository())->mark_uploaded($resourceid, 'hash-1');
+        (new \local_tarsus\index\repository())->mark_indexed($resourceid, 'bit-1', 'hash-1');
+
+        $DB->insert_record('tarsuszero_inclusions', (object) [
+            'tarsuszeroid' => $tz->id,
+            'resourceid' => $resourceid,
+            'timecreated' => time(),
+        ]);
+
+        return $resourceid;
+    }
+
+    /**
      * Test learner_chat export render details.
      */
     public function test_learner_chat_export(): void {
@@ -76,6 +107,11 @@ final class chat_test extends \advanced_testcase {
         $history = get_conversation_history::execute((int) $tz->cmid);
         $this->assertEmpty($history);
 
+        // Give the assistant something to answer from: an indexed, included page.
+        $this->setAdminUser();
+        $resourceid = $this->make_included_page($course, $tz);
+        $this->setUser($student);
+
         // Send a mock query which should pass pipeline.
         // We configure local_tarsus mockmode config to ensure mock client is used.
         set_config('mockmode', '1', 'local_tarsus');
@@ -84,15 +120,63 @@ final class chat_test extends \advanced_testcase {
 
         $this->assertEquals('success', $result['status']);
         $this->assertNotEmpty($result['answer']);
-        $this->assertNotEmpty($result['sources']);
         $this->assertEmpty($result['error']);
+
+        // The answer was grounded in exactly the included resource.
+        $this->assertSame([$resourceid], array_column($result['sources'], 'resourceid'));
 
         // Verify history contains the message.
         $history = get_conversation_history::execute((int) $tz->cmid);
         $this->assertCount(1, $history);
         $this->assertEquals('What is biology?', $history[0]['query']);
         $this->assertEquals($result['answer'], $history[0]['answer']);
-        $this->assertCount(2, $history[0]['sources']); // mock_client returns 2 sources
+        $this->assertCount(1, $history[0]['sources']);
+    }
+
+    /**
+     * With nothing included the chat refuses locally: an empty restriction
+     * list would make the shared brain search everything.
+     */
+    public function test_send_without_included_material_is_refused(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->setUser($student);
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        set_config('mockmode', '1', 'local_tarsus');
+
+        $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
+
+        $this->assertEquals('noscope', $result['status']);
+        $this->assertEmpty($result['answer']);
+        $this->assertEquals(get_string('chat_noscope', 'mod_tarsuszero'), $result['error']);
+    }
+
+    /**
+     * An inclusion whose resource is no longer indexed drops out of scope.
+     */
+    public function test_stale_inclusion_is_filtered_at_read_time(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        $this->setAdminUser();
+        $resourceid = $this->make_included_page($course, $tz);
+
+        // The resource leaves the brain behind the inclusion's back
+        // (e.g. an observer untracked it): the row is gone, the choice stays.
+        (new \local_tarsus\index\repository())->delete($resourceid);
+
+        $this->setUser($student);
+        set_config('mockmode', '1', 'local_tarsus');
+
+        $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
+
+        $this->assertEquals('noscope', $result['status']);
     }
 
     /**
@@ -118,8 +202,12 @@ final class chat_test extends \advanced_testcase {
         $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
-        $this->setUser($student);
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        // Scope exists, so the request reaches the guardrails.
+        $this->setAdminUser();
+        $this->make_included_page($course, $tz);
+        $this->setUser($student);
 
         // Turn on the local_tarsus killswitch.
         set_config('killswitch', '1', 'local_tarsus');
