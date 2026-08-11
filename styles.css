@@ -1,0 +1,31 @@
+/* Rendered Markdown inside a chat bubble: keep the brain's structure without
+   the outer margins that make the bubble look padded unevenly. */
+.tarsus-chat-box .tarsus-chat-answer > :first-child {
+    margin-top: 0;
+}
+
+.tarsus-chat-box .tarsus-chat-answer > :last-child {
+    margin-bottom: 0;
+}
+
+.tarsus-chat-box .tarsus-chat-answer ul,
+.tarsus-chat-box .tarsus-chat-answer ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-chat-answer table {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    border-collapse: collapse;
+}
+
+.tarsus-chat-box .tarsus-chat-answer th,
+.tarsus-chat-box .tarsus-chat-answer td {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 0.25rem 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-chat-answer code {
+    word-break: break-word;
+}

@@ -89,7 +89,9 @@ class get_conversation_history extends external_api {
             $result[] = [
                 'id'          => (int) $chat->id,
                 'query'       => (string) $chat->query,
-                'answer'      => (string) $chat->answer,
+                // Stored as the brain sent it — Markdown — and rendered to
+                // clean HTML at read time, same as a fresh answer.
+                'answer'      => format_text((string) $chat->answer, FORMAT_MARKDOWN, ['context' => $context]),
                 'sources'     => $sources,
                 'timecreated' => (int) $chat->timecreated,
             ];

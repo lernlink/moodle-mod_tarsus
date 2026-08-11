@@ -122,6 +122,10 @@ final class chat_test extends \advanced_testcase {
         $this->assertNotEmpty($result['answer']);
         $this->assertEmpty($result['error']);
 
+        // The brain speaks Markdown; the client must receive rendered HTML.
+        $this->assertStringContainsString('<p>', $result['answer']);
+        $this->assertStringContainsString('Mock grounded answer', $result['answer']);
+
         // The answer was grounded in exactly the included resource.
         $this->assertSame([$resourceid], array_column($result['sources'], 'resourceid'));
 

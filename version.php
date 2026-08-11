@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026073101;
+$plugin->version   = 2026073102;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.8.0 (Phase 1 inclusion-scoped grounded chat)';
+$plugin->release   = '0.8.1 (Phase 1 render Markdown answers as HTML)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

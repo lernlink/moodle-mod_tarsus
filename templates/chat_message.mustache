@@ -22,14 +22,21 @@
     Context variables required for this template:
     * islearner - bool, whether message comes from learner.
     * isbrain - bool, whether message is from the Tarsus response.
-    * text - string, message text.
+    * text - string, message text. Brain messages carry server-cleaned HTML
+      (the brain answers in Markdown, converted by format_text) and are
+      output unescaped; learner messages are untrusted input and stay escaped.
     * hassources - bool, whether the message displays grounding sources.
     * sources - array of { title, resourceid }.
 }}
 <div class="d-flex flex-column mb-3 {{#islearner}}align-items-end{{/islearner}}{{^islearner}}align-items-start{{/islearner}}">
     <div class="card {{#islearner}}bg-primary text-white{{/islearner}}{{^islearner}}bg-light{{/islearner}}" style="max-width: 80%; border-radius: 12px;">
         <div class="card-body p-2">
-            <p class="card-text mb-1" style="white-space: pre-wrap;">{{text}}</p>
+            {{#islearner}}
+                <p class="card-text mb-1" style="white-space: pre-wrap;">{{text}}</p>
+            {{/islearner}}
+            {{^islearner}}
+                <div class="card-text mb-1 tarsus-chat-answer">{{{text}}}</div>
+            {{/islearner}}
             {{#hassources}}
                 <hr class="my-1 {{#islearner}}border-white{{/islearner}}{{^islearner}}border-secondary{{/islearner}}">
                 <div class="sources-list" style="font-size: 0.8rem; opacity: 0.9;">

@@ -136,7 +136,10 @@ class send_chat_message extends external_api {
 
             return [
                 'status'  => 'success',
-                'answer'  => $answer,
+                // The brain answers in Markdown (the response says so
+                // explicitly); render it through Moodle's own converter so
+                // the output is real HTML and has passed the XSS cleaner.
+                'answer'  => format_text($answer, FORMAT_MARKDOWN, ['context' => $context]),
                 'sources' => $sources,
                 'error'   => '',
             ];
