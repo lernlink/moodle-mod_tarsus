@@ -124,17 +124,18 @@ final class chat_test extends \advanced_testcase {
 
         // The brain speaks Markdown; the client must receive rendered HTML.
         $this->assertStringContainsString('<p>', $result['answer']);
-        $this->assertStringContainsString('Mock grounded answer', $result['answer']);
+        $this->assertStringContainsString('Mock chat answer', $result['answer']);
 
-        // The answer was grounded in exactly the included resource.
-        $this->assertSame([$resourceid], array_column($result['sources'], 'resourceid'));
+        // The mock echoes its scope: exactly the included resource was
+        // offered to the brain.
+        $this->assertStringContainsString('[scope: ' . $resourceid . ']', $result['answer']);
 
         // Verify history contains the message.
         $history = get_conversation_history::execute((int) $tz->cmid);
         $this->assertCount(1, $history);
         $this->assertEquals('What is biology?', $history[0]['query']);
         $this->assertEquals($result['answer'], $history[0]['answer']);
-        $this->assertCount(1, $history[0]['sources']);
+        $this->assertCount(0, $history[0]['sources']);
     }
 
     /**

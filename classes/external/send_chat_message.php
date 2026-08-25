@@ -30,7 +30,7 @@ use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\index\repository;
 use local_tarsus\index\status;
-use local_tarsus\material\resolver;
+use local_tarsus\material\resource_id;
 use local_tarsus\pseudonymizer;
 use local_tarsus\usage_meter;
 use moodle_exception;
@@ -107,21 +107,24 @@ class send_chat_message extends external_api {
         $client   = client_factory::get_client();
         $pipeline = new pipeline();
         $coursecontext = \context_course::instance($cm->course);
-        $pseudonym = pseudonymizer::pseudonymize((int) $USER->id);
+
+        $chatparams = self::conversation_params($cm, $querytext, $allowed);
 
         try {
-            // Outbound API request through the guardrail pipeline.
-            $response = $pipeline->execute(function() use ($client, $querytext, $pseudonym, $allowed) {
-                return $client->search_grounded($querytext, $pseudonym, $allowed);
+            // Outbound API request through the guardrail pipeline. The brain
+            // keeps the dialogue memory per (context, user), so only the new
+            // question travels.
+            $response = $pipeline->execute(function() use ($client, $chatparams) {
+                return $client->generate_widgets($chatparams);
             }, $estimatedcredits);
 
             $answer  = (string) ($response['answer'] ?? '');
-            $sources = self::present_sources($response['sources'] ?? []);
+            $sources = [];
             $credits = (int) ($response['credits'] ?? 6);
 
             // Record local context-level usage.
             $usage = new usage_meter();
-            $usage->record((int) $coursecontext->id, (int) $USER->id, 'search_grounded', $credits);
+            $usage->record((int) $coursecontext->id, (int) $USER->id, 'chat_ask', $credits);
 
             // Save chat interaction to local DB.
             $chat = new \stdClass();
@@ -196,30 +199,67 @@ class send_chat_message extends external_api {
         return $allowed;
     }
 
-    /**
-     * Shape sources for the client, filling titles in from local material.
-     *
-     * The brain returns bare source ids; the human-readable name lives on
-     * our side of the fence.
-     *
-     * @param array $sources Sources as returned by the client.
-     * @return array<int, array{title: string, resourceid: string}>
-     */
-    private static function present_sources(array $sources): array {
-        $resolver = new resolver();
+    /** @var string[] Languages the Tarsus chat supports. */
+    private const LANGUAGES = [
+        'en', 'de', 'fr', 'ar', 'zh', 'it', 'es', 'he', 'ja', 'nl', 'tr', 'uk', 'ru',
+    ];
 
-        $formatted = [];
-        foreach ($sources as $src) {
-            $resourceid = (string) ($src['resourceid'] ?? '');
-            $title = (string) ($src['title'] ?? '');
-            if ($title === '' && $resourceid !== '') {
-                $material = $resolver->resolve_by_resource_id($resourceid);
-                $title = $material !== null ? $material->title : $resourceid;
-            }
-            $formatted[] = ['title' => $title, 'resourceid' => $resourceid];
+    /**
+     * Build the conversation parameters for the t0 chat call.
+     *
+     * The vocabulary follows the Tarsus developer's instructions: the context
+     * is the activity (site-scoped id, so two sites on one brain cannot share
+     * a conversation), the robot identity is a global admin setting, and the
+     * user travels as pseudonym + display name + interface language.
+     *
+     * @param \stdClass $cm      The course module record.
+     * @param string    $query   The learner's question.
+     * @param string[]  $allowed The resource ids allowed to ground the answer.
+     * @return array<string, mixed> Parameters for {@see client_interface::generate_widgets()}.
+     */
+    private static function conversation_params(\stdClass $cm, string $query, array $allowed): array {
+        global $DB, $USER;
+
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $name = trim(format_string($activity->name));
+
+        $description = trim(html_to_text((string) $activity->intro, 0, false));
+        if ($description === '') {
+            // The brain requires a non-empty description.
+            $description = $name;
         }
 
-        return $formatted;
+        $robotname = trim((string) get_config('local_tarsus', 'robot_name'));
+        $robotname = $robotname !== '' ? $robotname : 'Tarsus';
+        $robotid = trim((string) get_config('local_tarsus', 'robot_id'));
+        $robotdescription = trim((string) get_config('local_tarsus', 'robot_description'));
+
+        return [
+            'contextid' => resource_id::site_token() . ':tarsuszero:' . (int) $cm->instance,
+            'contextname' => $name,
+            'contextdescription' => $description,
+            'robotname' => $robotname,
+            'robotid' => $robotid !== '' ? $robotid : $robotname,
+            'robotdescription' => $robotdescription !== '' ? $robotdescription : $robotname,
+            'userid' => pseudonymizer::pseudonymize((int) $USER->id),
+            'username' => fullname($USER),
+            'userlanguage' => self::chat_language(),
+            'resourceids' => $allowed,
+            'query' => $query,
+        ];
+    }
+
+    /**
+     * The user's interface language, reduced to what the chat supports.
+     *
+     * @return string A supported two-letter code; 'de' when unsupported.
+     */
+    private static function chat_language(): string {
+        // Language packs may carry variants ('de_du', 'en_us'); the chat
+        // wants the plain code.
+        $language = substr(current_language(), 0, 2);
+
+        return in_array($language, self::LANGUAGES, true) ? $language : 'de';
     }
 
     /**
