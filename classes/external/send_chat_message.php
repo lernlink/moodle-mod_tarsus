@@ -119,12 +119,31 @@ class send_chat_message extends external_api {
             }, $estimatedcredits);
 
             $answer  = (string) ($response['answer'] ?? '');
-            $sources = [];
             $credits = (int) ($response['credits'] ?? 6);
+
+            // Informational widgets (welcome and whatever Tarsus adds) are
+            // relayed exactly as often as Tarsus sends them — when they
+            // appear is its decision, not ours.
+            $messages = array_values(array_filter(array_map('strval', $response['messages'] ?? [])));
 
             // Record local context-level usage.
             $usage = new usage_meter();
             $usage->record((int) $coursecontext->id, (int) $USER->id, 'chat_ask', $credits);
+
+            $now = time();
+
+            // Each informational message is its own assistant turn, stored
+            // with an empty query so history replays it as a lone bubble.
+            foreach ($messages as $message) {
+                $DB->insert_record('tarsuszero_chats', (object) [
+                    'tarsuszeroid' => $cm->instance,
+                    'userid'       => $USER->id,
+                    'query'        => '',
+                    'answer'       => $message,
+                    'sources'      => json_encode([]),
+                    'timecreated'  => $now,
+                ]);
+            }
 
             // Save chat interaction to local DB.
             $chat = new \stdClass();
@@ -132,19 +151,22 @@ class send_chat_message extends external_api {
             $chat->userid       = $USER->id;
             $chat->query        = $querytext;
             $chat->answer       = $answer;
-            $chat->sources      = json_encode($sources);
-            $chat->timecreated  = time();
+            $chat->sources      = json_encode([]);
+            $chat->timecreated  = $now;
 
             $chat->id = $DB->insert_record('tarsuszero_chats', $chat);
 
+            $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
+
             return [
-                'status'  => 'success',
+                'status'   => 'success',
                 // The brain answers in Markdown (the response says so
                 // explicitly); render it through Moodle's own converter so
                 // the output is real HTML and has passed the XSS cleaner.
-                'answer'  => format_text($answer, FORMAT_MARKDOWN, ['context' => $context]),
-                'sources' => $sources,
-                'error'   => '',
+                'answer'   => $render($answer),
+                'messages' => array_map($render, $messages),
+                'sources'  => [],
+                'error'    => '',
             ];
 
         } catch (blocked_exception $e) {
@@ -271,6 +293,11 @@ class send_chat_message extends external_api {
         return new external_single_structure([
             'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
             'answer'  => new external_value(PARAM_RAW, 'The grounded answer.'),
+            'messages' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'Rendered informational message from the assistant (e.g. welcome).'),
+                'Informational widgets sent alongside the answer, shown before it.',
+                VALUE_OPTIONAL
+            ),
             'sources' => new external_multiple_structure(
                 new external_single_structure([
                     'title'      => new external_value(PARAM_TEXT, 'Source title.'),

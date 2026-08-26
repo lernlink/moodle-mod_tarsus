@@ -130,12 +130,19 @@ final class chat_test extends \advanced_testcase {
         // offered to the brain.
         $this->assertStringContainsString('[scope: ' . $resourceid . ']', $result['answer']);
 
-        // Verify history contains the message.
+        // Informational widgets are relayed as sent, rendered like answers.
+        $this->assertCount(1, $result['messages']);
+        $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]);
+
+        // Verify history: the welcome is its own assistant turn (empty
+        // query), followed by the question/answer pair.
         $history = get_conversation_history::execute((int) $tz->cmid);
-        $this->assertCount(1, $history);
-        $this->assertEquals('What is biology?', $history[0]['query']);
-        $this->assertEquals($result['answer'], $history[0]['answer']);
-        $this->assertCount(0, $history[0]['sources']);
+        $this->assertCount(2, $history);
+        $this->assertSame('', $history[0]['query']);
+        $this->assertStringContainsString('Mock welcome', $history[0]['answer']);
+        $this->assertEquals('What is biology?', $history[1]['query']);
+        $this->assertEquals($result['answer'], $history[1]['answer']);
+        $this->assertCount(0, $history[1]['sources']);
     }
 
     /**

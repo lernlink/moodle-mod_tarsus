@@ -86,7 +86,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             }
 
             history.forEach(function(msg) {
-                appendMessage('learner', msg.query);
+                // Informational assistant turns (e.g. the welcome widget)
+                // are stored with an empty query: no learner bubble then.
+                if (msg.query !== '') {
+                    appendMessage('learner', msg.query);
+                }
                 appendMessage('brain', msg.answer, msg.sources);
             });
         }).catch(Notification.exception);
@@ -142,6 +146,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             input.focus();
 
             if (result.status === 'success') {
+                // Informational widgets (e.g. the welcome) come first, then
+                // the answer itself — the order Tarsus sends them in.
+                (result.messages || []).forEach(function(message) {
+                    appendMessage('brain', message);
+                });
                 appendMessage('brain', result.answer, result.sources);
             } else {
                 // Return query to input.
