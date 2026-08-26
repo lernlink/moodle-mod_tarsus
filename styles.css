@@ -72,6 +72,10 @@
     width: 260px;
     max-width: 80%;
     height: auto;
+    /* Theme rules size generic .icon images; pin the proportions so the
+       artwork can never be squashed, whatever the file's ratio metadata. */
+    aspect-ratio: 300 / 170;
+    object-fit: contain;
 }
 
 .tarsus-chat-box .tarsus-card__welcome-text {
