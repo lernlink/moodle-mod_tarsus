@@ -1,38 +1,109 @@
 /* The chat flow grows with the viewport instead of a fixed 400px, so large
-   answer bubbles get room; the floor keeps it usable on small screens. */
+   answer cards get room; the floor keeps it usable on small screens. */
 .tarsus-chat-box .tarsus-chat-flow {
     height: 65vh;
     min-height: 400px;
+    background: #fafafc;
+}
+
+/* Conversation cards: centred, comfortably wide, stacked with air. */
+.tarsus-chat-box .tarsus-card {
+    max-width: 46rem;
+    margin: 0 auto 1.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(35, 23, 90, 0.06);
+}
+
+.tarsus-chat-box .tarsus-card__inner {
+    padding: 1.25rem 1.5rem;
+}
+
+.tarsus-chat-box .tarsus-card__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    margin-right: 0.85rem;
+}
+
+.tarsus-chat-box .tarsus-card__question-text {
+    white-space: pre-wrap;
+    font-weight: 500;
+    align-self: center;
+}
+
+.tarsus-chat-box .tarsus-card__divider {
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin: 1rem 0;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body {
+    min-width: 0;
+}
+
+/* The welcome card: a modern gradient border with a light shadow. The
+   gradient is the element background showing through a padding ring, since
+   border-image cannot follow rounded corners. */
+.tarsus-chat-box .tarsus-card--welcome {
+    border: 0;
+    padding: 3px;
+    background: linear-gradient(135deg, #b39ddb 0%, #d8a7e8 35%, #f8b5c1 70%, #ffd9a0 100%);
+    box-shadow: 0 10px 28px rgba(35, 23, 90, 0.12);
+}
+
+.tarsus-chat-box .tarsus-card--welcome .tarsus-card__inner {
+    background: #fff;
+    border-radius: 13px;
+    padding: 2rem 1.75rem 1.75rem;
+}
+
+.tarsus-chat-box .tarsus-welcome-art {
+    width: 260px;
+    max-width: 80%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.tarsus-chat-box .tarsus-card__welcome-text {
+    font-size: 1.05rem;
+}
+
+.tarsus-chat-box .tarsus-card__welcome-text > :last-child {
+    margin-bottom: 0;
 }
 
 /* Rendered Markdown inside a chat bubble: keep the brain's structure without
    the outer margins that make the bubble look padded unevenly. */
-.tarsus-chat-box .tarsus-chat-answer > :first-child {
+.tarsus-chat-box .tarsus-card__answer-body > :first-child {
     margin-top: 0;
 }
 
-.tarsus-chat-box .tarsus-chat-answer > :last-child {
+.tarsus-chat-box .tarsus-card__answer-body > :last-child {
     margin-bottom: 0;
 }
 
-.tarsus-chat-box .tarsus-chat-answer ul,
-.tarsus-chat-box .tarsus-chat-answer ol {
+.tarsus-chat-box .tarsus-card__answer-body ul,
+.tarsus-chat-box .tarsus-card__answer-body ol {
     padding-left: 1.25rem;
     margin-bottom: 0.5rem;
 }
 
-.tarsus-chat-box .tarsus-chat-answer table {
+.tarsus-chat-box .tarsus-card__answer-body table {
     width: 100%;
     margin-bottom: 0.5rem;
     border-collapse: collapse;
 }
 
-.tarsus-chat-box .tarsus-chat-answer th,
-.tarsus-chat-box .tarsus-chat-answer td {
+.tarsus-chat-box .tarsus-card__answer-body th,
+.tarsus-chat-box .tarsus-card__answer-body td {
     border: 1px solid rgba(0, 0, 0, 0.125);
     padding: 0.25rem 0.5rem;
 }
 
-.tarsus-chat-box .tarsus-chat-answer code {
+.tarsus-chat-box .tarsus-card__answer-body code {
     word-break: break-word;
 }

@@ -18,6 +18,7 @@ namespace mod_tarsuszero\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use local_tarsus\config;
 use renderable;
 use templatable;
 use renderer_base;
@@ -42,13 +43,39 @@ class learner_chat implements renderable, templatable {
     /**
      * Export template variables.
      *
+     * The two avatars ride along as data attributes: the chat renders its
+     * cards client-side, and every card carries the learner's picture next
+     * to the question and the assistant's next to the answer.
+     *
      * @param renderer_base $output The renderer context.
      * @return array Exported variables.
      */
     public function export_for_template(renderer_base $output): array {
+        global $USER, $PAGE;
+
+        if (!empty($USER->id)) {
+            $userpicture = new \user_picture($USER);
+            $userpicture->size = 64;
+            $useravatar = $userpicture->get_url($PAGE)->out(false);
+        } else {
+            // Not logged in (unit tests): the core anonymous face.
+            $useravatar = $output->image_url('u/f2')->out(false);
+        }
+
+        $robotavatar = config::robot_avatar_url();
+        if ($robotavatar === '') {
+            // No avatar uploaded in the admin settings: the bundled robot.
+            $robotavatar = $output->image_url('robot', 'mod_tarsuszero')->out(false);
+        }
+
+        $robotname = trim((string) get_config('local_tarsus', 'robot_name'));
+
         return [
-            'cmid'        => $this->cmid,
-            'containerid' => 'tarsus-chat-box-' . $this->cmid,
+            'cmid'          => $this->cmid,
+            'containerid'   => 'tarsus-chat-box-' . $this->cmid,
+            'useravatarurl' => $useravatar,
+            'robotavatarurl' => $robotavatar,
+            'robotname'     => $robotname !== '' ? $robotname : 'Tarsus',
         ];
     }
 }

@@ -22,8 +22,14 @@
     Context variables required for this template:
     * cmid - int, the course module id.
     * containerid - string, a unique CSS class or ID for JS targeting.
+    * useravatarurl - string, the learner's profile picture URL.
+    * robotavatarurl - string, the assistant's avatar URL.
+    * robotname - string, the assistant's display name.
 }}
-<div class="tarsus-chat-box flex-grow-1" id="{{containerid}}">
+<div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
+     data-user-avatar="{{useravatarurl}}"
+     data-robot-avatar="{{robotavatarurl}}"
+     data-robot-name="{{robotname}}">
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
         <!-- Loading state helper or spinner -->

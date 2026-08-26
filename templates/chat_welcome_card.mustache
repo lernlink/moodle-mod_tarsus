@@ -1,0 +1,63 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsuszero/chat_welcome_card
+
+    An informational message from the assistant (the welcome, above all):
+    a centred card with a gradient border, a friendly robot illustration
+    and the brain's message below it.
+
+    Context variables required for this template:
+    * message - string, server-cleaned HTML of the message (output unescaped).
+}}
+<div class="tarsus-card tarsus-card--welcome" data-region="tarsus-chat-card">
+    <div class="tarsus-card__inner text-center">
+        <svg class="tarsus-welcome-art" viewBox="0 0 300 170" role="img" aria-hidden="true">
+            <ellipse cx="150" cy="95" rx="95" ry="62" fill="#f1f0fb"/>
+            <ellipse cx="228" cy="70" rx="34" ry="26" fill="#f1f0fb"/>
+            <ellipse cx="76" cy="72" rx="30" ry="24" fill="#f1f0fb"/>
+            {{! Speech bubble. }}
+            <rect x="88" y="18" width="58" height="30" rx="12" fill="#6d5ce8"/>
+            <path d="M112 48 l-4 10 l12 -10 z" fill="#6d5ce8"/>
+            <circle cx="105" cy="33" r="3.4" fill="#ffffff"/>
+            <circle cx="117" cy="33" r="3.4" fill="#ffffff"/>
+            <circle cx="129" cy="33" r="3.4" fill="#ffffff"/>
+            {{! Lightbulb. }}
+            <circle cx="66" cy="92" r="13" fill="#fdcb6e"/>
+            <path d="M66 79 v-7 M53 92 h-6 M56 82 l-5 -5 M56 102 l-5 5" stroke="#fdcb6e" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <rect x="61" y="104" width="10" height="7" rx="2.5" fill="#e2b25c"/>
+            {{! Check badge. }}
+            <circle cx="236" cy="96" r="15" fill="#22b573"/>
+            <path d="M229 96 l5 5 l10 -11" stroke="#ffffff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            {{! Sparkles. }}
+            <path d="M206 26 l2.6 6.4 l6.4 2.6 l-6.4 2.6 l-2.6 6.4 l-2.6 -6.4 l-6.4 -2.6 l6.4 -2.6 z" fill="#8f88ec"/>
+            <path d="M44 128 l2 4.8 l4.8 2 l-4.8 2 l-2 4.8 l-2 -4.8 l-4.8 -2 l4.8 -2 z" fill="#8f88ec"/>
+            {{! Robot: antenna, head, face, body, waving arm. }}
+            <line x1="150" y1="52" x2="150" y2="62" stroke="#c9c5f4" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="150" cy="48" r="5.5" fill="#8f88ec"/>
+            <rect x="118" y="62" width="64" height="48" rx="20" fill="#ffffff"/>
+            <rect x="127" y="72" width="46" height="28" rx="13" fill="#2b2f4a"/>
+            <circle cx="141" cy="84" r="4.6" fill="#5eead4"/>
+            <circle cx="159" cy="84" r="4.6" fill="#5eead4"/>
+            <path d="M143 92 q7 5 14 0" stroke="#5eead4" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path d="M118 92 q-14 -4 -18 -18" stroke="#ffffff" stroke-width="11" fill="none" stroke-linecap="round"/>
+            <rect x="128" y="112" width="44" height="26" rx="13" fill="#ffffff"/>
+            <ellipse cx="150" cy="146" rx="26" ry="6" fill="#e4e1f7"/>
+        </svg>
+        <div class="tarsus-card__welcome-text">{{{message}}}</div>
+    </div>
+</div>
