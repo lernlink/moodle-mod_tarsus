@@ -1,3 +1,10 @@
+/* The chat flow grows with the viewport instead of a fixed 400px, so large
+   answer bubbles get room; the floor keeps it usable on small screens. */
+.tarsus-chat-box .tarsus-chat-flow {
+    height: 65vh;
+    min-height: 400px;
+}
+
 /* Rendered Markdown inside a chat bubble: keep the brain's structure without
    the outer margins that make the bubble look padded unevenly. */
 .tarsus-chat-box .tarsus-chat-answer > :first-child {

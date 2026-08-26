@@ -49,7 +49,8 @@ $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($moduleinstance->name));
+// No extra heading here: the page header already carries the activity name,
+// and every line saved above the chat is room for its bubbles.
 
 if (trim($moduleinstance->intro ?? '') !== '') {
     echo $OUTPUT->box(

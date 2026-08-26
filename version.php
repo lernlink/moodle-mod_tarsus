@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026073107;
+$plugin->version   = 2026073108;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.10.2 (Phase 1 drop the canned welcome bubble)';
+$plugin->release   = '0.10.3 (Phase 1 taller chat, no duplicate heading)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
