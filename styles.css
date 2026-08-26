@@ -72,10 +72,11 @@
     width: 260px;
     max-width: 80%;
     height: auto;
-    /* Theme rules size generic .icon images; pin the proportions so the
-       artwork can never be squashed, whatever the file's ratio metadata. */
-    aspect-ratio: 300 / 170;
-    object-fit: contain;
+    /* Boost caps every pix image at 30x24 via .icon; lift both caps or the
+       artwork is squashed into an icon-sized box. With them gone, height
+       follows the image's own proportions, whatever file is dropped in. */
+    max-height: none;
+    margin: 0;
 }
 
 .tarsus-chat-box .tarsus-card__welcome-text {
