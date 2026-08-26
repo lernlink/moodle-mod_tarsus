@@ -28,7 +28,6 @@ use local_tarsus\client\client_factory;
 use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
-use local_tarsus\material\resource_id;
 use local_tarsus\pseudonymizer;
 use local_tarsus\usage_meter;
 use mod_tarsuszero\local\scope;
@@ -203,7 +202,7 @@ class send_chat_message extends external_api {
         $robotdescription = trim((string) get_config('local_tarsus', 'robot_description'));
 
         return [
-            'contextid' => resource_id::site_token() . ':tarsuszero:' . (int) $cm->instance,
+            'contextid' => scope::conversation_context_id((int) $cm->instance),
             'contextname' => $name,
             'contextdescription' => $description,
             'robotname' => $robotname,

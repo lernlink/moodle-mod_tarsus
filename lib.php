@@ -94,3 +94,30 @@ function tarsuszero_delete_instance(int $id): bool {
 
     return true;
 }
+
+/**
+ * Add the chat-reset entry to the activity's settings navigation.
+ *
+ * Deliberately kept out of the chat itself: erasing the conversation is a
+ * deliberate act, reached through the activity menu and confirmed on its
+ * own page.
+ *
+ * @param settings_navigation $settingsnav The settings navigation.
+ * @param navigation_node|null $node The activity's navigation node.
+ * @return void
+ */
+function tarsuszero_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $node): void {
+    $cm = $settingsnav->get_page()->cm;
+    if (!$node || !$cm || !has_capability('mod/tarsuszero:view', $cm->context)) {
+        return;
+    }
+
+    $node->add(
+        get_string('resetchat', 'mod_tarsuszero'),
+        new moodle_url('/mod/tarsuszero/resetchat.php', ['id' => $cm->id]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'tarsuszeroresetchat',
+        new pix_icon('i/reload', '')
+    );
+}

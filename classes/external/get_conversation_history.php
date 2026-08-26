@@ -27,7 +27,6 @@ use context_module;
 use local_tarsus\client\client_factory;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
-use local_tarsus\material\resource_id;
 use local_tarsus\pseudonymizer;
 use mod_tarsuszero\local\scope;
 use moodle_exception;
@@ -88,7 +87,7 @@ class get_conversation_history extends external_api {
 
         try {
             $response = (new pipeline())->execute(fn() => client_factory::get_client()->retrieve_widgets([
-                'contextid' => resource_id::site_token() . ':tarsuszero:' . (int) $cm->instance,
+                'contextid' => scope::conversation_context_id((int) $cm->instance),
                 'userid' => pseudonymizer::pseudonymize((int) $USER->id),
                 'resourceids' => $allowed,
                 'offset' => 0,

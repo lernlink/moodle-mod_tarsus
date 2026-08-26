@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026073105;
+$plugin->version   = 2026073106;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.10.0 (Phase 1 chat history lives in the brain)';
+$plugin->release   = '0.10.1 (Phase 1 reset chat history from the activity menu)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

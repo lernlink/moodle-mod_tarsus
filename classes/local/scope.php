@@ -18,6 +18,7 @@ namespace mod_tarsuszero\local;
 
 use local_tarsus\index\repository;
 use local_tarsus\index\status;
+use local_tarsus\material\resource_id;
 
 /**
  * The set of resources allowed to ground an activity's conversation.
@@ -33,6 +34,19 @@ use local_tarsus\index\status;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scope {
+
+    /**
+     * The brain-side conversation context id of an activity.
+     *
+     * Site-scoped, so two Moodle sites sharing a brain cannot share a
+     * conversation. Every t0 call about this activity uses this id.
+     *
+     * @param int $tarsuszeroid The activity instance id.
+     * @return string The conversation context id.
+     */
+    public static function conversation_context_id(int $tarsuszeroid): string {
+        return resource_id::site_token() . ':tarsuszero:' . $tarsuszeroid;
+    }
 
     /**
      * The resource ids allowed to ground this activity's answers.
