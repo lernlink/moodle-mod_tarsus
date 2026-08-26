@@ -72,7 +72,6 @@ $string['send'] = 'Send';
 $string['sources'] = 'Sources';
 $string['chat_placeholder'] = 'Ask a question about the course materials...';
 $string['loading_history'] = 'Loading conversation history...';
-$string['chat_welcome'] = 'Hello! I am your Tarsus Zero virtual assistant. Ask me anything about your course materials, and I will find grounded answers for you!';
 $string['resetchat'] = 'Reset chat history';
 $string['resetchat_confirm'] = 'Erase your entire conversation with the assistant in "{$a}"? The assistant will forget everything you have discussed, and the next question starts a fresh conversation. This cannot be undone.';
 $string['resetchat_done'] = 'Your conversation has been erased.';

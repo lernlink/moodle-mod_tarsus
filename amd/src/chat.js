@@ -8,7 +8,7 @@
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], function(Ajax, Templates, Notification, Str) {
+define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Templates, Notification) {
 
     /**
      * DOM selectors.
@@ -77,14 +77,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             args: { cmid: state.cmid }
         }])[0].then(function(history) {
             flow.innerHTML = ''; // clear initial placeholder info if any on success
-            if (history.length === 0) {
-                // Add a welcome message if no history exists yet.
-                Str.get_string('chat_welcome', 'mod_tarsuszero').then(function(welcome) {
-                    appendMessage('brain', welcome);
-                });
-                return;
-            }
-
+            // An empty conversation stays empty: the assistant's own welcome
+            // widget arrives from the brain with the first answer.
             history.forEach(function(msg) {
                 // Informational assistant turns (e.g. the welcome widget)
                 // are stored with an empty query: no learner bubble then.

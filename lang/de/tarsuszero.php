@@ -72,7 +72,6 @@ $string['send'] = 'Senden';
 $string['sources'] = 'Quellen';
 $string['chat_placeholder'] = 'Stelle eine Frage zu den Kursmaterialien...';
 $string['loading_history'] = 'Unterhaltungshistorie wird geladen...';
-$string['chat_welcome'] = 'Hallo! Ich bin dein Tarsus-Zero-Assistent. Stelle mir eine Frage zu deinen Kursunterlagen, und ich suche fundierte Antworten für dich heraus!';
 $string['resetchat'] = 'Chat-Verlauf zurücksetzen';
 $string['resetchat_confirm'] = 'Deine gesamte Unterhaltung mit dem Assistenten in "{$a}" löschen? Der Assistent vergisst alles Besprochene, und die nächste Frage beginnt eine neue Unterhaltung. Dies kann nicht rückgängig gemacht werden.';
 $string['resetchat_done'] = 'Deine Unterhaltung wurde gelöscht.';
