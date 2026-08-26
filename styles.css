@@ -37,7 +37,8 @@
 
 .tarsus-chat-box .tarsus-card__divider {
     border: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 2px solid rgba(0, 0, 0, 0.18);
+    border-radius: 1px;
     margin: 1rem 0;
 }
 
@@ -61,11 +62,16 @@
     padding: 2rem 1.75rem 1.75rem;
 }
 
+/* The artwork comes from pix/welcome.svg via the pix helper, which renders
+   a generic .icon image: size it like a hero illustration instead. */
 .tarsus-chat-box .tarsus-welcome-art {
+    margin-bottom: 1rem;
+}
+
+.tarsus-chat-box .tarsus-welcome-art img {
     width: 260px;
     max-width: 80%;
     height: auto;
-    margin-bottom: 1rem;
 }
 
 .tarsus-chat-box .tarsus-card__welcome-text {
