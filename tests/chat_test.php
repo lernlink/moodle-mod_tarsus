@@ -103,7 +103,10 @@ final class chat_test extends \advanced_testcase {
         // Enrol the user to circumvent capability blocks.
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
 
-        // Initially history should be empty.
+        set_config('mockmode', '1', 'local_tarsus');
+
+        // With nothing included there is no scope, hence no conversation to
+        // read — and no call to the brain.
         $history = get_conversation_history::execute((int) $tz->cmid);
         $this->assertEmpty($history);
 
@@ -111,10 +114,6 @@ final class chat_test extends \advanced_testcase {
         $this->setAdminUser();
         $resourceid = $this->make_included_page($course, $tz);
         $this->setUser($student);
-
-        // Send a mock query which should pass pipeline.
-        // We configure local_tarsus mockmode config to ensure mock client is used.
-        set_config('mockmode', '1', 'local_tarsus');
 
         $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
 
@@ -134,14 +133,14 @@ final class chat_test extends \advanced_testcase {
         $this->assertCount(1, $result['messages']);
         $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]);
 
-        // Verify history: the welcome is its own assistant turn (empty
-        // query), followed by the question/answer pair.
+        // History is read back from the brain, oldest first, rendered like
+        // fresh answers: an assistant-only welcome turn, then an exchange.
         $history = get_conversation_history::execute((int) $tz->cmid);
         $this->assertCount(2, $history);
         $this->assertSame('', $history[0]['query']);
-        $this->assertStringContainsString('Mock welcome', $history[0]['answer']);
-        $this->assertEquals('What is biology?', $history[1]['query']);
-        $this->assertEquals($result['answer'], $history[1]['answer']);
+        $this->assertStringContainsString('<strong>Mock welcome</strong>', $history[0]['answer']);
+        $this->assertEquals('Mock question?', $history[1]['query']);
+        $this->assertStringContainsString('Mock stored answer', $history[1]['answer']);
         $this->assertCount(0, $history[1]['sources']);
     }
 

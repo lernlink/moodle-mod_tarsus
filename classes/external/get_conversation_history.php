@@ -24,9 +24,20 @@ use core_external\external_single_structure;
 use core_external\external_multiple_structure;
 use core_external\external_value;
 use context_module;
+use local_tarsus\client\client_factory;
+use local_tarsus\guardrail\blocked_exception;
+use local_tarsus\guardrail\pipeline;
+use local_tarsus\material\resource_id;
+use local_tarsus\pseudonymizer;
+use mod_tarsuszero\local\scope;
+use moodle_exception;
 
 /**
  * External function to get the conversation history for a tarsuszero activity.
+ *
+ * The brain is the only store of the dialogue — it already keeps every turn
+ * for its own memory, so the plugin reads the conversation back from there
+ * instead of maintaining a second copy that could drift.
  *
  * @package    mod_tarsuszero
  * @copyright  2026 lern.link GmbH
@@ -45,16 +56,18 @@ class get_conversation_history extends external_api {
         ]);
     }
 
+    /** @var int Conversation turns fetched per page open. */
+    public const PAGE_SIZE = 50;
+
     /**
-     * Retrieve chat history from local database.
+     * Read the user's conversation for this activity back from the brain.
      *
      * @param int $cmid The course module id.
-     * @return array List of chat message structures.
-     * @throws \invalid_parameter_exception
-     * @throws \required_capability_exception
+     * @return array List of chat message structures, oldest first.
+     * @throws moodle_exception
      */
     public static function execute(int $cmid): array {
-        global $DB, $USER;
+        global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid' => $cmid,
@@ -66,34 +79,35 @@ class get_conversation_history extends external_api {
 
         require_capability('mod/tarsuszero:view', $context);
 
-        $chats = $DB->get_records('tarsuszero_chats', [
-            'tarsuszeroid' => $cm->instance,
-            'userid'       => $USER->id,
-        ], 'timecreated ASC, id ASC');
+        // The t0 surface requires the scope even to read. With nothing
+        // included there is nothing to converse about — and nothing to show.
+        $allowed = scope::allowed_resource_ids((int) $cm->instance);
+        if ($allowed === []) {
+            return [];
+        }
+
+        try {
+            $response = (new pipeline())->execute(fn() => client_factory::get_client()->retrieve_widgets([
+                'contextid' => resource_id::site_token() . ':tarsuszero:' . (int) $cm->instance,
+                'userid' => pseudonymizer::pseudonymize((int) $USER->id),
+                'resourceids' => $allowed,
+                'offset' => 0,
+                'pagesize' => self::PAGE_SIZE,
+            ]));
+        } catch (blocked_exception $e) {
+            throw new moodle_exception('blocked_' . $e->reason, 'local_tarsus');
+        }
 
         $result = [];
-        foreach ($chats as $chat) {
-            $sources = [];
-            if ($chat->sources !== null && $chat->sources !== '') {
-                $decoded = json_decode($chat->sources, true);
-                if (is_array($decoded)) {
-                     foreach ($decoded as $src) {
-                         $sources[] = [
-                             'title'      => (string) ($src['title'] ?? ''),
-                             'resourceid' => (string) ($src['resourceid'] ?? ''),
-                         ];
-                     }
-                }
-            }
-
+        foreach (($response['turns'] ?? []) as $i => $turn) {
             $result[] = [
-                'id'          => (int) $chat->id,
-                'query'       => (string) $chat->query,
-                // Stored as the brain sent it — Markdown — and rendered to
-                // clean HTML at read time, same as a fresh answer.
-                'answer'      => format_text((string) $chat->answer, FORMAT_MARKDOWN, ['context' => $context]),
-                'sources'     => $sources,
-                'timecreated' => (int) $chat->timecreated,
+                'id'          => $i + 1,
+                'query'       => (string) ($turn['query'] ?? ''),
+                // The brain speaks Markdown; render it to clean HTML the
+                // same way a fresh answer is rendered.
+                'answer'      => format_text((string) ($turn['answer'] ?? ''), FORMAT_MARKDOWN, ['context' => $context]),
+                'sources'     => [],
+                'timecreated' => (int) ($turn['timecreated'] ?? 0),
             ];
         }
 

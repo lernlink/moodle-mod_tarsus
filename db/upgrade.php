@@ -56,5 +56,19 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026062605, 'tarsuszero');
     }
 
+    if ($oldversion < 2026073105) {
+        // The conversation now lives only in the brain, which keeps every
+        // turn anyway as its dialogue memory; the local copy could drift
+        // from it and is retired. The stored exchanges are display history,
+        // reproducible from the brain — nothing is lost that the plugin
+        // could still show.
+        $table = new xmldb_table('tarsuszero_chats');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026073105, 'tarsuszero');
+    }
+
     return true;
 }

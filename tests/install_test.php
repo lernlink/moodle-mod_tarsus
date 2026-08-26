@@ -35,8 +35,8 @@ final class install_test extends \advanced_testcase {
         'tarsuszero' => [
             'id', 'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
         ],
-        'tarsuszero_chats' => [
-            'id', 'tarsuszeroid', 'userid', 'query', 'answer', 'sources', 'timecreated',
+        'tarsuszero_inclusions' => [
+            'id', 'tarsuszeroid', 'resourceid', 'timecreated',
         ],
     ];
 
@@ -66,20 +66,16 @@ final class install_test extends \advanced_testcase {
     }
 
     /**
-     * The chat-history lookup index (tarsuszeroid, userid) exists.
+     * The conversation store lives in the brain, not in a local table.
      *
      * @return void
      */
-    public function test_chat_lookup_index_present(): void {
+    public function test_chats_table_is_retired(): void {
         global $DB;
 
-        $dbman = $DB->get_manager();
-        $table = new \xmldb_table('tarsuszero_chats');
-        $index = new \xmldb_index('tarsus_userid', XMLDB_INDEX_NOTUNIQUE, ['tarsuszeroid', 'userid']);
-
-        $this->assertTrue(
-            $dbman->index_exists($table, $index),
-            'Chat history index (tarsuszeroid, userid) missing after clean install.'
+        $this->assertFalse(
+            $DB->get_manager()->table_exists('tarsuszero_chats'),
+            'The retired tarsuszero_chats table must not exist on a clean install.'
         );
     }
 }

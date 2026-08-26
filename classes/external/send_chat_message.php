@@ -28,18 +28,18 @@ use local_tarsus\client\client_factory;
 use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
-use local_tarsus\index\repository;
-use local_tarsus\index\status;
 use local_tarsus\material\resource_id;
 use local_tarsus\pseudonymizer;
 use local_tarsus\usage_meter;
+use mod_tarsuszero\local\scope;
 use moodle_exception;
 
 /**
  * External function to send a user message, query the Tarsus Brain and return the answer.
  *
- * Checks capabilites, pseudonymizes the user, invokes Tarsus with rate-limit and other
- * guardrails, registers the credit cost and records conversation history.
+ * Checks capabilities, pseudonymizes the user, invokes Tarsus with rate-limit and
+ * other guardrails, and registers the credit cost. The conversation itself lives
+ * in the brain; the history endpoint reads it back from there.
  *
  * @package    mod_tarsuszero
  * @copyright  2026 lern.link GmbH
@@ -68,7 +68,7 @@ class send_chat_message extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid, string $query): array {
-        global $DB, $USER;
+        global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid'  => $cmid,
@@ -91,7 +91,7 @@ class send_chat_message extends external_api {
         // brain right now. An empty scope must never reach the API: the
         // brain reads an empty restriction list as "search everything",
         // which would cross course boundaries on the shared brain.
-        $allowed = self::allowed_resource_ids((int) $cm->instance);
+        $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
             return [
                 'status'  => 'noscope',
@@ -130,31 +130,9 @@ class send_chat_message extends external_api {
             $usage = new usage_meter();
             $usage->record((int) $coursecontext->id, (int) $USER->id, 'chat_ask', $credits);
 
-            $now = time();
-
-            // Each informational message is its own assistant turn, stored
-            // with an empty query so history replays it as a lone bubble.
-            foreach ($messages as $message) {
-                $DB->insert_record('tarsuszero_chats', (object) [
-                    'tarsuszeroid' => $cm->instance,
-                    'userid'       => $USER->id,
-                    'query'        => '',
-                    'answer'       => $message,
-                    'sources'      => json_encode([]),
-                    'timecreated'  => $now,
-                ]);
-            }
-
-            // Save chat interaction to local DB.
-            $chat = new \stdClass();
-            $chat->tarsuszeroid = $cm->instance;
-            $chat->userid       = $USER->id;
-            $chat->query        = $querytext;
-            $chat->answer       = $answer;
-            $chat->sources      = json_encode([]);
-            $chat->timecreated  = $now;
-
-            $chat->id = $DB->insert_record('tarsuszero_chats', $chat);
+            // The conversation itself is not stored here: the brain keeps
+            // every turn (that is its dialogue memory), and the history
+            // endpoint reads it back from there.
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 
@@ -188,38 +166,6 @@ class send_chat_message extends external_api {
         }
     }
 
-    /**
-     * The resource ids allowed to ground this activity's answers.
-     *
-     * The teacher's inclusion set, filtered down to rows the brain actually
-     * holds right now. Filtering at read time means a resource that was
-     * removed or replaced after being included silently drops out of scope —
-     * no cleanup ordering to get wrong.
-     *
-     * @param int $tarsuszeroid The activity instance id.
-     * @return string[] Namespaced resource ids, possibly empty.
-     */
-    private static function allowed_resource_ids(int $tarsuszeroid): array {
-        global $DB;
-
-        $included = $DB->get_fieldset_select(
-            'tarsuszero_inclusions',
-            'resourceid',
-            'tarsuszeroid = :tid',
-            ['tid' => $tarsuszeroid]
-        );
-
-        $repo = new repository();
-        $allowed = [];
-        foreach ($included as $resourceid) {
-            $row = $repo->get($resourceid);
-            if ($row !== null && $row->status === status::INDEXED) {
-                $allowed[] = $resourceid;
-            }
-        }
-
-        return $allowed;
-    }
 
     /** @var string[] Languages the Tarsus chat supports. */
     private const LANGUAGES = [

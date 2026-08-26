@@ -20,24 +20,6 @@
       </KEYS>
     </TABLE>
 
-    <TABLE NAME="tarsuszero_chats" COMMENT="Stores user chat message interactions with Tarsus.">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="tarsuszeroid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsuszero table."/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to user table."/>
-        <FIELD NAME="query" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The question asked."/>
-        <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The grounded answer returned."/>
-        <FIELD NAME="sources" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Serialized list of source references."/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="tarsuszeroid" TYPE="foreign" FIELDS="tarsuszeroid" REFTABLE="tarsuszero" REFFIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="tarsus_userid" UNIQUE="false" FIELDS="tarsuszeroid, userid"/>
-      </INDEXES>
-    </TABLE>
     <TABLE NAME="tarsuszero_inclusions" COMMENT="Tracks which indexed resources a teacher has included in a specific tarsuszero activity instance.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
