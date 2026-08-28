@@ -44,7 +44,7 @@ class mod_tarsuszero_generator extends testing_module_generator {
         $record = (object) (array) $record;
 
         $defaults = [
-            'name' => 'Tarsus Zero ' . $this->instancecount,
+            'name' => 'Tarsus ' . $this->instancecount,
             'intro' => 'Test description',
             'introformat' => FORMAT_HTML,
         ];

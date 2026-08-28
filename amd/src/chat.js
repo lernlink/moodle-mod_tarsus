@@ -14,7 +14,7 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Tarsus Zero learner chat companion module.
+ * Tarsus learner chat companion module.
  *
  * The conversation renders as centred cards: an exchange card unites the
  * learner's question (with their avatar) and the assistant's answer (with
@@ -72,14 +72,18 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
             holder.innerHTML = html;
             var card = holder.firstElementChild;
             if (before && before.parentNode === flow) {
+                // Inserting above (older history, welcome cards): keep the
+                // reader's viewport where it is instead of yanking it.
+                var grewBy = flow.scrollHeight;
                 flow.insertBefore(card, before);
+                flow.scrollTop += flow.scrollHeight - grewBy;
             } else {
                 flow.appendChild(card);
+                flow.scrollTop = flow.scrollHeight;
             }
             if (js) {
                 Templates.runTemplateJS(js);
             }
-            flow.scrollTop = flow.scrollHeight;
             return card;
         });
     }

@@ -24,14 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Tarsus Zero';
-$string['modulename'] = 'Tarsus Zero';
-$string['modulenameplural'] = 'Tarsus-Zero-Aktivitäten';
-$string['pluginadministration'] = 'Tarsus-Zero-Verwaltung';
+$string['pluginname'] = 'Tarsus';
+$string['modulename'] = 'Tarsus';
+$string['modulenameplural'] = 'Tarsus-Aktivitäten';
+$string['pluginadministration'] = 'Tarsus-Verwaltung';
 $string['tarsuszeroname'] = 'Name';
-$string['tarsuszero:addinstance'] = 'Eine neue Tarsus-Zero-Aktivität hinzufügen';
-$string['tarsuszero:view'] = 'Tarsus-Zero-Aktivität ansehen';
-$string['tarsuszero:manage'] = 'Tarsus-Zero-Materialindexierung verwalten';
+$string['tarsuszero:addinstance'] = 'Eine neue Tarsus-Aktivität hinzufügen';
+$string['tarsuszero:view'] = 'Tarsus-Aktivität ansehen';
+$string['tarsuszero:manage'] = 'Tarsus-Materialindexierung verwalten';
 
 // Reconciliation-Übersicht für Lehrende.
 $string['indexcourse'] = 'Diesen Kurs indexieren';
@@ -52,7 +52,7 @@ $string['included_on'] = 'In dieser Aktivität einbezogen';
 $string['included_off'] = 'Aus dieser Aktivität ausgeschlossen';
 $string['invalidinclusion'] = 'Nur indexierte Ressourcen können in eine Aktivität einbezogen werden.';
 $string['nomaterials'] = 'Dieser Kurs enthält noch kein indexierbares Material.';
-$string['learnerplaceholder'] = 'Das Tarsus-Zero-Lernerlebnis erscheint hier.';
+$string['learnerplaceholder'] = 'Das Tarsus-Lernerlebnis erscheint hier.';
 $string['previewchat'] = 'Lernenden-Chat in der Vorschau';
 
 // Per-resource index actions.
@@ -84,4 +84,4 @@ $string['guardrail_blocked_ratelimit'] = 'Zu viele Anfragen. Bitte warte einen M
 $string['transport_error'] = 'Konnte das Brain nicht kontaktieren. Bitte überprüfe deine Netzwerkverbindung und versuche es erneut.';
 
 // Datenschutz.
-$string['privacy:metadata'] = 'Die Tarsus-Zero-Aktivität speichert selbst keine personenbezogenen Daten; Indexierungs- und Nutzungsdaten werden vom Plugin local_tarsus verarbeitet.';
+$string['privacy:metadata'] = 'Die Tarsus-Aktivität speichert selbst keine personenbezogenen Daten; Indexierungs- und Nutzungsdaten werden vom Plugin local_tarsus verarbeitet.';

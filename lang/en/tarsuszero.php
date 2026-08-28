@@ -24,14 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Tarsus Zero';
-$string['modulename'] = 'Tarsus Zero';
-$string['modulenameplural'] = 'Tarsus Zero activities';
-$string['pluginadministration'] = 'Tarsus Zero administration';
+$string['pluginname'] = 'Tarsus';
+$string['modulename'] = 'Tarsus';
+$string['modulenameplural'] = 'Tarsus activities';
+$string['pluginadministration'] = 'Tarsus administration';
 $string['tarsuszeroname'] = 'Name';
-$string['tarsuszero:addinstance'] = 'Add a new Tarsus Zero activity';
-$string['tarsuszero:view'] = 'View Tarsus Zero activity';
-$string['tarsuszero:manage'] = 'Manage Tarsus Zero material indexation';
+$string['tarsuszero:addinstance'] = 'Add a new Tarsus activity';
+$string['tarsuszero:view'] = 'View Tarsus activity';
+$string['tarsuszero:manage'] = 'Manage Tarsus material indexation';
 
 // Teacher reconciliation dashboard.
 $string['indexcourse'] = 'Index this course';
@@ -52,7 +52,7 @@ $string['included_on'] = 'Included in this activity';
 $string['included_off'] = 'Excluded from this activity';
 $string['invalidinclusion'] = 'Only indexed resources can be included in an activity.';
 $string['nomaterials'] = 'This course has no indexable material yet.';
-$string['learnerplaceholder'] = 'The Tarsus Zero learning experience will appear here.';
+$string['learnerplaceholder'] = 'The Tarsus learning experience will appear here.';
 $string['previewchat'] = 'Preview the learner chat';
 
 // Per-resource index actions.
@@ -84,4 +84,4 @@ $string['guardrail_blocked_ratelimit'] = 'Too many requests. Please wait a few s
 $string['transport_error'] = 'Could not contact the Brain. Please check your network connection and try again.';
 
 // Privacy.
-$string['privacy:metadata'] = 'The Tarsus Zero activity stores no personal data itself; indexation and usage data are handled by the local_tarsus plugin.';
+$string['privacy:metadata'] = 'The Tarsus activity stores no personal data itself; indexation and usage data are handled by the local_tarsus plugin.';
