@@ -70,5 +70,26 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026073105, 'tarsuszero');
     }
 
+    if ($oldversion < 2026073115) {
+        // Per-activity didactic settings: how the assistant converses in this
+        // activity, as opposed to the site-wide connection and identity
+        // settings in local_tarsus.
+        $table = new xmldb_table('tarsuszero');
+        $fields = [
+            new xmldb_field('conversationstyle', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3', 'timemodified'),
+            new xmldb_field('dqr', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '6', 'conversationstyle'),
+            new xmldb_field('industry', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, '', 'dqr'),
+            new xmldb_field('fulltextsearch', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'industry'),
+        ];
+
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026073115, 'tarsuszero');
+    }
+
     return true;
 }

@@ -129,6 +129,9 @@ final class chat_test extends \advanced_testcase {
         // offered to the brain.
         $this->assertStringContainsString('[scope: ' . $resourceid . ']', $result['answer']);
 
+        // The activity's didactic defaults travel with the request.
+        $this->assertStringContainsString('[style: 3, dqr: 6]', $result['answer']);
+
         // Informational widgets are relayed as sent, rendered like answers.
         $this->assertCount(1, $result['messages']);
         $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]);
@@ -142,6 +145,35 @@ final class chat_test extends \advanced_testcase {
         $this->assertEquals('Mock question?', $history[1]['query']);
         $this->assertStringContainsString('Mock stored answer', $history[1]['answer']);
         $this->assertCount(0, $history[1]['sources']);
+    }
+
+    /**
+     * The teacher's didactic settings for the activity reach the brain.
+     */
+    public function test_didactic_settings_travel_with_the_request(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        $this->setAdminUser();
+        $this->make_included_page($course, $tz);
+
+        // The teacher tunes this activity away from the defaults.
+        $DB->set_field('tarsuszero', 'conversationstyle', 4, ['id' => $tz->id]);
+        $DB->set_field('tarsuszero', 'dqr', 7, ['id' => $tz->id]);
+
+        $this->setUser($student);
+        set_config('mockmode', '1', 'local_tarsus');
+
+        $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertStringContainsString('[style: 4, dqr: 7]', $result['answer']);
     }
 
     /**

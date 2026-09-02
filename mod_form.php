@@ -52,6 +52,38 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements();
 
+        // Didactic settings: how the assistant converses in this activity.
+        // Deliberately separate from the site-wide local_tarsus settings
+        // (connection, assistant identity, guardrails) — nothing overlaps.
+        $mform->addElement('header', 'didactics', get_string('didactics', 'mod_tarsuszero'));
+
+        $styles = [
+            1 => get_string('style_closed', 'mod_tarsuszero'),
+            2 => get_string('style_lexical', 'mod_tarsuszero'),
+            3 => get_string('style_tutorial', 'mod_tarsuszero'),
+            4 => get_string('style_socratic', 'mod_tarsuszero'),
+            5 => get_string('style_open', 'mod_tarsuszero'),
+        ];
+        $mform->addElement('select', 'conversationstyle', get_string('conversationstyle', 'mod_tarsuszero'), $styles);
+        $mform->setType('conversationstyle', PARAM_INT);
+        $mform->setDefault('conversationstyle', 3);
+        $mform->addHelpButton('conversationstyle', 'conversationstyle', 'mod_tarsuszero');
+
+        $mform->addElement('select', 'dqr', get_string('dqr', 'mod_tarsuszero'),
+            array_combine(range(3, 7), range(3, 7)));
+        $mform->setType('dqr', PARAM_INT);
+        $mform->setDefault('dqr', 6);
+        $mform->addHelpButton('dqr', 'dqr', 'mod_tarsuszero');
+
+        $mform->addElement('text', 'industry', get_string('industry', 'mod_tarsuszero'), ['size' => 48]);
+        $mform->setType('industry', PARAM_TEXT);
+        $mform->addRule('industry', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->addHelpButton('industry', 'industry', 'mod_tarsuszero');
+
+        $mform->addElement('advcheckbox', 'fulltextsearch', get_string('fulltextsearch', 'mod_tarsuszero'));
+        $mform->setDefault('fulltextsearch', 0);
+        $mform->addHelpButton('fulltextsearch', 'fulltextsearch', 'mod_tarsuszero');
+
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }

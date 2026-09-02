@@ -70,6 +70,22 @@ $string['includenotindexed'] = 'Nur indexierte Ressourcen können einbezogen wer
 // Learner RAG chat UI strings.
 $string['send'] = 'Senden';
 $string['sources'] = 'Quellen';
+// Didaktische Einstellungen pro Aktivität.
+$string['didactics'] = 'Didaktische Einstellungen';
+$string['conversationstyle'] = 'Gesprächsstil';
+$string['conversationstyle_help'] = 'Wie der Assistent das Gespräch in dieser Aktivität führt: von Geschlossen (kurze, faktische Antworten) über Lexikalisch, Tutorisch und Sokratisch (leitende Gegenfragen) bis Offen (freies Gespräch).';
+$string['style_closed'] = 'Geschlossen';
+$string['style_lexical'] = 'Lexikalisch';
+$string['style_tutorial'] = 'Tutorisch';
+$string['style_socratic'] = 'Sokratisch';
+$string['style_open'] = 'Offen';
+$string['dqr'] = 'Schwierigkeitsniveau (DQR)';
+$string['dqr_help'] = 'Das Qualifikationsniveau, auf dem der Assistent antwortet, von 3 (grundlegend) bis 7 (fortgeschritten).';
+$string['industry'] = 'Fachgebiet / Domäne';
+$string['industry_help'] = 'Das Fachgebiet dieser Aktivität, z. B. "Steuerrecht" oder "E-Commerce". Hilft dem Assistenten, die richtige Terminologie zu verwenden. Kann leer bleiben.';
+$string['fulltextsearch'] = 'Volltextsuche';
+$string['fulltextsearch_help'] = 'Wenn aktiviert, darf der Assistent zusätzlich zur semantischen Suche eine exakte Volltextsuche über die einbezogenen Materialien verwenden.';
+
 $string['chat_placeholder'] = 'Stelle eine Frage zu den Kursmaterialien...';
 $string['loading_history'] = 'Unterhaltungshistorie wird geladen...';
 $string['resetchat'] = 'Chat-Verlauf zurücksetzen';

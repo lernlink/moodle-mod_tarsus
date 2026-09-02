@@ -13,6 +13,10 @@
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the intro field."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="conversationstyle" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="Didactic conversation style 1-5 (Geschlossen..Offen)."/>
+        <FIELD NAME="dqr" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="6" SEQUENCE="false" COMMENT="Difficulty level 3-7."/>
+        <FIELD NAME="industry" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="Domain / field of expertise; empty means unset."/>
+        <FIELD NAME="fulltextsearch" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the brain may use full-text search."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

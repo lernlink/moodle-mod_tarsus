@@ -205,6 +205,11 @@ class send_chat_message extends external_api {
             'contextid' => scope::conversation_context_id((int) $cm->instance),
             'contextname' => $name,
             'contextdescription' => $description,
+            // The teacher's didactic settings for this activity.
+            'conversationstyle' => (int) ($activity->conversationstyle ?? 3),
+            'dqr' => (int) ($activity->dqr ?? 6),
+            'industry' => trim((string) ($activity->industry ?? '')),
+            'fulltextsearch' => !empty($activity->fulltextsearch),
             'robotname' => $robotname,
             'robotid' => $robotid !== '' ? $robotid : $robotname,
             'robotdescription' => $robotdescription !== '' ? $robotdescription : $robotname,

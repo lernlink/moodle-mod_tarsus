@@ -67,6 +67,22 @@ $string['invalidresource'] = 'The resource does not belong to this course.';
 $string['actionfailed'] = 'The requested action could not be applied to this resource.';
 $string['includenotindexed'] = 'Only indexed resources can be included. Index it first, then switch it on.';
 
+// Per-activity didactic settings.
+$string['didactics'] = 'Didactic settings';
+$string['conversationstyle'] = 'Conversation style';
+$string['conversationstyle_help'] = 'How the assistant leads the conversation in this activity: from Closed (short, factual answers) through Lexical, Tutorial and Socratic (guiding counter-questions) to Open (free-ranging discussion).';
+$string['style_closed'] = 'Closed (Geschlossen)';
+$string['style_lexical'] = 'Lexical (Lexikalisch)';
+$string['style_tutorial'] = 'Tutorial (Tutorisch)';
+$string['style_socratic'] = 'Socratic (Sokratisch)';
+$string['style_open'] = 'Open (Offen)';
+$string['dqr'] = 'Difficulty level (DQR)';
+$string['dqr_help'] = 'The qualification level the assistant pitches its answers at, from 3 (basic) to 7 (advanced).';
+$string['industry'] = 'Domain / field of expertise';
+$string['industry_help'] = 'The subject domain of this activity, e.g. "Steuerrecht" or "E-commerce". Helps the assistant use the right terminology. May be left empty.';
+$string['fulltextsearch'] = 'Full-text search';
+$string['fulltextsearch_help'] = 'When enabled, the assistant may additionally use exact full-text search over the included materials, on top of semantic search.';
+
 // Learner RAG chat UI strings.
 $string['send'] = 'Send';
 $string['sources'] = 'Sources';
