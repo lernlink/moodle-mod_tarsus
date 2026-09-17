@@ -104,6 +104,15 @@ $string['qtype_truefalse'] = 'True / false';
 $string['qtype_open'] = 'Open question';
 $string['error_taxonomyrequired'] = 'Enable at least one taxonomy level.';
 $string['error_questiontypesrequired'] = 'Enable at least one question type in at least one difficulty grade.';
+$string['practice_start'] = 'Start';
+$string['practice_next'] = 'Next';
+$string['practice_check'] = 'Check';
+$string['practice_answer_placeholder'] = 'Write your answer here...';
+$string['practice_nowidget'] = 'The assistant could not come up with a question right now. Please try again.';
+$string['practice_modelanswer'] = 'Model answer';
+$string['choice_true'] = 'True';
+$string['choice_false'] = 'False';
+$string['xp'] = 'XP';
 
 // Learner RAG chat UI strings.
 $string['mode_switch'] = 'Interaction mode';

@@ -30,6 +30,10 @@
      data-user-avatar="{{useravatarurl}}"
      data-robot-avatar="{{robotavatarurl}}"
      data-robot-name="{{robotname}}">
+    <!-- Experience badge: appears once the practice mode reports figures -->
+    <div class="tarsus-xp-badge d-none" data-region="xp-badge">
+        <span data-region="xp-earned">0</span>&nbsp;/&nbsp;<span data-region="xp-total">0</span>&nbsp;{{#str}}xp, mod_tarsuszero{{/str}}
+    </div>
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
         <!-- Loading state helper or spinner -->
@@ -61,6 +65,11 @@
                 </button>
             </div>
             <span class="tarsus-mode-comingsoon text-muted small d-none">{{#str}}mode_comingsoon, mod_tarsuszero{{/str}}</span>
+            <button class="tarsus-practice-next btn btn-primary d-flex align-items-center flex-shrink-0 d-none" type="button">
+                <span class="tarsus-practice-next__spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span data-region="practice-label">{{#str}}practice_start, mod_tarsuszero{{/str}}</span>
+                {{#pix}}send, mod_tarsuszero{{/pix}}
+            </button>
             <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit">
                 <span class="tarsus-chat-spinner spinner-border spinner-border-sm mr-2 d-none" role="status" aria-hidden="true"></span>
                 {{#str}}send, mod_tarsuszero{{/str}}{{#pix}}send, mod_tarsuszero{{/pix}}

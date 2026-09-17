@@ -28,8 +28,8 @@ use local_tarsus\client\client_factory;
 use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
-use local_tarsus\pseudonymizer;
 use local_tarsus\usage_meter;
+use mod_tarsuszero\local\conversation;
 use mod_tarsuszero\local\scope;
 use moodle_exception;
 
@@ -107,7 +107,7 @@ class send_chat_message extends external_api {
         $pipeline = new pipeline();
         $coursecontext = \context_course::instance($cm->course);
 
-        $chatparams = self::conversation_params($cm, $querytext, $allowed);
+        $chatparams = conversation::params($cm, $allowed) + ['query' => $querytext];
 
         try {
             // Outbound API request through the guardrail pipeline. The brain
@@ -165,74 +165,6 @@ class send_chat_message extends external_api {
         }
     }
 
-
-    /** @var string[] Languages the Tarsus chat supports. */
-    private const LANGUAGES = [
-        'en', 'de', 'fr', 'ar', 'zh', 'it', 'es', 'he', 'ja', 'nl', 'tr', 'uk', 'ru',
-    ];
-
-    /**
-     * Build the conversation parameters for the t0 chat call.
-     *
-     * The vocabulary follows the Tarsus developer's instructions: the context
-     * is the activity (site-scoped id, so two sites on one brain cannot share
-     * a conversation), the robot identity is a global admin setting, and the
-     * user travels as pseudonym + display name + interface language.
-     *
-     * @param \stdClass $cm      The course module record.
-     * @param string    $query   The learner's question.
-     * @param string[]  $allowed The resource ids allowed to ground the answer.
-     * @return array<string, mixed> Parameters for {@see client_interface::generate_widgets()}.
-     */
-    private static function conversation_params(\stdClass $cm, string $query, array $allowed): array {
-        global $DB, $USER;
-
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
-        $name = trim(format_string($activity->name));
-
-        $description = trim(html_to_text((string) $activity->intro, 0, false));
-        if ($description === '') {
-            // The brain requires a non-empty description.
-            $description = $name;
-        }
-
-        $robotname = trim((string) get_config('local_tarsus', 'robot_name'));
-        $robotname = $robotname !== '' ? $robotname : 'Tarsus';
-        $robotid = trim((string) get_config('local_tarsus', 'robot_id'));
-        $robotdescription = trim((string) get_config('local_tarsus', 'robot_description'));
-
-        return [
-            'contextid' => scope::conversation_context_id((int) $cm->instance),
-            'contextname' => $name,
-            'contextdescription' => $description,
-            // The teacher's didactic settings for this activity.
-            'conversationstyle' => (int) ($activity->conversationstyle ?? 3),
-            'dqr' => (int) ($activity->dqr ?? 6),
-            'industry' => trim((string) ($activity->industry ?? '')),
-            'fulltextsearch' => !empty($activity->fulltextsearch),
-            'robotname' => $robotname,
-            'robotid' => $robotid !== '' ? $robotid : $robotname,
-            'robotdescription' => $robotdescription !== '' ? $robotdescription : $robotname,
-            'userid' => pseudonymizer::pseudonymize((int) $USER->id),
-            'username' => fullname($USER),
-            'userlanguage' => self::chat_language(),
-            'resourceids' => $allowed,
-            'query' => $query,
-        ];
-    }
-
-    /**
-     * The user's interface language, reduced to what the chat supports.
-     *
-     * @return string A supported two-letter code; 'de' when unsupported.
-     */
-    private static function chat_language(): string {
-        // Language packs may carry variants ('de_du', 'en_us'); the chat
-        // wants the plain code.
-        $language = substr(current_language(), 0, 2);
-
-        return in_array($language, self::LANGUAGES, true) ? $language : 'de';
-    }
 
     /**
      * Declares return structure.

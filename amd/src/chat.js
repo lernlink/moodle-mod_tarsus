@@ -25,7 +25,7 @@
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Templates, Notification) {
+define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], function(Ajax, Templates, Notification, Str) {
 
     /**
      * DOM selectors.
@@ -40,7 +40,19 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         SPINNER: '.tarsus-chat-spinner',
         CARD_ANSWER: '[data-region="card-answer"]',
         MODE_BTN: '.tarsus-mode-switch__btn',
-        MODE_HINT: '.tarsus-mode-comingsoon'
+        MODE_HINT: '.tarsus-mode-comingsoon',
+        PRACTICE_NEXT: '.tarsus-practice-next',
+        PRACTICE_NEXT_SPINNER: '.tarsus-practice-next__spinner',
+        PRACTICE_LABEL: '[data-region="practice-label"]',
+        PRACTICE_CARD: '[data-region="practice-card"]',
+        PRACTICE_CHECK: '.tarsus-practice-check',
+        PRACTICE_CHECK_SPINNER: '.tarsus-practice-check__spinner',
+        PRACTICE_CHOICE: '.tarsus-practice-choice',
+        PRACTICE_INPUT: '.tarsus-practice-card__input',
+        PRACTICE_FEEDBACK: '[data-region="feedback"]',
+        XP_BADGE: '[data-region="xp-badge"]',
+        XP_EARNED: '[data-region="xp-earned"]',
+        XP_TOTAL: '[data-region="xp-total"]'
     };
 
     /**
@@ -61,8 +73,197 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         userAvatar: '',
         robotAvatar: '',
         robotName: '',
-        mode: 'ask'
+        mode: 'ask',
+        practiceStarted: false
     };
+
+    /**
+     * Show the experience figures once the practice mode reports them.
+     *
+     * @param {Object|undefined} progress {earnedxp, totalxp, practiceprogress}
+     */
+    function updateXp(progress) {
+        if (!progress || !(progress.totalxp > 0)) {
+            return;
+        }
+        var badge = state.container.querySelector(SELECTORS.XP_BADGE);
+        if (!badge) {
+            return;
+        }
+        badge.classList.remove('d-none');
+        badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(progress.earnedxp * 100) / 100;
+        badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(progress.totalxp * 100) / 100;
+    }
+
+    /**
+     * Fetch and render the next practice question.
+     */
+    function handlePracticeNext() {
+        var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
+        var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
+        var alertBox = state.container.querySelector(SELECTORS.ALERT);
+        if (!button || button.disabled) {
+            return;
+        }
+
+        button.disabled = true;
+        if (spinner) {
+            spinner.classList.remove('d-none');
+        }
+        if (alertBox) {
+            alertBox.classList.add('d-none');
+        }
+
+        var unlock = function() {
+            button.disabled = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+        };
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_get_practice_widget',
+            args: {cmid: state.cmid}
+        }])[0].then(function(result) {
+            unlock();
+
+            if (result.status !== 'success' || !result.widget) {
+                if (alertBox) {
+                    alertBox.classList.remove('d-none');
+                    alertBox.textContent = result.error || 'Unknown error occurred.';
+                }
+                return null;
+            }
+
+            updateXp(result.progress);
+
+            var widget = result.widget;
+            return attachCard('mod_tarsuszero/practice_card', {
+                widgetid: widget.id,
+                widgettype: widget.type,
+                question: widget.question,
+                haschoices: widget.choices.length > 0,
+                choices: widget.choices,
+                taxonomy: widget.taxonomy,
+                difficulty: widget.difficulty,
+                hasmeta: Boolean(widget.taxonomy || widget.difficulty)
+            }, null).then(function() {
+                if (!state.practiceStarted) {
+                    state.practiceStarted = true;
+                    var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
+                    return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
+                        if (label) {
+                            label.textContent = next;
+                        }
+                        return null;
+                    });
+                }
+                return null;
+            });
+        }).catch(function(ex) {
+            unlock();
+            Notification.exception(ex);
+        });
+    }
+
+    /**
+     * Evaluate the answer of one practice card.
+     *
+     * @param {Element} card The practice card element.
+     */
+    function handlePracticeCheck(card) {
+        var check = card.querySelector(SELECTORS.PRACTICE_CHECK);
+        var spinner = card.querySelector(SELECTORS.PRACTICE_CHECK_SPINNER);
+        var feedback = card.querySelector(SELECTORS.PRACTICE_FEEDBACK);
+        if (!check || check.disabled) {
+            return;
+        }
+
+        var answer = '';
+        var chosen = card.querySelector('input[type="radio"]:checked');
+        var textinput = card.querySelector(SELECTORS.PRACTICE_INPUT);
+        if (chosen) {
+            answer = chosen.value;
+        } else if (textinput) {
+            answer = textinput.value.trim();
+        }
+        if (answer === '') {
+            return;
+        }
+
+        check.disabled = true;
+        if (spinner) {
+            spinner.classList.remove('d-none');
+        }
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_submit_practice_answer',
+            args: {
+                cmid: state.cmid,
+                widgetid: card.getAttribute('data-widget-id'),
+                widgettype: card.getAttribute('data-widget-type'),
+                answer: answer
+            }
+        }])[0].then(function(result) {
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+
+            if (result.status !== 'success') {
+                check.disabled = false;
+                var alertBox = state.container.querySelector(SELECTORS.ALERT);
+                if (alertBox) {
+                    alertBox.classList.remove('d-none');
+                    alertBox.textContent = result.error || 'Unknown error occurred.';
+                }
+                return null;
+            }
+
+            // The card is answered: freeze it, mark the learner's pick and
+            // show the feedback, as in the Tarsus interface.
+            card.classList.add('tarsus-practice-card--answered');
+            card.querySelectorAll('input').forEach(function(input) {
+                input.disabled = true;
+            });
+            if (textinput) {
+                textinput.disabled = true;
+            }
+            check.classList.add('d-none');
+
+            if (chosen) {
+                var choicebox = chosen.closest(SELECTORS.PRACTICE_CHOICE);
+                if (choicebox) {
+                    choicebox.classList.add(result.correct
+                        ? 'tarsus-practice-choice--correct'
+                        : 'tarsus-practice-choice--incorrect');
+                }
+            }
+
+            if (feedback) {
+                feedback.classList.remove('d-none');
+                if (result.hasverdict) {
+                    feedback.classList.add(result.correct
+                        ? 'tarsus-practice-card__feedback--correct'
+                        : 'tarsus-practice-card__feedback--incorrect');
+                }
+                // Server-cleaned HTML from the external function.
+                feedback.innerHTML = result.feedback || result.answer || '';
+            }
+
+            updateXp(result.progress);
+            var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+            if (flow) {
+                flow.scrollTop = flow.scrollHeight;
+            }
+            return null;
+        }).catch(function(ex) {
+            check.disabled = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+            Notification.exception(ex);
+        });
+    }
 
     /**
      * Switch the interaction mode.
@@ -85,9 +286,11 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         });
 
         var ask = mode === 'ask';
+        var test = mode === 'test';
         var input = state.container.querySelector(SELECTORS.INPUT);
         var submit = state.container.querySelector(SELECTORS.SUBMIT);
         var hint = state.container.querySelector(SELECTORS.MODE_HINT);
+        var practice = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
         if (input) {
             input.classList.toggle('d-none', !ask);
             input.disabled = !ask;
@@ -95,8 +298,11 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         if (submit) {
             submit.classList.toggle('d-none', !ask);
         }
+        if (practice) {
+            practice.classList.toggle('d-none', !test);
+        }
         if (hint) {
-            hint.classList.toggle('d-none', ask);
+            hint.classList.toggle('d-none', ask || test);
         }
     }
 
@@ -311,6 +517,22 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
             btn.addEventListener('click', function() {
                 setMode(btn.getAttribute('data-mode'));
             });
+        });
+
+        var practice = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
+        if (practice) {
+            practice.addEventListener('click', handlePracticeNext);
+        }
+
+        // Practice cards render later; delegate their check buttons.
+        state.container.addEventListener('click', function(e) {
+            var check = e.target.closest(SELECTORS.PRACTICE_CHECK);
+            if (check && state.container.contains(check)) {
+                var card = check.closest(SELECTORS.PRACTICE_CARD);
+                if (card) {
+                    handlePracticeCheck(card);
+                }
+            }
         });
 
         loadHistory();

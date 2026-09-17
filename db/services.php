@@ -41,6 +41,22 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_get_practice_widget' => [
+        'classname'   => 'mod_tarsuszero\external\get_practice_widget',
+        'methodname'  => 'execute',
+        'description' => 'Generate the next practice question widget (Test knowledge mode).',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
+    'mod_tarsuszero_submit_practice_answer' => [
+        'classname'   => 'mod_tarsuszero\external\submit_practice_answer',
+        'methodname'  => 'execute',
+        'description' => 'Evaluate the learner\'s answer to a practice question widget.',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
     'mod_tarsuszero_set_resource_action' => [
         'classname'   => 'mod_tarsuszero\external\set_resource_action',
         'methodname'  => 'execute',

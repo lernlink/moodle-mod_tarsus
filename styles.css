@@ -178,3 +178,92 @@
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
+
+/* Experience badge, shown once the practice mode reports figures. */
+.tarsus-chat-box .tarsus-xp-badge {
+    width: max-content;
+    margin-left: auto;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: #1d2125;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Practice question cards (Test knowledge mode). */
+.tarsus-practice-card {
+    padding: 1.25rem 1.5rem;
+}
+
+.tarsus-practice-card__meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tarsus-practice-card__badge {
+    background: #f1f0ec;
+    color: #1d2125;
+    font-weight: 500;
+}
+
+.tarsus-practice-card__question {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.tarsus-practice-card__choices {
+    display: flex;
+    flex-direction: column;
+}
+
+.tarsus-practice-choice {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+}
+
+.tarsus-practice-card--answered .tarsus-practice-choice {
+    cursor: default;
+    color: #6a7076;
+}
+
+.tarsus-practice-choice--correct {
+    background: #e9f7ec;
+    color: #1d2125;
+}
+
+.tarsus-practice-choice--incorrect {
+    background: #fdeef0;
+    color: #1d2125;
+}
+
+.tarsus-practice-card__actions {
+    margin-top: 0.75rem;
+}
+
+.tarsus-practice-card__feedback {
+    margin-top: 1rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 0.75rem;
+    background: #f4f4f2;
+}
+
+.tarsus-practice-card__feedback--correct {
+    background: #e9f7ec;
+}
+
+.tarsus-practice-card__feedback--incorrect {
+    background: #fdeef0;
+}
+
+.tarsus-practice-card__feedback p:last-child {
+    margin-bottom: 0;
+}
