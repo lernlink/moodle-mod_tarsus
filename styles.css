@@ -164,6 +164,13 @@
     gap: 0.4rem;
 }
 
+/* The theme's .icon class carries its own right margin; the flex gap
+   already spaces the glyphs, so it would double up. */
+.tarsus-mode-switch__btn .icon,
+.tarsus-chat-box .tarsus-chat-submit .icon {
+    margin-right: 0;
+}
+
 .tarsus-mode-switch__btn--active {
     background: #fff;
     border-color: rgba(0, 0, 0, 0.1);
