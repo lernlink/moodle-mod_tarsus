@@ -136,6 +136,9 @@
 }
 
 .tarsus-mode-switch__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     border: 1px solid transparent;
     background: transparent;
     border-radius: 0.5rem;
@@ -155,6 +158,10 @@
 .tarsus-mode-switch__btn:focus-visible {
     outline: 2px solid #0f6cbf;
     outline-offset: 2px;
+}
+
+.tarsus-chat-box .tarsus-chat-submit {
+    gap: 0.4rem;
 }
 
 .tarsus-mode-switch__btn--active {

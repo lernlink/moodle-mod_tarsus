@@ -121,3 +121,20 @@ function tarsuszero_extend_settings_navigation(settings_navigation $settingsnav,
         new pix_icon('i/reload', '')
     );
 }
+
+/**
+ * Map the plugin's icon names onto Font Awesome classes.
+ *
+ * The composer icons (mode switcher and send button) render as monochrome
+ * Font Awesome glyphs that inherit the button's text colour.
+ *
+ * @return array<string, string> Icon name => Font Awesome classes.
+ */
+function mod_tarsuszero_get_fontawesome_icon_map(): array {
+    return [
+        'mod_tarsuszero:mode_build' => 'fa-regular fa-lightbulb',
+        'mod_tarsuszero:mode_test' => 'fa-solid fa-dumbbell',
+        'mod_tarsuszero:mode_ask' => 'fa-regular fa-hand',
+        'mod_tarsuszero:send' => 'fa-regular fa-paper-plane',
+    ];
+}
