@@ -19,7 +19,9 @@
  *
  * The conversation lives in the brain only; erasing it there removes both
  * the transcript and the assistant's memory of it, so the next question
- * starts a fresh conversation. Each user can only ever erase their own.
+ * starts a fresh conversation. Each user can only ever erase their own,
+ * and students cannot erase at all: the conversation carries their
+ * learning progress.
  *
  * @package    mod_tarsuszero
  * @copyright  2026 lern.link GmbH
@@ -44,7 +46,7 @@ $moduleinstance = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MU
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/tarsuszero:view', $context);
+require_capability('mod/tarsuszero:resetchat', $context);
 
 $pageurl = new moodle_url('/mod/tarsuszero/resetchat.php', ['id' => $cm->id]);
 $viewurl = new moodle_url('/mod/tarsuszero/view.php', ['id' => $cm->id]);

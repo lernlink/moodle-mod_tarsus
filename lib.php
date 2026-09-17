@@ -108,7 +108,7 @@ function tarsuszero_delete_instance(int $id): bool {
  */
 function tarsuszero_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $node): void {
     $cm = $settingsnav->get_page()->cm;
-    if (!$node || !$cm || !has_capability('mod/tarsuszero:view', $cm->context)) {
+    if (!$node || !$cm || !has_capability('mod/tarsuszero:resetchat', $cm->context)) {
         return;
     }
 

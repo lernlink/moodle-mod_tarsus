@@ -48,6 +48,20 @@ $capabilities = [
         ],
     ],
 
+    // Erase one's own conversation with the assistant. Deliberately withheld
+    // from students: the conversation is the assistant's memory of their
+    // learning progress, and erasing it cannot be undone.
+    'mod/tarsuszero:resetchat' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+
     // Manage course material indexation (trigger indexing, view the reconciliation list).
     'mod/tarsuszero:manage' => [
         'captype' => 'write',

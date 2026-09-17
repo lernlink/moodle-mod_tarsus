@@ -32,6 +32,7 @@ $string['tarsuszeroname'] = 'Name';
 $string['tarsuszero:addinstance'] = 'Add a new Tarsus activity';
 $string['tarsuszero:view'] = 'View Tarsus activity';
 $string['tarsuszero:manage'] = 'Manage Tarsus material indexation';
+$string['tarsuszero:resetchat'] = 'Erase own chat conversation with the assistant';
 
 // Teacher reconciliation dashboard.
 $string['indexcourse'] = 'Index this course';
