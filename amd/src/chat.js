@@ -38,7 +38,16 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         SUBMIT: '.tarsus-chat-submit',
         ALERT: '.tarsus-chat-alert',
         SPINNER: '.tarsus-chat-spinner',
-        CARD_ANSWER: '[data-region="card-answer"]'
+        CARD_ANSWER: '[data-region="card-answer"]',
+        MODE_BTN: '.tarsus-mode-switch__btn'
+    };
+
+    /**
+     * CSS classes.
+     * @private
+     */
+    var CLASSES = {
+        MODE_ACTIVE: 'tarsus-mode-switch__btn--active'
     };
 
     /**
@@ -50,8 +59,44 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         container: null,
         userAvatar: '',
         robotAvatar: '',
-        robotName: ''
+        robotName: '',
+        mode: 'ask',
+        askPlaceholder: ''
     };
+
+    /**
+     * Switch the interaction mode.
+     *
+     * Only 'ask' (the chat) is functional so far; the other modes will
+     * steer the assistant's behaviour later. Selecting one of them just
+     * moves the highlight and rests the composer.
+     *
+     * @param {string} mode One of 'build', 'test', 'ask'
+     */
+    function setMode(mode) {
+        state.mode = mode;
+
+        state.container.querySelectorAll(SELECTORS.MODE_BTN).forEach(function(btn) {
+            var active = btn.getAttribute('data-mode') === mode;
+            btn.classList.toggle(CLASSES.MODE_ACTIVE, active);
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+
+        var input = state.container.querySelector(SELECTORS.INPUT);
+        var submit = state.container.querySelector(SELECTORS.SUBMIT);
+        if (!input || !submit) {
+            return;
+        }
+        if (mode === 'ask') {
+            input.disabled = false;
+            submit.disabled = false;
+            input.placeholder = state.askPlaceholder;
+        } else {
+            input.disabled = true;
+            submit.disabled = true;
+            input.placeholder = state.container.getAttribute('data-comingsoon') || '';
+        }
+    }
 
     /**
      * Render a card template and attach it to the flow.
@@ -259,6 +304,15 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         if (form) {
             form.addEventListener('submit', handleSubmit);
         }
+
+        var input = state.container.querySelector(SELECTORS.INPUT);
+        state.askPlaceholder = input ? input.placeholder : '';
+
+        state.container.querySelectorAll(SELECTORS.MODE_BTN).forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                setMode(btn.getAttribute('data-mode'));
+            });
+        });
 
         loadHistory();
     }

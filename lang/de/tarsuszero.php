@@ -90,6 +90,11 @@ $string['industry'] = 'Fachgebiet / Domäne';
 $string['industry_help'] = 'Das Fachgebiet dieser Aktivität, z. B. "Steuerrecht" oder "E-Commerce". Hilft dem Assistenten, die richtige Terminologie zu verwenden. Kann leer bleiben.';
 $string['fulltextsearch'] = 'Volltextsuche';
 $string['fulltextsearch_help'] = 'Wenn aktiviert, darf der Assistent zusätzlich zur semantischen Suche eine exakte Volltextsuche über die einbezogenen Materialien verwenden.';
+$string['mode_switch'] = 'Interaktionsmodus';
+$string['mode_build'] = 'Wissen aufbauen';
+$string['mode_test'] = 'Wissen testen';
+$string['mode_ask'] = 'Frage stellen';
+$string['mode_comingsoon'] = 'Dieser Modus ist bald verfügbar.';
 
 $string['chat_placeholder'] = 'Stelle eine Frage zu den Kursmaterialien...';
 $string['loading_history'] = 'Unterhaltungshistorie wird geladen...';

@@ -90,6 +90,11 @@ $string['fulltextsearch'] = 'Full-text search';
 $string['fulltextsearch_help'] = 'When enabled, the assistant may additionally use exact full-text search over the included materials, on top of semantic search.';
 
 // Learner RAG chat UI strings.
+$string['mode_switch'] = 'Interaction mode';
+$string['mode_build'] = 'Build knowledge';
+$string['mode_test'] = 'Test knowledge';
+$string['mode_ask'] = 'Ask a question';
+$string['mode_comingsoon'] = 'This mode is coming soon.';
 $string['send'] = 'Send';
 $string['sources'] = 'Sources';
 $string['chat_placeholder'] = 'Ask a question about the course materials...';

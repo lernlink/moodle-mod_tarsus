@@ -29,7 +29,22 @@
 <div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
      data-user-avatar="{{useravatarurl}}"
      data-robot-avatar="{{robotavatarurl}}"
-     data-robot-name="{{robotname}}">
+     data-robot-name="{{robotname}}"
+     data-comingsoon="{{#str}}mode_comingsoon, mod_tarsuszero{{/str}}">
+    <!-- Interaction mode switcher (visual only for now; Ask a question is the chat) -->
+    <div class="tarsus-mode-switch mb-3">
+        <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsuszero{{/str}}">
+            <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
+                {{#str}}mode_build, mod_tarsuszero{{/str}}
+            </button>
+            <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
+                {{#str}}mode_test, mod_tarsuszero{{/str}}
+            </button>
+            <button type="button" class="tarsus-mode-switch__btn tarsus-mode-switch__btn--active" data-mode="ask" aria-pressed="true">
+                {{#str}}mode_ask, mod_tarsuszero{{/str}}
+            </button>
+        </div>
+    </div>
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
         <!-- Loading state helper or spinner -->
