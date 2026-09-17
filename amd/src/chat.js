@@ -39,7 +39,8 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         ALERT: '.tarsus-chat-alert',
         SPINNER: '.tarsus-chat-spinner',
         CARD_ANSWER: '[data-region="card-answer"]',
-        MODE_BTN: '.tarsus-mode-switch__btn'
+        MODE_BTN: '.tarsus-mode-switch__btn',
+        MODE_HINT: '.tarsus-mode-comingsoon'
     };
 
     /**
@@ -60,16 +61,17 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         userAvatar: '',
         robotAvatar: '',
         robotName: '',
-        mode: 'ask',
-        askPlaceholder: ''
+        mode: 'ask'
     };
 
     /**
      * Switch the interaction mode.
      *
      * Only 'ask' (the chat) is functional so far; the other modes will
-     * steer the assistant's behaviour later. Selecting one of them just
-     * moves the highlight and rests the composer.
+     * steer the assistant's behaviour later. The chat input and the send
+     * button belong to 'ask' alone — the other modes will interact
+     * through cards in the flow, so the composer collapses to the
+     * switcher row with a coming-soon hint.
      *
      * @param {string} mode One of 'build', 'test', 'ask'
      */
@@ -82,19 +84,19 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
 
+        var ask = mode === 'ask';
         var input = state.container.querySelector(SELECTORS.INPUT);
         var submit = state.container.querySelector(SELECTORS.SUBMIT);
-        if (!input || !submit) {
-            return;
+        var hint = state.container.querySelector(SELECTORS.MODE_HINT);
+        if (input) {
+            input.classList.toggle('d-none', !ask);
+            input.disabled = !ask;
         }
-        if (mode === 'ask') {
-            input.disabled = false;
-            submit.disabled = false;
-            input.placeholder = state.askPlaceholder;
-        } else {
-            input.disabled = true;
-            submit.disabled = true;
-            input.placeholder = state.container.getAttribute('data-comingsoon') || '';
+        if (submit) {
+            submit.classList.toggle('d-none', !ask);
+        }
+        if (hint) {
+            hint.classList.toggle('d-none', ask);
         }
     }
 
@@ -304,9 +306,6 @@ define(['core/ajax', 'core/templates', 'core/notification'], function(Ajax, Temp
         if (form) {
             form.addEventListener('submit', handleSubmit);
         }
-
-        var input = state.container.querySelector(SELECTORS.INPUT);
-        state.askPlaceholder = input ? input.placeholder : '';
 
         state.container.querySelectorAll(SELECTORS.MODE_BTN).forEach(function(btn) {
             btn.addEventListener('click', function() {

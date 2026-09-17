@@ -29,22 +29,7 @@
 <div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
      data-user-avatar="{{useravatarurl}}"
      data-robot-avatar="{{robotavatarurl}}"
-     data-robot-name="{{robotname}}"
-     data-comingsoon="{{#str}}mode_comingsoon, mod_tarsuszero{{/str}}">
-    <!-- Interaction mode switcher (visual only for now; Ask a question is the chat) -->
-    <div class="tarsus-mode-switch mb-3">
-        <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsuszero{{/str}}">
-            <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
-                {{#str}}mode_build, mod_tarsuszero{{/str}}
-            </button>
-            <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
-                {{#str}}mode_test, mod_tarsuszero{{/str}}
-            </button>
-            <button type="button" class="tarsus-mode-switch__btn tarsus-mode-switch__btn--active" data-mode="ask" aria-pressed="true">
-                {{#str}}mode_ask, mod_tarsuszero{{/str}}
-            </button>
-        </div>
-    </div>
+     data-robot-name="{{robotname}}">
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
         <!-- Loading state helper or spinner -->
@@ -57,11 +42,25 @@
     <!-- Alert details -->
     <div class="tarsus-chat-alert alert alert-danger d-none mb-3" role="alert"></div>
 
-    <!-- Subinput field -->
+    <!-- Composer: the question input above, the mode switcher and the send
+         button in one row beneath, as in the Tarsus interface. The other
+         modes work without the input, so it hides outside 'ask'. -->
     <form class="tarsus-chat-form card p-2 bg-light" method="post" action="view.php">
         <input type="hidden" name="id" value="{{cmid}}">
-        <div class="d-flex align-items-center" style="gap: 0.5rem;">
-            <input type="text" class="tarsus-chat-input form-control flex-grow-1" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
+        <input type="text" class="tarsus-chat-input form-control mb-2" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
+        <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
+            <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsuszero{{/str}}">
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
+                    {{#str}}mode_build, mod_tarsuszero{{/str}}
+                </button>
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
+                    {{#str}}mode_test, mod_tarsuszero{{/str}}
+                </button>
+                <button type="button" class="tarsus-mode-switch__btn tarsus-mode-switch__btn--active" data-mode="ask" aria-pressed="true">
+                    {{#str}}mode_ask, mod_tarsuszero{{/str}}
+                </button>
+            </div>
+            <span class="tarsus-mode-comingsoon text-muted small d-none">{{#str}}mode_comingsoon, mod_tarsuszero{{/str}}</span>
             <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit">
                 <span class="tarsus-chat-spinner spinner-border spinner-border-sm mr-2 d-none" role="status" aria-hidden="true"></span>
                 {{#str}}send, mod_tarsuszero{{/str}}

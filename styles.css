@@ -119,10 +119,12 @@
     word-break: break-word;
 }
 
-/* Interaction mode switcher: a segmented pill toggle above the chat. */
-.tarsus-mode-switch {
-    display: flex;
-    justify-content: center;
+/* Interaction mode switcher: a segmented pill toggle inside the composer. */
+.tarsus-chat-box .tarsus-chat-input {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding-left: 0.25rem;
 }
 
 .tarsus-mode-switch__group {
