@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
+use mod_tarsuszero\local\didactics;
+
 /**
  * The mod_tarsuszero instance configuration form.
  *
@@ -91,7 +93,148 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->setDefault('fulltextsearch', 0);
         $mform->addHelpButton('fulltextsearch', 'fulltextsearch', 'mod_tarsuszero');
 
+        // Practice (Test knowledge) settings: which Bloom taxonomy levels
+        // the questions may target, and which question types the brain may
+        // generate per difficulty grade. The difficulty grades have no API
+        // parameter of their own — a grade takes part exactly when it has
+        // question types enabled.
+        $taxonomies = [
+            1 => get_string('taxonomy_knowledge', 'mod_tarsuszero'),
+            2 => get_string('taxonomy_understanding', 'mod_tarsuszero'),
+            3 => get_string('taxonomy_application', 'mod_tarsuszero'),
+        ];
+        $group = [];
+        foreach ($taxonomies as $level => $label) {
+            $group[] = $mform->createElement('advcheckbox', 'taxonomylevel' . $level, '', $label);
+        }
+        $mform->addGroup($group, 'taxonomygroup', get_string('taxonomylevels', 'mod_tarsuszero'), ' ', false);
+        $mform->addHelpButton('taxonomygroup', 'taxonomylevels', 'mod_tarsuszero');
+        foreach (array_keys($taxonomies) as $level) {
+            $mform->setDefault('taxonomylevel' . $level,
+                (int) in_array($level, didactics::default_taxonomy_levels(), true));
+        }
+
+        $qtypes = [
+            didactics::TYPE_SINGLECHOICE => get_string('qtype_singlechoice', 'mod_tarsuszero'),
+            didactics::TYPE_TRUEFALSE => get_string('qtype_truefalse', 'mod_tarsuszero'),
+            didactics::TYPE_OPEN => get_string('qtype_open', 'mod_tarsuszero'),
+        ];
+        $grades = [
+            1 => get_string('difficulty_easy', 'mod_tarsuszero'),
+            2 => get_string('difficulty_medium', 'mod_tarsuszero'),
+            3 => get_string('difficulty_hard', 'mod_tarsuszero'),
+        ];
+        $defaultmap = didactics::default_question_types();
+        foreach ($grades as $grade => $gradelabel) {
+            $group = [];
+            foreach ($qtypes as $type => $typelabel) {
+                $group[] = $mform->createElement('advcheckbox', self::qtype_field($grade, $type), '', $typelabel);
+            }
+            $mform->addGroup($group, 'qtypesgroup' . $grade,
+                get_string('questiontypes_grade', 'mod_tarsuszero', $gradelabel), ' ', false);
+            $mform->addHelpButton('qtypesgroup' . $grade, 'questiontypes', 'mod_tarsuszero');
+            foreach (array_keys($qtypes) as $type) {
+                $mform->setDefault(self::qtype_field($grade, $type),
+                    (int) in_array($type, $defaultmap[$grade] ?? [], true));
+            }
+        }
+
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
+    }
+
+    /**
+     * The form field name of one question-type checkbox.
+     *
+     * @param int    $grade The difficulty grade (1..3).
+     * @param string $type  The question widget type.
+     * @return string The field name.
+     */
+    private static function qtype_field(int $grade, string $type): string {
+        return 'qtype' . $grade . '_' . strtolower($type);
+    }
+
+    /**
+     * Unpack the stored practice settings into the checkbox fields.
+     *
+     * @param array $defaultvalues The default values (passed by reference).
+     * @return void
+     */
+    public function data_preprocessing(&$defaultvalues): void {
+        parent::data_preprocessing($defaultvalues);
+
+        if (!empty($defaultvalues['id'])) {
+            $levels = didactics::decode_taxonomy_levels($defaultvalues['taxonomylevels'] ?? '');
+            foreach (didactics::TAXONOMY_LEVELS as $level) {
+                $defaultvalues['taxonomylevel' . $level] = (int) in_array($level, $levels, true);
+            }
+
+            $map = didactics::decode_question_types($defaultvalues['questiontypes'] ?? '');
+            foreach (didactics::GRADES as $grade) {
+                foreach (didactics::TYPES as $type) {
+                    $defaultvalues[self::qtype_field($grade, $type)] =
+                        (int) in_array($type, $map[$grade] ?? [], true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Pack the checkbox fields back into the stored practice settings.
+     *
+     * @param \stdClass $data The submitted form data (modified in place).
+     * @return void
+     */
+    public function data_postprocessing($data): void {
+        parent::data_postprocessing($data);
+
+        $levels = [];
+        foreach (didactics::TAXONOMY_LEVELS as $level) {
+            if (!empty($data->{'taxonomylevel' . $level})) {
+                $levels[] = $level;
+            }
+        }
+        $data->taxonomylevels = didactics::encode_taxonomy_levels($levels);
+
+        $map = [];
+        foreach (didactics::GRADES as $grade) {
+            foreach (didactics::TYPES as $type) {
+                if (!empty($data->{self::qtype_field($grade, $type)})) {
+                    $map[$grade][] = $type;
+                }
+            }
+        }
+        $data->questiontypes = didactics::encode_question_types($map);
+    }
+
+    /**
+     * Require at least one taxonomy level and one question type.
+     *
+     * @param array $data  The submitted data.
+     * @param array $files The submitted files.
+     * @return array Field name => error message.
+     */
+    public function validation($data, $files): array {
+        $errors = parent::validation($data, $files);
+
+        $haslevel = false;
+        foreach (didactics::TAXONOMY_LEVELS as $level) {
+            $haslevel = $haslevel || !empty($data['taxonomylevel' . $level]);
+        }
+        if (!$haslevel) {
+            $errors['taxonomygroup'] = get_string('error_taxonomyrequired', 'mod_tarsuszero');
+        }
+
+        $hastype = false;
+        foreach (didactics::GRADES as $grade) {
+            foreach (didactics::TYPES as $type) {
+                $hastype = $hastype || !empty($data[self::qtype_field($grade, $type)]);
+            }
+        }
+        if (!$hastype) {
+            $errors['qtypesgroup1'] = get_string('error_questiontypesrequired', 'mod_tarsuszero');
+        }
+
+        return $errors;
     }
 }

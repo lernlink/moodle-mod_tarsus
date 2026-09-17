@@ -17,6 +17,8 @@
         <FIELD NAME="dqr" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="6" SEQUENCE="false" COMMENT="Difficulty level 3-7."/>
         <FIELD NAME="industry" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="Domain / field of expertise; empty means unset."/>
         <FIELD NAME="fulltextsearch" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the brain may use full-text search."/>
+        <FIELD NAME="taxonomylevels" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="1,2,3" SEQUENCE="false" COMMENT="Enabled Bloom taxonomy levels for practice questions (CSV of 1..3)."/>
+        <FIELD NAME="questiontypes" TYPE="char" LENGTH="1333" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="JSON map difficulty grade (1..3) to allowed question widget types; empty means plugin defaults."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

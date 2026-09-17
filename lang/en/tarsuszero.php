@@ -88,6 +88,22 @@ $string['industry'] = 'Domain / field of expertise';
 $string['industry_help'] = 'The subject domain of this activity, e.g. "Steuerrecht" or "E-commerce". Helps the assistant use the right terminology. May be left empty.';
 $string['fulltextsearch'] = 'Full-text search';
 $string['fulltextsearch_help'] = 'When enabled, the assistant may additionally use exact full-text search over the included materials, on top of semantic search.';
+$string['taxonomylevels'] = 'Taxonomy levels';
+$string['taxonomylevels_help'] = 'The Bloom taxonomy levels the practice questions may target in the Test knowledge mode. At least one level must stay enabled.';
+$string['taxonomy_knowledge'] = 'Knowledge (Wissen)';
+$string['taxonomy_understanding'] = 'Understanding (Verstehen)';
+$string['taxonomy_application'] = 'Application (Anwenden)';
+$string['questiontypes'] = 'Question types';
+$string['questiontypes_help'] = 'Which question types the assistant may generate in this difficulty grade of the Test knowledge mode. A grade with no types selected is skipped; at least one type in at least one grade is required.';
+$string['questiontypes_grade'] = 'Question types — {$a}';
+$string['difficulty_easy'] = 'Easy (Einfach)';
+$string['difficulty_medium'] = 'Medium (Mittel)';
+$string['difficulty_hard'] = 'Hard (Schwer)';
+$string['qtype_singlechoice'] = 'Single choice';
+$string['qtype_truefalse'] = 'True / false';
+$string['qtype_open'] = 'Open question';
+$string['error_taxonomyrequired'] = 'Enable at least one taxonomy level.';
+$string['error_questiontypesrequired'] = 'Enable at least one question type in at least one difficulty grade.';
 
 // Learner RAG chat UI strings.
 $string['mode_switch'] = 'Interaction mode';

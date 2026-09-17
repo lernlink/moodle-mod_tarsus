@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026091706;
+$plugin->version   = 2026091800;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.13.4 (Even icon-to-label spacing on composer buttons)';
+$plugin->release   = '0.14.0 (Practice settings: taxonomy levels and question types)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

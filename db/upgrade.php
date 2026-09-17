@@ -91,5 +91,25 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026073115, 'tarsuszero');
     }
 
+    if ($oldversion < 2026091800) {
+        // Practice (Test knowledge) settings: the enabled Bloom taxonomy
+        // levels and the question types per difficulty grade. An empty
+        // questiontypes value means the plugin defaults, so existing
+        // activities keep working without a data migration.
+        $table = new xmldb_table('tarsuszero');
+        $fields = [
+            new xmldb_field('taxonomylevels', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, '1,2,3', 'fulltextsearch'),
+            new xmldb_field('questiontypes', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, '', 'taxonomylevels'),
+        ];
+
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026091800, 'tarsuszero');
+    }
+
     return true;
 }
