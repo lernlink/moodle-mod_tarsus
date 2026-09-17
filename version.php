@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026091703;
+$plugin->version   = 2026091704;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.13.1 (Mode switcher moved into the composer)';
+$plugin->release   = '0.13.2 (Mode switcher restyled as rectangular segments)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
