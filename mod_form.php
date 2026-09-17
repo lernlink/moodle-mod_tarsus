@@ -69,8 +69,15 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->setDefault('conversationstyle', 3);
         $mform->addHelpButton('conversationstyle', 'conversationstyle', 'mod_tarsuszero');
 
-        $mform->addElement('select', 'dqr', get_string('dqr', 'mod_tarsuszero'),
-            array_combine(range(3, 7), range(3, 7)));
+        // DQR levels as named on the Tarsus site; the wire value stays 3..7.
+        $dqrlevels = [
+            3 => get_string('dqr_level3', 'mod_tarsuszero'),
+            4 => get_string('dqr_level4', 'mod_tarsuszero'),
+            5 => get_string('dqr_level5', 'mod_tarsuszero'),
+            6 => get_string('dqr_level6', 'mod_tarsuszero'),
+            7 => get_string('dqr_level7', 'mod_tarsuszero'),
+        ];
+        $mform->addElement('select', 'dqr', get_string('dqr', 'mod_tarsuszero'), $dqrlevels);
         $mform->setType('dqr', PARAM_INT);
         $mform->setDefault('dqr', 6);
         $mform->addHelpButton('dqr', 'dqr', 'mod_tarsuszero');
