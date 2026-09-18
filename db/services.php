@@ -41,6 +41,14 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_get_practice_state' => [
+        'classname'   => 'mod_tarsuszero\external\get_practice_state',
+        'methodname'  => 'execute',
+        'description' => 'Reopen the practice feed and experience figures from the brain.',
+        'type'        => 'read',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
     'mod_tarsuszero_get_practice_widget' => [
         'classname'   => 'mod_tarsuszero\external\get_practice_widget',
         'methodname'  => 'execute',

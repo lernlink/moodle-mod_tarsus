@@ -26,6 +26,7 @@ use mod_tarsuszero\external\submit_practice_answer;
  *
  * @package    mod_tarsuszero
  * @covers     \mod_tarsuszero\external\get_practice_widget
+ * @covers     \mod_tarsuszero\external\get_practice_state
  * @covers     \mod_tarsuszero\external\submit_practice_answer
  * @covers     \mod_tarsuszero\local\conversation
  * @copyright  2026 lern.link GmbH
@@ -119,6 +120,51 @@ final class practice_test extends \advanced_testcase {
         $this->assertEquals('success', $result['status']);
         $this->assertStringContainsString('[tax: 2]', $result['widget']['question']);
         $this->assertStringContainsString('[types: 3:1]', $result['widget']['question']);
+    }
+
+    /**
+     * Reloading the page reopens the feed: answered questions frozen with
+     * their verdicts, unanswered ones still answerable, figures included.
+     */
+    public function test_practice_state_reopens_the_feed(): void {
+        [$tz] = $this->make_ready_activity();
+
+        $result = \mod_tarsuszero\external\get_practice_state::execute((int) $tz->cmid);
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertCount(2, $result['items']);
+
+        [$answered, $open] = $result['items'];
+        $this->assertTrue($answered['answered']);
+        $this->assertTrue($answered['correct']);
+        $this->assertSame('Alpha', $answered['useranswer']);
+        $this->assertStringContainsString('<strong>Mock stored clarification.</strong>', $answered['feedback']);
+
+        $this->assertFalse($open['answered']);
+        $this->assertSame('trueFalseQuestionWidget', $open['type']);
+        // The true/false values render with localized labels.
+        $this->assertSame('true', $open['choices'][0]['value']);
+        $this->assertSame(get_string('choice_true', 'mod_tarsuszero'), $open['choices'][0]['label']);
+
+        $this->assertSame(60.0, $result['progress']['practiceprogress']);
+        $this->assertSame(9.0, $result['progress']['earnedxp']);
+    }
+
+    /**
+     * With nothing included the feed is empty without calling the brain.
+     */
+    public function test_practice_state_without_scope_is_empty(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->setUser($student);
+        set_config('mockmode', '1', 'local_tarsus');
+
+        $result = \mod_tarsuszero\external\get_practice_state::execute((int) $tz->cmid);
+        $this->assertEquals('success', $result['status']);
+        $this->assertSame([], $result['items']);
     }
 
     /**

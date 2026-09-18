@@ -179,17 +179,13 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-/* Experience badge, shown once the practice mode reports figures. */
+/* Experience figures beside the mode switcher: plain grey text, matching
+   an inactive mode button in size and colour. */
 .tarsus-chat-box .tarsus-xp-badge {
-    width: max-content;
-    margin-left: auto;
-    margin-bottom: 0.5rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    background: #1d2125;
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #50555c;
+    white-space: nowrap;
 }
 
 /* Practice question cards (Test knowledge mode). */

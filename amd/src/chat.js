@@ -74,8 +74,138 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         robotAvatar: '',
         robotName: '',
         mode: 'ask',
-        practiceStarted: false
+        practiceStarted: false,
+        practiceLoaded: false
     };
+
+    /**
+     * Freeze an answered practice card: mark the pick, show the feedback.
+     *
+     * Shared by fresh evaluations and by cards restored from the brain.
+     *
+     * @param {Element} card The practice card element.
+     * @param {Object} verdict {correct: bool, feedback: string (HTML), useranswer: string}
+     */
+    function finalizePracticeCard(card, verdict) {
+        card.classList.add('tarsus-practice-card--answered');
+
+        var chosen = card.querySelector('input[type="radio"]:checked');
+        if (!chosen && verdict.useranswer) {
+            // Restored card: re-select what the learner answered back then.
+            card.querySelectorAll('input[type="radio"]').forEach(function(input) {
+                if (input.value === verdict.useranswer) {
+                    input.checked = true;
+                    chosen = input;
+                }
+            });
+        }
+        card.querySelectorAll('input').forEach(function(input) {
+            input.disabled = true;
+        });
+
+        var textinput = card.querySelector(SELECTORS.PRACTICE_INPUT);
+        if (textinput) {
+            if (verdict.useranswer && textinput.value === '') {
+                textinput.value = verdict.useranswer;
+            }
+            textinput.disabled = true;
+        }
+
+        var check = card.querySelector(SELECTORS.PRACTICE_CHECK);
+        if (check) {
+            check.classList.add('d-none');
+        }
+
+        if (chosen) {
+            var choicebox = chosen.closest(SELECTORS.PRACTICE_CHOICE);
+            if (choicebox) {
+                choicebox.classList.add(verdict.correct
+                    ? 'tarsus-practice-choice--correct'
+                    : 'tarsus-practice-choice--incorrect');
+            }
+        }
+
+        var feedback = card.querySelector(SELECTORS.PRACTICE_FEEDBACK);
+        if (feedback && verdict.feedback) {
+            feedback.classList.remove('d-none');
+            feedback.classList.add(verdict.correct
+                ? 'tarsus-practice-card__feedback--correct'
+                : 'tarsus-practice-card__feedback--incorrect');
+            // Server-cleaned HTML from the external function.
+            feedback.innerHTML = verdict.feedback;
+        }
+    }
+
+    /**
+     * Attach one practice question card to the flow.
+     *
+     * @param {Object} widget {id, type, question, choices, taxonomy, difficulty}
+     * @return {Promise} Resolves to the card element.
+     */
+    function attachPracticeCard(widget) {
+        return attachCard('mod_tarsuszero/practice_card', {
+            widgetid: widget.id,
+            widgettype: widget.type,
+            question: widget.question,
+            haschoices: widget.choices.length > 0,
+            choices: widget.choices,
+            taxonomy: widget.taxonomy,
+            difficulty: widget.difficulty,
+            hasmeta: Boolean(widget.taxonomy || widget.difficulty)
+        }, null);
+    }
+
+    /**
+     * Reopen the practice feed from the brain, once per page view.
+     *
+     * Answered questions return frozen with their verdicts, unanswered ones
+     * stay answerable; the experience figures come along in the same call.
+     */
+    function loadPracticeState() {
+        if (state.practiceLoaded) {
+            return;
+        }
+        state.practiceLoaded = true;
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_get_practice_state',
+            args: {cmid: state.cmid}
+        }])[0].then(function(result) {
+            if (result.status !== 'success') {
+                // A quiet miss: the learner can still practise; the feed
+                // just starts visually empty.
+                return null;
+            }
+            updateXp(result.progress);
+
+            return result.items.reduce(function(previous, item) {
+                return previous.then(function() {
+                    return attachPracticeCard(item).then(function(card) {
+                        if (card && item.answered) {
+                            finalizePracticeCard(card, {
+                                correct: item.correct,
+                                feedback: item.feedback,
+                                useranswer: item.useranswer
+                            });
+                        }
+                        return null;
+                    });
+                });
+            }, Promise.resolve()).then(function() {
+                if (result.items.length && !state.practiceStarted) {
+                    state.practiceStarted = true;
+                    var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
+                    return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
+                        if (label) {
+                            label.textContent = next;
+                        }
+                        return null;
+                    });
+                }
+                return null;
+            });
+        }).catch(Notification.exception);
+    }
 
     /**
      * Show the experience figures once the practice mode reports them.
@@ -137,17 +267,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
 
             updateXp(result.progress);
 
-            var widget = result.widget;
-            return attachCard('mod_tarsuszero/practice_card', {
-                widgetid: widget.id,
-                widgettype: widget.type,
-                question: widget.question,
-                haschoices: widget.choices.length > 0,
-                choices: widget.choices,
-                taxonomy: widget.taxonomy,
-                difficulty: widget.difficulty,
-                hasmeta: Boolean(widget.taxonomy || widget.difficulty)
-            }, null).then(function() {
+            return attachPracticeCard(result.widget).then(function() {
                 if (!state.practiceStarted) {
                     state.practiceStarted = true;
                     var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
@@ -174,7 +294,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     function handlePracticeCheck(card) {
         var check = card.querySelector(SELECTORS.PRACTICE_CHECK);
         var spinner = card.querySelector(SELECTORS.PRACTICE_CHECK_SPINNER);
-        var feedback = card.querySelector(SELECTORS.PRACTICE_FEEDBACK);
         if (!check || check.disabled) {
             return;
         }
@@ -221,34 +340,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
 
             // The card is answered: freeze it, mark the learner's pick and
             // show the feedback, as in the Tarsus interface.
-            card.classList.add('tarsus-practice-card--answered');
-            card.querySelectorAll('input').forEach(function(input) {
-                input.disabled = true;
+            finalizePracticeCard(card, {
+                correct: result.correct,
+                feedback: result.feedback || result.answer || '',
+                useranswer: answer
             });
-            if (textinput) {
-                textinput.disabled = true;
-            }
-            check.classList.add('d-none');
-
-            if (chosen) {
-                var choicebox = chosen.closest(SELECTORS.PRACTICE_CHOICE);
-                if (choicebox) {
-                    choicebox.classList.add(result.correct
-                        ? 'tarsus-practice-choice--correct'
-                        : 'tarsus-practice-choice--incorrect');
-                }
-            }
-
-            if (feedback) {
-                feedback.classList.remove('d-none');
-                if (result.hasverdict) {
-                    feedback.classList.add(result.correct
-                        ? 'tarsus-practice-card__feedback--correct'
-                        : 'tarsus-practice-card__feedback--incorrect');
-                }
-                // Server-cleaned HTML from the external function.
-                feedback.innerHTML = result.feedback || result.answer || '';
-            }
 
             updateXp(result.progress);
             var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
@@ -303,6 +399,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         }
         if (hint) {
             hint.classList.toggle('d-none', ask || test);
+        }
+
+        if (test) {
+            // First visit reopens the feed and the experience figures.
+            loadPracticeState();
         }
     }
 
