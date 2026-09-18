@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026091821;
+$plugin->version   = 2026091822;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.16.1 (Every generated question card renders per Next step)';
+$plugin->release   = '0.16.2 (Feed opens at its newest card without scroll flicker)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

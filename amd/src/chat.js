@@ -136,12 +136,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     }
 
     /**
-     * Attach one practice question card to the flow.
+     * The template context of one practice question card.
      *
-     * @param {Object} widget {id, type, question, choices, taxonomy, difficulty}
-     * @return {Promise} Resolves to the card element.
+     * @param {Object} widget {id, type, question, choices, taxonomy, difficultylevel, ...}
+     * @return {Object} The template context.
      */
-    function attachPracticeCard(widget) {
+    function practiceCardContext(widget) {
         // The difficulty renders as three bars, filled up to the grade,
         // as in the Tarsus interface; the label stays as the tooltip.
         var level = widget.difficultylevel || 0;
@@ -149,7 +149,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             return {filled: bar <= level};
         }) : [];
 
-        return attachCard('mod_tarsuszero/practice_card', {
+        return {
             widgetid: widget.id,
             widgettype: widget.type,
             question: widget.question,
@@ -160,7 +160,32 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             bars: bars,
             hasbars: bars.length > 0,
             hasmeta: Boolean(widget.taxonomy || bars.length)
-        }, null);
+        };
+    }
+
+    /**
+     * Attach one practice question card to the flow.
+     *
+     * @param {Object} widget {id, type, question, choices, taxonomy, difficulty}
+     * @return {Promise} Resolves to the card element.
+     */
+    function attachPracticeCard(widget) {
+        return attachCard('mod_tarsuszero/practice_card', practiceCardContext(widget), null);
+    }
+
+    /**
+     * Render one card's markup without attaching it to the flow.
+     *
+     * @param {string} template Template name
+     * @param {Object} context Template context
+     * @return {Promise} Resolves to {card: Element, js: string}
+     */
+    function buildCard(template, context) {
+        return Templates.render(template, context).then(function(html, js) {
+            var holder = document.createElement('div');
+            holder.innerHTML = html;
+            return {card: holder.firstElementChild, js: js};
+        });
     }
 
     /**
@@ -183,36 +208,58 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             methodname: 'mod_tarsuszero_get_activity_feed',
             args: {cmid: state.cmid}
         }])[0].then(function(result) {
-            flow.innerHTML = '';
             if (result.status !== 'success') {
                 // A quiet miss: the learner can still interact; the feed
                 // just starts visually empty.
+                flow.innerHTML = '';
                 return null;
             }
             updateXp(result.progress);
 
+            // Every card renders in parallel and the finished feed attaches
+            // in one pass, already scrolled to its newest card — rendering
+            // one by one would visibly flick through the whole history.
+            // The loading spinner stays up until the feed is ready.
             var haspractice = false;
-            return result.items.reduce(function(previous, item) {
-                return previous.then(function() {
-                    if (item.kind === 'message') {
-                        return attachWelcome(item.text, null);
-                    }
-                    if (item.kind === 'exchange') {
-                        return attachExchange(item.query, item.answer, false);
-                    }
-                    haspractice = true;
-                    return attachPracticeCard(item).then(function(card) {
-                        if (card && item.answered) {
-                            finalizePracticeCard(card, {
-                                correct: item.correct,
-                                feedback: item.feedback,
-                                useranswer: item.useranswer
-                            });
-                        }
-                        return null;
+            var builds = result.items.map(function(item) {
+                if (item.kind === 'message') {
+                    return buildCard('mod_tarsuszero/chat_welcome_card', {message: item.text});
+                }
+                if (item.kind === 'exchange') {
+                    return buildCard('mod_tarsuszero/chat_card', {
+                        question: item.query,
+                        answer: item.answer,
+                        pending: false,
+                        useravatarurl: state.userAvatar,
+                        robotavatarurl: state.robotAvatar,
+                        robotname: state.robotName
                     });
+                }
+                haspractice = true;
+                return buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
+            });
+
+            return Promise.all(builds).then(function(built) {
+                flow.innerHTML = '';
+                built.forEach(function(entry, index) {
+                    if (!entry.card) {
+                        return;
+                    }
+                    flow.appendChild(entry.card);
+                    var item = result.items[index];
+                    if (item.kind === 'practice' && item.answered) {
+                        finalizePracticeCard(entry.card, {
+                            correct: item.correct,
+                            feedback: item.feedback,
+                            useranswer: item.useranswer
+                        });
+                    }
+                    if (entry.js) {
+                        Templates.runTemplateJS(entry.js);
+                    }
                 });
-            }, Promise.resolve()).then(function() {
+                flow.scrollTop = flow.scrollHeight;
+
                 if (haspractice && !state.practiceStarted) {
                     state.practiceStarted = true;
                     var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
