@@ -30,6 +30,7 @@
 }}
 <div class="tarsus-card tarsus-practice-card" data-region="practice-card"
      data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}">
+    <div class="tarsus-practice-card__inner">
     {{#hasmeta}}
     <div class="tarsus-practice-card__meta">
         {{#difficulty}}<span class="badge badge-light tarsus-practice-card__badge">{{difficulty}}</span>{{/difficulty}}
@@ -61,4 +62,5 @@
         </button>
     </div>
     <div class="tarsus-practice-card__feedback d-none" data-region="feedback"></div>
+    </div>
 </div>

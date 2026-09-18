@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026091810;
+$plugin->version   = 2026091811;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.15.1 (Practice feed and experience survive a reload)';
+$plugin->release   = '0.15.2 (Green gradient border on practice cards)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
