@@ -74,8 +74,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         robotAvatar: '',
         robotName: '',
         mode: 'ask',
-        practiceStarted: false,
-        practiceLoaded: false
+        practiceStarted: false
     };
 
     /**
@@ -165,30 +164,43 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     }
 
     /**
-     * Reopen the practice feed from the brain, once per page view.
+     * Reopen the whole activity feed from the brain, on page load.
      *
-     * Answered questions return frozen with their verdicts, unanswered ones
-     * stay answerable; the experience figures come along in the same call.
+     * One interleaved stream across the interaction modes, as in the Tarsus
+     * interface: chat cards and practice cards render in their original
+     * order and stay visible whatever mode is active. Answered questions
+     * return frozen with their verdicts, unanswered ones stay answerable;
+     * the experience figures come along in the same call. Nothing is
+     * stored locally — the brain is the only store.
      */
-    function loadPracticeState() {
-        if (state.practiceLoaded) {
+    function loadFeed() {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        if (!flow) {
             return;
         }
-        state.practiceLoaded = true;
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_practice_state',
+            methodname: 'mod_tarsuszero_get_activity_feed',
             args: {cmid: state.cmid}
         }])[0].then(function(result) {
+            flow.innerHTML = '';
             if (result.status !== 'success') {
-                // A quiet miss: the learner can still practise; the feed
+                // A quiet miss: the learner can still interact; the feed
                 // just starts visually empty.
                 return null;
             }
             updateXp(result.progress);
 
+            var haspractice = false;
             return result.items.reduce(function(previous, item) {
                 return previous.then(function() {
+                    if (item.kind === 'message') {
+                        return attachWelcome(item.text, null);
+                    }
+                    if (item.kind === 'exchange') {
+                        return attachExchange(item.query, item.answer, false);
+                    }
+                    haspractice = true;
                     return attachPracticeCard(item).then(function(card) {
                         if (card && item.answered) {
                             finalizePracticeCard(card, {
@@ -201,7 +213,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                     });
                 });
             }, Promise.resolve()).then(function() {
-                if (result.items.length && !state.practiceStarted) {
+                if (haspractice && !state.practiceStarted) {
                     state.practiceStarted = true;
                     var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
                     return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
@@ -409,11 +421,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         if (hint) {
             hint.classList.toggle('d-none', ask || test);
         }
-
-        if (test) {
-            // First visit reopens the feed and the experience figures.
-            loadPracticeState();
-        }
     }
 
     /**
@@ -479,34 +486,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             robotavatarurl: state.robotAvatar,
             robotname: state.robotName
         }, null);
-    }
-
-    /**
-     * Query conversation history and load it into the flow.
-     */
-    function loadHistory() {
-        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
-        if (!flow) {
-            return;
-        }
-
-        Ajax.call([{
-            methodname: 'mod_tarsuszero_get_conversation_history',
-            args: {cmid: state.cmid}
-        }])[0].then(function(history) {
-            flow.innerHTML = '';
-            // An empty conversation stays empty: the assistant's own welcome
-            // arrives from the brain with the first answer. Cards render
-            // asynchronously, so they are chained to keep the order.
-            return history.reduce(function(previous, msg) {
-                return previous.then(function() {
-                    if (msg.query === '') {
-                        return attachWelcome(msg.answer, null);
-                    }
-                    return attachExchange(msg.query, msg.answer, false);
-                });
-            }, Promise.resolve());
-        }).catch(Notification.exception);
     }
 
     /**
@@ -645,7 +624,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             }
         });
 
-        loadHistory();
+        loadFeed();
     }
 
     return {

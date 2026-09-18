@@ -33,19 +33,20 @@ use mod_tarsuszero\local\scope;
 use moodle_exception;
 
 /**
- * External function to reopen the practice feed (Test knowledge mode).
+ * External function to reopen the whole activity feed from the brain.
  *
- * The brain is the only store of the practice history and the experience
- * figures; this is what the mode opens with after a page reload. Answered
- * questions return with their verdicts, unanswered ones stay answerable.
+ * The brain is the only store of the interaction history — one interleaved
+ * feed across the interaction modes, as in the Tarsus interface: chat
+ * exchanges, informational messages and practice questions in their original
+ * order, with the experience figures alongside. Nothing is stored locally.
  *
  * @package    mod_tarsuszero
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_practice_state extends external_api {
+class get_activity_feed extends external_api {
 
-    /** @var int How many practice widgets one call reads back. */
+    /** @var int How many widgets one call reads back. */
     private const PAGE_SIZE = 50;
 
     /**
@@ -60,10 +61,10 @@ class get_practice_state extends external_api {
     }
 
     /**
-     * Read the practice feed and the experience figures back from the brain.
+     * Read the activity feed and the experience figures back from the brain.
      *
      * @param int $cmid The course module id.
-     * @return array Status, the feed items and the progress figures.
+     * @return array Status, the ordered feed items and the progress figures.
      * @throws moodle_exception
      */
     public static function execute(int $cmid): array {
@@ -91,13 +92,29 @@ class get_practice_state extends external_api {
 
         try {
             $response = $pipeline->execute(function() use ($client, $callparams) {
-                return $client->retrieve_practice_widgets($callparams);
+                return $client->retrieve_feed($callparams);
             });
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 
             $items = [];
             foreach (($response['items'] ?? []) as $item) {
+                $kind = (string) ($item['kind'] ?? '');
+                if ($kind === 'message') {
+                    $items[] = ['kind' => 'message', 'text' => $render((string) $item['text'])];
+                    continue;
+                }
+                if ($kind === 'exchange') {
+                    $items[] = [
+                        'kind' => 'exchange',
+                        'query' => (string) $item['query'],
+                        'answer' => $render((string) $item['answer']),
+                    ];
+                    continue;
+                }
+                if ($kind !== 'practice') {
+                    continue;
+                }
                 $choices = [];
                 foreach (($item['choices'] ?? []) as $choice) {
                     $choices[] = [
@@ -106,6 +123,7 @@ class get_practice_state extends external_api {
                     ];
                 }
                 $items[] = [
+                    'kind' => 'practice',
                     'id' => (string) $item['id'],
                     'type' => (string) $item['type'],
                     'question' => $render((string) $item['question']),
@@ -153,25 +171,37 @@ class get_practice_state extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'id' => new external_value(PARAM_RAW, 'The widget id.'),
-                    'type' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type.'),
-                    'question' => new external_value(PARAM_RAW, 'The rendered question HTML.'),
+                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: message, exchange or practice.'),
+                    'text' => new external_value(PARAM_RAW, 'Rendered message HTML (message).', VALUE_OPTIONAL),
+                    'query' => new external_value(PARAM_RAW, 'The learner\'s question (exchange).', VALUE_OPTIONAL),
+                    'answer' => new external_value(PARAM_RAW, 'Rendered answer HTML (exchange).', VALUE_OPTIONAL),
+                    'id' => new external_value(PARAM_RAW, 'The widget id (practice).', VALUE_OPTIONAL),
+                    'type' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type (practice).', VALUE_OPTIONAL),
+                    'question' => new external_value(PARAM_RAW, 'Rendered question HTML (practice).', VALUE_OPTIONAL),
                     'choices' => new external_multiple_structure(
                         new external_single_structure([
                             'value' => new external_value(PARAM_RAW, 'The answer value to submit.'),
                             'label' => new external_value(PARAM_RAW, 'The display label.'),
                         ]),
-                        'Answer choices; empty for open questions.'
+                        'Answer choices; empty for open questions (practice).',
+                        VALUE_OPTIONAL
                     ),
-                    'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
-                    'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade.'),
-                    'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).'),
-                    'answered' => new external_value(PARAM_BOOL, 'Whether the question has been answered.'),
-                    'correct' => new external_value(PARAM_BOOL, 'Whether the answer was judged correct.'),
-                    'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML for answered questions.'),
-                    'useranswer' => new external_value(PARAM_RAW, 'The learner\'s answer for answered questions.'),
+                    'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level (practice).',
+                        VALUE_OPTIONAL),
+                    'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade (practice).',
+                        VALUE_OPTIONAL),
+                    'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).',
+                        VALUE_OPTIONAL),
+                    'answered' => new external_value(PARAM_BOOL, 'Whether the question has been answered (practice).',
+                        VALUE_OPTIONAL),
+                    'correct' => new external_value(PARAM_BOOL, 'Whether the answer was judged correct (practice).',
+                        VALUE_OPTIONAL),
+                    'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML (practice, answered).',
+                        VALUE_OPTIONAL),
+                    'useranswer' => new external_value(PARAM_RAW, 'The learner\'s answer (practice, answered).',
+                        VALUE_OPTIONAL),
                 ]),
-                'The practice feed, oldest first.'
+                'The activity feed, oldest first, all interaction modes interleaved.'
             ),
             'progress' => practice_labels::progress_structure(),
         ]);

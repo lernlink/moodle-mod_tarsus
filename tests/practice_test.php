@@ -26,7 +26,7 @@ use mod_tarsuszero\external\submit_practice_answer;
  *
  * @package    mod_tarsuszero
  * @covers     \mod_tarsuszero\external\get_practice_widget
- * @covers     \mod_tarsuszero\external\get_practice_state
+ * @covers     \mod_tarsuszero\external\get_activity_feed
  * @covers     \mod_tarsuszero\external\submit_practice_answer
  * @covers     \mod_tarsuszero\local\conversation
  * @copyright  2026 lern.link GmbH
@@ -129,12 +129,12 @@ final class practice_test extends \advanced_testcase {
     public function test_practice_state_reopens_the_feed(): void {
         [$tz] = $this->make_ready_activity();
 
-        $result = \mod_tarsuszero\external\get_practice_state::execute((int) $tz->cmid);
+        $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(2, $result['items']);
+        $this->assertCount(4, $result['items']);
 
-        [$answered, $open] = $result['items'];
+        [, , $answered, $open] = $result['items'];
         $this->assertTrue($answered['answered']);
         $this->assertTrue($answered['correct']);
         $this->assertSame('Alpha', $answered['useranswer']);
@@ -162,7 +162,7 @@ final class practice_test extends \advanced_testcase {
         $this->setUser($student);
         set_config('mockmode', '1', 'local_tarsus');
 
-        $result = \mod_tarsuszero\external\get_practice_state::execute((int) $tz->cmid);
+        $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
         $this->assertEquals('success', $result['status']);
         $this->assertSame([], $result['items']);
     }

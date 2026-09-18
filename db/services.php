@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'mod_tarsuszero_get_conversation_history' => [
-        'classname'   => 'mod_tarsuszero\external\get_conversation_history',
+    'mod_tarsuszero_get_activity_feed' => [
+        'classname'   => 'mod_tarsuszero\external\get_activity_feed',
         'methodname'  => 'execute',
-        'description' => 'Retrieve conversation history for a given tarsuszero activity and user.',
+        'description' => 'Reopen the interleaved activity feed (chat and practice) from the brain.',
         'type'        => 'read',
         'ajax'        => true,
         'loginrequired' => true,
@@ -38,14 +38,6 @@ $functions = [
         'methodname'  => 'execute',
         'description' => 'Send a chat message to the Tarsus Q&A API and store/retrieve response details.',
         'type'        => 'write',
-        'ajax'        => true,
-        'loginrequired' => true,
-    ],
-    'mod_tarsuszero_get_practice_state' => [
-        'classname'   => 'mod_tarsuszero\external\get_practice_state',
-        'methodname'  => 'execute',
-        'description' => 'Reopen the practice feed and experience figures from the brain.',
-        'type'        => 'read',
         'ajax'        => true,
         'loginrequired' => true,
     ],

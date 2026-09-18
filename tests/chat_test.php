@@ -19,7 +19,7 @@ namespace mod_tarsuszero;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_tarsuszero\external\send_chat_message;
-use mod_tarsuszero\external\get_conversation_history;
+use mod_tarsuszero\external\get_activity_feed;
 use mod_tarsuszero\output\learner_chat;
 
 /**
@@ -27,7 +27,7 @@ use mod_tarsuszero\output\learner_chat;
  *
  * @package    mod_tarsuszero
  * @covers     \mod_tarsuszero\external\send_chat_message
- * @covers     \mod_tarsuszero\external\get_conversation_history
+ * @covers     \mod_tarsuszero\external\get_activity_feed
  * @covers     \mod_tarsuszero\output\learner_chat
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -105,10 +105,11 @@ final class chat_test extends \advanced_testcase {
 
         set_config('mockmode', '1', 'local_tarsus');
 
-        // With nothing included there is no scope, hence no conversation to
+        // With nothing included there is no scope, hence no feed to
         // read — and no call to the brain.
-        $history = get_conversation_history::execute((int) $tz->cmid);
-        $this->assertEmpty($history);
+        $feed = get_activity_feed::execute((int) $tz->cmid);
+        $this->assertEquals('success', $feed['status']);
+        $this->assertEmpty($feed['items']);
 
         // Give the assistant something to answer from: an indexed, included page.
         $this->setAdminUser();
@@ -136,15 +137,16 @@ final class chat_test extends \advanced_testcase {
         $this->assertCount(1, $result['messages']);
         $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]);
 
-        // History is read back from the brain, oldest first, rendered like
-        // fresh answers: an assistant-only welcome turn, then an exchange.
-        $history = get_conversation_history::execute((int) $tz->cmid);
-        $this->assertCount(2, $history);
-        $this->assertSame('', $history[0]['query']);
-        $this->assertStringContainsString('<strong>Mock welcome</strong>', $history[0]['answer']);
-        $this->assertEquals('Mock question?', $history[1]['query']);
-        $this->assertStringContainsString('Mock stored answer', $history[1]['answer']);
-        $this->assertCount(0, $history[1]['sources']);
+        // The feed is read back from the brain, oldest first, all modes
+        // interleaved and rendered like fresh answers: the welcome message,
+        // a chat exchange and the practice questions in original order.
+        $feed = get_activity_feed::execute((int) $tz->cmid);
+        $this->assertEquals('success', $feed['status']);
+        $this->assertSame(['message', 'exchange', 'practice', 'practice'],
+            array_column($feed['items'], 'kind'));
+        $this->assertStringContainsString('<strong>Mock welcome</strong>', $feed['items'][0]['text']);
+        $this->assertEquals('Mock question?', $feed['items'][1]['query']);
+        $this->assertStringContainsString('Mock stored answer', $feed['items'][1]['answer']);
     }
 
     /**
