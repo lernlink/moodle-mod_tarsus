@@ -189,13 +189,13 @@
 }
 
 /* Practice question cards (Test knowledge mode): the welcome card's
-   gradient-border technique in a soft green, so they read differently
-   from chat cards at a glance. */
+   gradient-border technique in a soft blue-green, so they read
+   differently from chat cards at a glance. */
 .tarsus-chat-box .tarsus-practice-card {
     border: 0;
     padding: 3px;
-    background: linear-gradient(135deg, #9ed0a8 0%, #c0e5c5 35%, #d9f2dc 70%, #a5d8bd 100%);
-    box-shadow: 0 10px 28px rgba(24, 90, 50, 0.1);
+    background: linear-gradient(135deg, #9cc6dc 0%, #aedfd8 35%, #d8f0ec 70%, #a3c3e4 100%);
+    box-shadow: 0 10px 28px rgba(24, 74, 90, 0.1);
 }
 
 .tarsus-chat-box .tarsus-practice-card .tarsus-practice-card__inner {
