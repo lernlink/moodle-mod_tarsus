@@ -278,7 +278,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         }])[0].then(function(result) {
             unlock();
 
-            if (result.status !== 'success' || !result.widget) {
+            if (result.status !== 'success' || !result.widgets || !result.widgets.length) {
                 if (alertBox) {
                     alertBox.classList.remove('d-none');
                     alertBox.textContent = result.error || 'Unknown error occurred.';
@@ -288,7 +288,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
 
             updateXp(result.progress);
 
-            return attachPracticeCard(result.widget).then(function() {
+            // As many cards as the brain generated for this step.
+            return result.widgets.reduce(function(previous, widget) {
+                return previous.then(function() {
+                    return attachPracticeCard(widget);
+                });
+            }, Promise.resolve()).then(function() {
                 if (!state.practiceStarted) {
                     state.practiceStarted = true;
                     var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);

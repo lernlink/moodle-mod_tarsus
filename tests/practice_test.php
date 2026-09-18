@@ -88,9 +88,12 @@ final class practice_test extends \advanced_testcase {
         $result = get_practice_widget::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
-        $widget = $result['widget'];
+        // One click renders as many cards as the brain generated.
+        $this->assertCount(2, $result['widgets']);
+        $widget = $result['widgets'][0];
         $this->assertSame('mock-widget-1', $widget['id']);
         $this->assertSame('singleChoiceQuestionWidget', $widget['type']);
+        $this->assertSame('trueFalseQuestionWidget', $result['widgets'][1]['type']);
 
         // The default practice settings echo back through the mock.
         $this->assertStringContainsString('[tax: 1,2,3]', $widget['question']);
@@ -118,8 +121,8 @@ final class practice_test extends \advanced_testcase {
         $result = get_practice_widget::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
-        $this->assertStringContainsString('[tax: 2]', $result['widget']['question']);
-        $this->assertStringContainsString('[types: 3:1]', $result['widget']['question']);
+        $this->assertStringContainsString('[tax: 2]', $result['widgets'][0]['question']);
+        $this->assertStringContainsString('[types: 3:1]', $result['widgets'][0]['question']);
     }
 
     /**

@@ -93,8 +93,9 @@ class get_practice_widget extends external_api {
                 return $client->generate_practice_widget($callparams);
             }, 6);
 
-            $widget = $response['widget'] ?? null;
-            if (!is_array($widget) || (string) ($widget['id'] ?? '') === '') {
+            $widgets = array_filter((array) ($response['widgets'] ?? []),
+                static fn($widget) => is_array($widget) && (string) ($widget['id'] ?? '') !== '');
+            if ($widgets === []) {
                 // The brain sent no question this time; nothing to show.
                 return self::result('error', get_string('practice_nowidget', 'mod_tarsuszero'));
             }
@@ -102,16 +103,16 @@ class get_practice_widget extends external_api {
             (new usage_meter())->record(
                 (int) $coursecontext->id, (int) $USER->id, 'practice_next', (int) ($response['credits'] ?? 6));
 
-            $choices = [];
-            foreach (($widget['choices'] ?? []) as $choice) {
-                $choices[] = [
-                    'value' => (string) $choice,
-                    'label' => practice_labels::choice((string) $choice, (string) $widget['type']),
-                ];
-            }
-
-            return self::result('success', '', [
-                'widget' => [
+            $out = [];
+            foreach ($widgets as $widget) {
+                $choices = [];
+                foreach (($widget['choices'] ?? []) as $choice) {
+                    $choices[] = [
+                        'value' => (string) $choice,
+                        'label' => practice_labels::choice((string) $choice, (string) $widget['type']),
+                    ];
+                }
+                $out[] = [
                     'id' => (string) $widget['id'],
                     'type' => (string) $widget['type'],
                     'question' => format_text((string) $widget['question'], FORMAT_MARKDOWN, ['context' => $context]),
@@ -119,7 +120,11 @@ class get_practice_widget extends external_api {
                     'taxonomy' => practice_labels::taxonomy((string) ($widget['taxonomylevel'] ?? '')),
                     'difficulty' => practice_labels::difficulty((int) ($widget['difficultylevel'] ?? 0)),
                     'difficultylevel' => (int) ($widget['difficultylevel'] ?? 0),
-                ],
+                ];
+            }
+
+            return self::result('success', '', [
+                'widgets' => $out,
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
 
@@ -151,21 +156,25 @@ class get_practice_widget extends external_api {
         return new external_single_structure([
             'status' => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
-            'widget' => new external_single_structure([
-                'id' => new external_value(PARAM_RAW, 'The widget id, needed for evaluation.'),
-                'type' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type.'),
-                'question' => new external_value(PARAM_RAW, 'The rendered question HTML.'),
-                'choices' => new external_multiple_structure(
-                    new external_single_structure([
-                        'value' => new external_value(PARAM_RAW, 'The answer value to submit.'),
-                        'label' => new external_value(PARAM_RAW, 'The display label.'),
-                    ]),
-                    'Answer choices; empty for open questions.'
-                ),
-                'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
-                'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade.'),
-                'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).'),
-            ], 'The question widget.', VALUE_OPTIONAL),
+            'widgets' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(PARAM_RAW, 'The widget id, needed for evaluation.'),
+                    'type' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type.'),
+                    'question' => new external_value(PARAM_RAW, 'The rendered question HTML.'),
+                    'choices' => new external_multiple_structure(
+                        new external_single_structure([
+                            'value' => new external_value(PARAM_RAW, 'The answer value to submit.'),
+                            'label' => new external_value(PARAM_RAW, 'The display label.'),
+                        ]),
+                        'Answer choices; empty for open questions.'
+                    ),
+                    'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
+                    'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade.'),
+                    'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).'),
+                ]),
+                'The generated question widgets, as many as the brain sent.',
+                VALUE_OPTIONAL
+            ),
             'progress' => practice_labels::progress_structure(),
         ]);
     }
