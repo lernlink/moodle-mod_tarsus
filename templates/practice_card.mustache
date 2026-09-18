@@ -27,13 +27,19 @@
     * choices - array of {value, label} answer choices.
     * taxonomy - string, display label of the taxonomy level (may be empty).
     * difficulty - string, display label of the difficulty grade (may be empty).
+    * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
+    * hasbars - bool, whether the difficulty bars render.
 }}
 <div class="tarsus-card tarsus-practice-card" data-region="practice-card"
      data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}">
     <div class="tarsus-practice-card__inner">
     {{#hasmeta}}
     <div class="tarsus-practice-card__meta">
-        {{#difficulty}}<span class="badge badge-light tarsus-practice-card__badge">{{difficulty}}</span>{{/difficulty}}
+        {{#hasbars}}
+        <span class="tarsus-difficulty" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}
         {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
     </div>
     {{/hasmeta}}

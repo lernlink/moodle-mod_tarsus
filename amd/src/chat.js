@@ -143,6 +143,13 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
      * @return {Promise} Resolves to the card element.
      */
     function attachPracticeCard(widget) {
+        // The difficulty renders as three bars, filled up to the grade,
+        // as in the Tarsus interface; the label stays as the tooltip.
+        var level = widget.difficultylevel || 0;
+        var bars = level > 0 ? [1, 2, 3].map(function(bar) {
+            return {filled: bar <= level};
+        }) : [];
+
         return attachCard('mod_tarsuszero/practice_card', {
             widgetid: widget.id,
             widgettype: widget.type,
@@ -151,7 +158,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             choices: widget.choices,
             taxonomy: widget.taxonomy,
             difficulty: widget.difficulty,
-            hasmeta: Boolean(widget.taxonomy || widget.difficulty)
+            bars: bars,
+            hasbars: bars.length > 0,
+            hasmeta: Boolean(widget.taxonomy || bars.length)
         }, null);
     }
 

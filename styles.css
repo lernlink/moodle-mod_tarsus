@@ -216,6 +216,36 @@
     font-weight: 500;
 }
 
+/* Difficulty as three ascending bars, filled up to the grade. */
+.tarsus-difficulty {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    align-self: center;
+}
+
+.tarsus-difficulty__bar {
+    width: 4px;
+    border-radius: 1px;
+    background: #dcdad6;
+}
+
+.tarsus-difficulty__bar:nth-child(1) {
+    height: 6px;
+}
+
+.tarsus-difficulty__bar:nth-child(2) {
+    height: 10px;
+}
+
+.tarsus-difficulty__bar:nth-child(3) {
+    height: 14px;
+}
+
+.tarsus-difficulty__bar--filled {
+    background: #57b87b;
+}
+
 .tarsus-practice-card__question {
     font-weight: 600;
     margin-bottom: 0.75rem;

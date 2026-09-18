@@ -118,6 +118,7 @@ class get_practice_widget extends external_api {
                     'choices' => $choices,
                     'taxonomy' => practice_labels::taxonomy((string) ($widget['taxonomylevel'] ?? '')),
                     'difficulty' => practice_labels::difficulty((int) ($widget['difficultylevel'] ?? 0)),
+                    'difficultylevel' => (int) ($widget['difficultylevel'] ?? 0),
                 ],
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
@@ -163,6 +164,7 @@ class get_practice_widget extends external_api {
                 ),
                 'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
                 'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade.'),
+                'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).'),
             ], 'The question widget.', VALUE_OPTIONAL),
             'progress' => practice_labels::progress_structure(),
         ]);
