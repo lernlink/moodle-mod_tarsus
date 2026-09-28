@@ -224,8 +224,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
      * @return {Object} The template context.
      */
     function practiceCardContext(widget) {
-        // The difficulty renders as three bars, filled up to the grade,
-        // as in the Tarsus interface; the label stays as the tooltip.
+        // The difficulty renders as three bars, filled up to the grade and
+        // coloured by it (green, orange, red), as in the Tarsus interface;
+        // the label stays as the tooltip.
         var level = widget.difficultylevel || 0;
         var bars = level > 0 ? [1, 2, 3].map(function(bar) {
             return {filled: bar <= level};
@@ -250,6 +251,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             difficulty: widget.difficulty,
             bars: bars,
             hasbars: bars.length > 0,
+            difficultyclass: level > 0 ? 'tarsus-difficulty--' + level : '',
             hasmeta: Boolean(widget.taxonomy || bars.length)
         };
     }

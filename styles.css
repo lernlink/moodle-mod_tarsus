@@ -246,6 +246,16 @@
     background: #57b87b;
 }
 
+/* The filled bars take the grade's colour: easy green, medium orange,
+   hard red. */
+.tarsus-difficulty--2 .tarsus-difficulty__bar--filled {
+    background: #f0932b;
+}
+
+.tarsus-difficulty--3 .tarsus-difficulty__bar--filled {
+    background: rgb(222, 51, 86);
+}
+
 .tarsus-practice-card__question {
     font-weight: 600;
     margin-bottom: 0.75rem;

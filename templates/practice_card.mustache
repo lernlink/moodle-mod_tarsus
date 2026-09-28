@@ -33,6 +33,7 @@
     * taxonomy - string, display label of the taxonomy level (may be empty).
     * difficulty - string, display label of the difficulty grade (may be empty).
     * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
+    * difficultyclass - string, modifier class colouring the filled bars by grade.
     * hasbars - bool, whether the difficulty bars render.
 }}
 <div class="tarsus-card tarsus-practice-card" data-region="practice-card"
@@ -41,7 +42,7 @@
     {{#hasmeta}}
     <div class="tarsus-practice-card__meta">
         {{#hasbars}}
-        <span class="tarsus-difficulty" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+        <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
             {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
         </span>
         {{/hasbars}}
