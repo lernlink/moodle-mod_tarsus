@@ -74,7 +74,9 @@ final class conversation {
             'conversationstyle' => (int) ($activity->conversationstyle ?? 3),
             'dqr' => (int) ($activity->dqr ?? 6),
             'industry' => trim((string) ($activity->industry ?? '')),
-            'fulltextsearch' => !empty($activity->fulltextsearch),
+            // Full-text search stays off: the setting was withdrawn from the
+            // activity form, semantic retrieval alone grounds the answers.
+            'fulltextsearch' => false,
             'taxonomylevels' => didactics::decode_taxonomy_levels($activity->taxonomylevels ?? ''),
             'questiontypes' => didactics::decode_question_types($activity->questiontypes ?? ''),
             'robotname' => $robotname,

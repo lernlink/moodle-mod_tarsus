@@ -89,10 +89,6 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->addRule('industry', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('industry', 'industry', 'mod_tarsuszero');
 
-        $mform->addElement('advcheckbox', 'fulltextsearch', get_string('fulltextsearch', 'mod_tarsuszero'));
-        $mform->setDefault('fulltextsearch', 0);
-        $mform->addHelpButton('fulltextsearch', 'fulltextsearch', 'mod_tarsuszero');
-
         // Practice (Test knowledge) settings: which Bloom taxonomy levels
         // the questions may target, and which question types the brain may
         // generate per difficulty grade. The difficulty grades have no API

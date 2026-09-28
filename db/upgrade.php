@@ -111,5 +111,18 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026091800, 'tarsuszero');
     }
 
+    if ($oldversion < 2026092903) {
+        // The full-text search setting was withdrawn from the activity form;
+        // the brain is always asked with full_text_search off, so the column
+        // carries nothing worth keeping.
+        $table = new xmldb_table('tarsuszero');
+        $field = new xmldb_field('fulltextsearch');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026092903, 'tarsuszero');
+    }
+
     return true;
 }

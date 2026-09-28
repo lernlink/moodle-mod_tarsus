@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092902;
+$plugin->version   = 2026092903;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.19.0 (Spreadsheet calculation practice questions)';
+$plugin->release   = '0.19.1 (Full-text search setting withdrawn)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

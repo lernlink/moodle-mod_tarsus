@@ -34,7 +34,7 @@ final class install_test extends \advanced_testcase {
     private const SCHEMA = [
         'tarsuszero' => [
             'id', 'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
-            'conversationstyle', 'dqr', 'industry', 'fulltextsearch',
+            'conversationstyle', 'dqr', 'industry',
             'taxonomylevels', 'questiontypes',
         ],
         'tarsuszero_inclusions' => [
