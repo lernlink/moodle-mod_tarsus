@@ -46,8 +46,8 @@ use moodle_exception;
  */
 class get_activity_feed extends external_api {
 
-    /** @var int How many widgets one call reads back. */
-    private const PAGE_SIZE = 50;
+    /** @var int How many widgets one call reads back (the page size Tarsus recommends). */
+    public const PAGE_SIZE = 20;
 
     /**
      * Declares parameters for execute().
@@ -57,18 +57,25 @@ class get_activity_feed extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'offset' => new external_value(PARAM_INT,
+                'How many widgets to skip, counted from the newest: 0 for the newest page.', VALUE_DEFAULT, 0),
         ]);
     }
 
     /**
-     * Read the activity feed and the experience figures back from the brain.
+     * Read one page of the activity feed, and the experience figures, from the brain.
      *
-     * @param int $cmid The course module id.
-     * @return array Status, the ordered feed items and the progress figures.
+     * The newest page comes first; older pages follow at offset multiples of
+     * {@see PAGE_SIZE} as the learner scrolls up.
+     *
+     * @param int $cmid   The course module id.
+     * @param int $offset Widgets to skip, counted from the newest.
+     * @return array Status, the ordered feed items, whether an older page may
+     *               follow, and the progress figures.
      * @throws moodle_exception
      */
-    public static function execute(int $cmid): array {
-        $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid]);
+    public static function execute(int $cmid, int $offset = 0): array {
+        $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'offset' => $offset]);
 
         $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
@@ -79,14 +86,14 @@ class get_activity_feed extends external_api {
         // No scope means no feed to read — and no call to the brain.
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
-            return ['status' => 'success', 'error' => '', 'items' => []];
+            return ['status' => 'success', 'error' => '', 'items' => [], 'hasmore' => false];
         }
 
         $client = client_factory::get_client();
         $pipeline = new pipeline();
 
         $callparams = conversation::params($cm, $allowed) + [
-            'offset' => 0,
+            'offset' => max(0, $params['offset']),
             'pagesize' => self::PAGE_SIZE,
         ];
 
@@ -149,6 +156,8 @@ class get_activity_feed extends external_api {
                 'status' => 'success',
                 'error' => '',
                 'items' => $items,
+                // A full page means an older one may follow.
+                'hasmore' => (int) ($response['rawcount'] ?? 0) >= self::PAGE_SIZE,
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ];
 
@@ -157,12 +166,14 @@ class get_activity_feed extends external_api {
                 'status' => 'blocked',
                 'error' => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'),
                 'items' => [],
+                'hasmore' => false,
             ];
         } catch (transport_exception $e) {
             return [
                 'status' => 'error',
                 'error' => get_string('transport_error', 'mod_tarsuszero'),
                 'items' => [],
+                'hasmore' => false,
             ];
         }
     }
@@ -223,8 +234,9 @@ class get_activity_feed extends external_api {
                     'usertable' => practice_labels::table_structure('The learner\'s costing rows (practice, answered).'),
                     'answertable' => practice_labels::table_structure('The model costing rows with verdicts (practice, answered).'),
                 ]),
-                'The activity feed, oldest first, all interaction modes interleaved.'
+                'The activity feed page, oldest first, all interaction modes interleaved.'
             ),
+            'hasmore' => new external_value(PARAM_BOOL, 'Whether an older page may follow.', VALUE_OPTIONAL),
             'progress' => practice_labels::progress_structure(),
         ]);
     }

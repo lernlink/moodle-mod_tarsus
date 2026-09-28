@@ -59,8 +59,15 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]',
         XP_PROGRESS: '[data-region="xp-progress"]',
-        XP_PERCENT: '[data-region="xp-percent"]'
+        XP_PERCENT: '[data-region="xp-percent"]',
+        FEED_OLDER: '[data-region="feed-older"]'
     };
+
+    /** @var {number} The feed page size, matching the external function. */
+    var FEED_PAGE_SIZE = 20;
+
+    /** @var {number} Scroll distance from the top that triggers loading an older page. */
+    var FEED_SCROLL_THRESHOLD = 80;
 
     /**
      * CSS classes.
@@ -81,7 +88,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         robotAvatar: '',
         robotName: '',
         mode: 'ask',
-        practiceStarted: false
+        practiceStarted: false,
+        feedOffset: 0,
+        feedHasMore: false,
+        feedLoading: false
     };
 
     /**
@@ -284,24 +294,102 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     }
 
     /**
-     * Reopen the whole activity feed from the brain, on page load.
+     * Build the cards of one feed page, in order.
+     *
+     * @param {Array} items The feed items
+     * @return {Promise} Resolves to [{card, js, item}] in item order
+     */
+    function buildFeedCards(items) {
+        return Promise.all(items.map(function(item) {
+            var build;
+            if (item.kind === 'message') {
+                build = buildCard('mod_tarsuszero/chat_welcome_card', {message: item.text});
+            } else if (item.kind === 'exchange') {
+                build = buildCard('mod_tarsuszero/chat_card', {
+                    question: item.query,
+                    answer: item.answer,
+                    pending: false,
+                    useravatarurl: state.userAvatar,
+                    robotavatarurl: state.robotAvatar,
+                    robotname: state.robotName
+                });
+            } else {
+                build = buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
+            }
+            return build.then(function(entry) {
+                entry.item = item;
+                return entry;
+            });
+        }));
+    }
+
+    /**
+     * Settle a built card after it is in the flow: verdicts and template JS.
+     *
+     * @param {Object} entry {card, js, item}
+     */
+    function settleFeedCard(entry) {
+        var item = entry.item;
+        if (item.kind === 'practice' && item.answered) {
+            finalizePracticeCard(entry.card, {
+                correct: item.correct,
+                feedback: item.feedback,
+                useranswer: item.useranswer,
+                useranswers: item.useranswers || [],
+                answers: item.answers || [],
+                usertable: item.usertable || [],
+                answertable: item.answertable || []
+            });
+        }
+        if (entry.js) {
+            Templates.runTemplateJS(entry.js);
+        }
+    }
+
+    /**
+     * Switch the practice button to "Next" once history holds practice.
+     *
+     * @param {Array} items The feed items just loaded
+     * @return {Promise} Resolves when the label is settled
+     */
+    function notePracticeHistory(items) {
+        var haspractice = items.some(function(item) {
+            return item.kind === 'practice';
+        });
+        if (!haspractice || state.practiceStarted) {
+            return Promise.resolve();
+        }
+        state.practiceStarted = true;
+        var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
+        return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
+            if (label) {
+                label.textContent = next;
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Reopen the newest page of the activity feed from the brain, on page load.
      *
      * One interleaved stream across the interaction modes, as in the Tarsus
      * interface: chat cards and practice cards render in their original
      * order and stay visible whatever mode is active. Answered questions
      * return frozen with their verdicts, unanswered ones stay answerable;
-     * the experience figures come along in the same call. Nothing is
-     * stored locally — the brain is the only store.
+     * the experience figures come along in the same call. Older pages
+     * lazy-load as the learner scrolls up. Nothing is stored locally — the
+     * brain is the only store.
      */
     function loadFeed() {
         var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
         if (!flow) {
             return;
         }
+        var older = flow.querySelector(SELECTORS.FEED_OLDER);
 
         Ajax.call([{
             methodname: 'mod_tarsuszero_get_activity_feed',
-            args: {cmid: state.cmid}
+            args: {cmid: state.cmid, offset: 0}
         }])[0].then(function(result) {
             if (result.status !== 'success') {
                 // A quiet miss: the learner can still interact; the feed
@@ -310,68 +398,81 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 return null;
             }
             updateXp(result.progress);
+            state.feedOffset = FEED_PAGE_SIZE;
+            state.feedHasMore = Boolean(result.hasmore);
 
-            // Every card renders in parallel and the finished feed attaches
+            // Every card renders in parallel and the finished page attaches
             // in one pass, already scrolled to its newest card — rendering
             // one by one would visibly flick through the whole history.
-            // The loading spinner stays up until the feed is ready.
-            var haspractice = false;
-            var builds = result.items.map(function(item) {
-                if (item.kind === 'message') {
-                    return buildCard('mod_tarsuszero/chat_welcome_card', {message: item.text});
-                }
-                if (item.kind === 'exchange') {
-                    return buildCard('mod_tarsuszero/chat_card', {
-                        question: item.query,
-                        answer: item.answer,
-                        pending: false,
-                        useravatarurl: state.userAvatar,
-                        robotavatarurl: state.robotAvatar,
-                        robotname: state.robotName
-                    });
-                }
-                haspractice = true;
-                return buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
-            });
-
-            return Promise.all(builds).then(function(built) {
+            // The loading spinner stays up until the page is ready.
+            return buildFeedCards(result.items).then(function(built) {
                 flow.innerHTML = '';
-                built.forEach(function(entry, index) {
+                if (older) {
+                    flow.appendChild(older);
+                }
+                built.forEach(function(entry) {
                     if (!entry.card) {
                         return;
                     }
                     flow.appendChild(entry.card);
-                    var item = result.items[index];
-                    if (item.kind === 'practice' && item.answered) {
-                        finalizePracticeCard(entry.card, {
-                            correct: item.correct,
-                            feedback: item.feedback,
-                            useranswer: item.useranswer,
-                            useranswers: item.useranswers || [],
-                            answers: item.answers || [],
-                            usertable: item.usertable || [],
-                            answertable: item.answertable || []
-                        });
-                    }
-                    if (entry.js) {
-                        Templates.runTemplateJS(entry.js);
-                    }
+                    settleFeedCard(entry);
                 });
                 flow.scrollTop = flow.scrollHeight;
-
-                if (haspractice && !state.practiceStarted) {
-                    state.practiceStarted = true;
-                    var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
-                    return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
-                        if (label) {
-                            label.textContent = next;
-                        }
-                        return null;
-                    });
-                }
-                return null;
+                return notePracticeHistory(result.items);
             });
         }).catch(Notification.exception);
+    }
+
+    /**
+     * Load the page before the oldest one shown and slot it in above,
+     * keeping the reader's viewport where it is.
+     */
+    function loadOlderFeed() {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        if (!flow || state.feedLoading || !state.feedHasMore) {
+            return;
+        }
+        state.feedLoading = true;
+        var older = flow.querySelector(SELECTORS.FEED_OLDER);
+        if (older) {
+            older.classList.remove('d-none');
+        }
+        var offset = state.feedOffset;
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_get_activity_feed',
+            args: {cmid: state.cmid, offset: offset}
+        }])[0].then(function(result) {
+            if (result.status !== 'success') {
+                state.feedHasMore = false;
+                return null;
+            }
+            state.feedOffset = offset + FEED_PAGE_SIZE;
+            state.feedHasMore = Boolean(result.hasmore) && result.items.length > 0;
+
+            return buildFeedCards(result.items).then(function(built) {
+                var anchor = older && older.nextSibling ? older.nextSibling : flow.firstChild;
+                var grewBy = flow.scrollHeight;
+                built.forEach(function(entry) {
+                    if (!entry.card) {
+                        return;
+                    }
+                    flow.insertBefore(entry.card, anchor);
+                    settleFeedCard(entry);
+                });
+                flow.scrollTop += flow.scrollHeight - grewBy;
+                return notePracticeHistory(result.items);
+            });
+        }).catch(function(ex) {
+            state.feedHasMore = false;
+            Notification.exception(ex);
+        }).then(function() {
+            state.feedLoading = false;
+            if (older) {
+                older.classList.add('d-none');
+            }
+            return null;
+        });
     }
 
     /**
@@ -829,6 +930,16 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 }
             }
         });
+
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        if (flow) {
+            // Scrolling near the top of the feed fetches the page before it.
+            flow.addEventListener('scroll', function() {
+                if (flow.scrollTop < FEED_SCROLL_THRESHOLD) {
+                    loadOlderFeed();
+                }
+            });
+        }
 
         loadFeed();
     }

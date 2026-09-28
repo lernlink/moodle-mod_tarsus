@@ -32,6 +32,10 @@
      data-robot-name="{{robotname}}">
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
+        <!-- Older-page loading indicator, shown while the feed lazy-loads on scroll-up -->
+        <div class="tarsus-feed-older text-center py-2 text-muted d-none" data-region="feed-older">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        </div>
         <!-- Loading state helper or spinner -->
         <div class="text-center py-5 text-muted">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

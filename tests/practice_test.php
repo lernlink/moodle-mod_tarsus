@@ -158,6 +158,13 @@ final class practice_test extends \advanced_testcase {
 
         $this->assertSame(60.0, $result['progress']['practiceprogress']);
         $this->assertSame(9.0, $result['progress']['earnedxp']);
+
+        // The fixture fits one page; an older page is empty and final.
+        $this->assertFalse($result['hasmore']);
+        $older = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid, 20);
+        $this->assertEquals('success', $older['status']);
+        $this->assertSame([], $older['items']);
+        $this->assertFalse($older['hasmore']);
     }
 
     /**
