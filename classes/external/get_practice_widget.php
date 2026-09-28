@@ -121,6 +121,8 @@ class get_practice_widget extends external_api {
                     'difficulty' => practice_labels::difficulty((int) ($widget['difficultylevel'] ?? 0)),
                     'difficultylevel' => (int) ($widget['difficultylevel'] ?? 0),
                     'variables' => array_values(array_map('strval', $widget['variables'] ?? [])),
+                    'table' => practice_labels::table($widget['table'] ?? []),
+                    'columns' => array_values(array_map('strval', $widget['columns'] ?? [])),
                 ];
             }
 
@@ -175,6 +177,12 @@ class get_practice_widget extends external_api {
                     'variables' => new external_multiple_structure(
                         new external_value(PARAM_RAW, 'An asked quantity.'),
                         'Quantities a rule-of-three question asks for; empty for other types.'
+                    ),
+                    'table' => practice_labels::table_structure('The costing table of a spreadsheet calculation; empty for other types.'),
+                    'columns' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'A column name.'),
+                        'The three column names the costing table came with, to send back with the answer.',
+                        VALUE_OPTIONAL
                     ),
                 ]),
                 'The generated question widgets, as many as the brain sent.',

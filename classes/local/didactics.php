@@ -45,12 +45,16 @@ final class didactics {
     /** @var string Rule-of-three (Dreisatz) question widget type. */
     public const TYPE_CROSSMULTIPLICATION = 'crossMultiplicationQuestionWidget';
 
+    /** @var string Spreadsheet calculation (Tabellenkalkulation) question widget type. */
+    public const TYPE_TRADECOSTING = 'tradeCostingQuestionWidget';
+
     /** @var string[] Every question widget type the plugin supports. */
     public const TYPES = [
         self::TYPE_SINGLECHOICE,
         self::TYPE_TRUEFALSE,
         self::TYPE_OPEN,
         self::TYPE_CROSSMULTIPLICATION,
+        self::TYPE_TRADECOSTING,
     ];
 
     /** @var int[] The difficulty grades (1 Einfach, 2 Mittel, 3 Schwer). */
@@ -71,6 +75,7 @@ final class didactics {
             self::TYPE_TRUEFALSE => 'qtype_truefalse',
             self::TYPE_OPEN => 'qtype_open',
             self::TYPE_CROSSMULTIPLICATION => 'qtype_crossmultiplication',
+            self::TYPE_TRADECOSTING => 'qtype_tradecosting',
             default => 'qtype_unknown',
         };
     }

@@ -252,6 +252,35 @@ final class practice_test extends \advanced_testcase {
     }
 
     /**
+     * A spreadsheet calculation travels as the whole table and is judged
+     * per cell; an unanswered cell is rejected before any API call.
+     */
+    public function test_submit_spreadsheet_calculation(): void {
+        [$tz] = $this->make_ready_activity();
+
+        $table = [
+            ['position' => '= Listeneinkaufspreis', 'rate' => '', 'amount' => '200,00 EUR'],
+            ['position' => '- Liefererrabatt', 'rate' => '10,00 %', 'amount' => 'Alpha'],
+            ['position' => '- Liefererskonto', 'rate' => '2,00 %', 'amount' => '3,60 EUR'],
+        ];
+        $result = submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table);
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertTrue($result['hasverdict']);
+        $this->assertFalse($result['correct']);
+        $this->assertCount(3, $result['answertable']);
+        $this->assertSame(0, $result['answertable'][0]['amountverdict']);
+        $this->assertSame(1, $result['answertable'][1]['amountverdict']);
+        $this->assertSame(-1, $result['answertable'][2]['amountverdict']);
+        $this->assertSame('3,60 EUR', $result['usertable'][2]['amount']);
+
+        $this->expectException(\moodle_exception::class);
+        $table[2]['amount'] = '?';
+        submit_practice_answer::execute((int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table);
+    }
+
+    /**
      * An unsupported widget type is rejected before any API call.
      */
     public function test_submit_with_unsupported_type_is_rejected(): void {

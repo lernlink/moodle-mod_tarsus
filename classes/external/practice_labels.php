@@ -121,6 +121,50 @@ final class practice_labels {
     }
 
     /**
+     * Shape costing table rows for the wire.
+     *
+     * @param array $rows The client's rows ({position, rate, amount} plus optional flags/verdicts).
+     * @return array<int, array<string, mixed>>
+     */
+    public static function table(array $rows): array {
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = [
+                'position' => (string) ($row['position'] ?? ''),
+                'rate' => (string) ($row['rate'] ?? ''),
+                'amount' => (string) ($row['amount'] ?? ''),
+                'askrate' => !empty($row['askrate']),
+                'askamount' => !empty($row['askamount']),
+                'rateverdict' => (int) ($row['rateverdict'] ?? 0),
+                'amountverdict' => (int) ($row['amountverdict'] ?? 0),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * The wire structure of costing table rows.
+     *
+     * @param string $description What the list holds.
+     * @return external_multiple_structure
+     */
+    public static function table_structure(string $description): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'position' => new external_value(PARAM_RAW, 'The row label (costing position).'),
+                'rate' => new external_value(PARAM_RAW, 'The rate cell (percentage), may be empty.'),
+                'amount' => new external_value(PARAM_RAW, 'The amount cell.'),
+                'askrate' => new external_value(PARAM_BOOL, 'Whether the rate cell is asked.'),
+                'askamount' => new external_value(PARAM_BOOL, 'Whether the amount cell is asked.'),
+                'rateverdict' => new external_value(PARAM_INT, 'Verdict of the rate cell: 1 correct, -1 wrong, 0 given.'),
+                'amountverdict' => new external_value(PARAM_INT, 'Verdict of the amount cell: 1 correct, -1 wrong, 0 given.'),
+            ]),
+            $description,
+            VALUE_OPTIONAL
+        );
+    }
+
+    /**
      * Shape the progress figures for the wire.
      *
      * @param array $progress The client's progress array.

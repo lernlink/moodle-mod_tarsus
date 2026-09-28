@@ -358,3 +358,61 @@
 .tarsus-practice-card__answers div {
     margin-top: 0.2rem;
 }
+
+/* Spreadsheet calculation questions: the costing table with asked cells
+   as inputs; after evaluation each cell shows its verdict. */
+.tarsus-practice-card__table-wrap {
+    overflow-x: auto;
+    margin-bottom: 0.25rem;
+}
+
+.tarsus-practice-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tarsus-practice-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #6a7076;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.tarsus-practice-table td {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    vertical-align: middle;
+}
+
+.tarsus-practice-table__position {
+    white-space: nowrap;
+}
+
+.tarsus-practice-table__cell {
+    min-width: 7rem;
+}
+
+.tarsus-practice-table__input {
+    max-width: 10rem;
+}
+
+.tarsus-practice-table__cell--correct .tarsus-practice-table__input {
+    border-color: #57b87b;
+    background: #e9f7ec;
+}
+
+.tarsus-practice-table__cell--incorrect .tarsus-practice-table__input {
+    border-color: #d9534f;
+    background: #fdeef0;
+}
+
+.tarsus-practice-table__model {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    color: #2f7a4a;
+}

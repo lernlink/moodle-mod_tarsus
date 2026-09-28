@@ -27,13 +27,16 @@
     * choices - array of {value, label} answer choices.
     * hasvariables - bool, whether the question asks for named quantities (rule of three).
     * variables - array of {name} quantities to answer, one input each.
+    * hastable - bool, whether the question is a costing table (spreadsheet calculation).
+    * table - array of {position, rate, amount, askrate, askamount} rows; asked cells become inputs.
+    * columnsjson - string, JSON list of the table's three column names (sent back with the answer).
     * taxonomy - string, display label of the taxonomy level (may be empty).
     * difficulty - string, display label of the difficulty grade (may be empty).
     * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
     * hasbars - bool, whether the difficulty bars render.
 }}
 <div class="tarsus-card tarsus-practice-card" data-region="practice-card"
-     data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}">
+     data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
     <div class="tarsus-practice-card__inner">
     {{#hasmeta}}
     <div class="tarsus-practice-card__meta">
@@ -68,11 +71,39 @@
         {{/variables}}
     </div>
     {{/hasvariables}}
-    {{^haschoices}}{{^hasvariables}}
+    {{#hastable}}
+    <div class="tarsus-practice-card__table-wrap">
+    <table class="tarsus-practice-table" data-region="table">
+        <thead>
+            <tr>
+                <th>{{#str}}practice_table_position, mod_tarsuszero{{/str}}</th>
+                <th>{{#str}}practice_table_rate, mod_tarsuszero{{/str}}</th>
+                <th>{{#str}}practice_table_amount, mod_tarsuszero{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#table}}
+            <tr class="tarsus-practice-table__row" data-position="{{position}}">
+                <td class="tarsus-practice-table__position">{{position}}</td>
+                <td class="tarsus-practice-table__cell" data-cell="rate">
+                    {{#askrate}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="rate" autocomplete="off">{{/askrate}}
+                    {{^askrate}}<span class="tarsus-practice-table__value" data-cell="rate">{{rate}}</span>{{/askrate}}
+                </td>
+                <td class="tarsus-practice-table__cell" data-cell="amount">
+                    {{#askamount}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="amount" autocomplete="off">{{/askamount}}
+                    {{^askamount}}<span class="tarsus-practice-table__value" data-cell="amount">{{amount}}</span>{{/askamount}}
+                </td>
+            </tr>
+            {{/table}}
+        </tbody>
+    </table>
+    </div>
+    {{/hastable}}
+    {{^haschoices}}{{^hasvariables}}{{^hastable}}
     <textarea class="tarsus-practice-card__input form-control" rows="3"
               placeholder="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"
               aria-label="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"></textarea>
-    {{/hasvariables}}{{/haschoices}}
+    {{/hastable}}{{/hasvariables}}{{/haschoices}}
     <div class="tarsus-practice-card__actions">
         <button type="button" class="tarsus-practice-check btn btn-primary">
             <span class="tarsus-practice-check__spinner spinner-border spinner-border-sm d-none"

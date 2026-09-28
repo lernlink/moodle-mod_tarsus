@@ -51,6 +51,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         PRACTICE_INPUT: '.tarsus-practice-card__input',
         PRACTICE_VARIABLE: '.tarsus-practice-variable',
         PRACTICE_VARIABLE_INPUT: '.tarsus-practice-variable__input',
+        PRACTICE_TABLE_ROW: '.tarsus-practice-table__row',
+        PRACTICE_TABLE_INPUT: '.tarsus-practice-table__input',
         PRACTICE_FEEDBACK: '[data-region="feedback"]',
         PRACTICE_ANSWERS: '[data-region="answers"]',
         XP_BADGE: '[data-region="xp-badge"]',
@@ -115,6 +117,43 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                     : 'tarsus-practice-variable--incorrect');
             }
         });
+        // Spreadsheet calculation: restore the learner's cells, mark each
+        // asked cell by its verdict and show the model figure under a
+        // wrong one.
+        var userRows = {};
+        (verdict.usertable || []).forEach(function(row) {
+            userRows[row.position] = row;
+        });
+        var modelRows = {};
+        (verdict.answertable || []).forEach(function(row) {
+            modelRows[row.position] = row;
+        });
+        card.querySelectorAll(SELECTORS.PRACTICE_TABLE_ROW).forEach(function(row) {
+            var position = row.getAttribute('data-position');
+            row.querySelectorAll(SELECTORS.PRACTICE_TABLE_INPUT).forEach(function(input) {
+                var cell = input.getAttribute('data-cell');
+                if (input.value === '' && userRows[position]) {
+                    input.value = userRows[position][cell] || '';
+                }
+                input.disabled = true;
+                var model = modelRows[position];
+                if (!model) {
+                    return;
+                }
+                var mark = cell === 'rate' ? model.rateverdict : model.amountverdict;
+                var holder = input.parentNode;
+                if (mark > 0) {
+                    holder.classList.add('tarsus-practice-table__cell--correct');
+                } else if (mark < 0) {
+                    holder.classList.add('tarsus-practice-table__cell--incorrect');
+                    var hint = document.createElement('span');
+                    hint.className = 'tarsus-practice-table__model';
+                    hint.textContent = model[cell] || '';
+                    holder.appendChild(hint);
+                }
+            });
+        });
+
         var answersList = card.querySelector(SELECTORS.PRACTICE_ANSWERS);
         if (answersList && (verdict.answers || []).length) {
             answersList.innerHTML = '';
@@ -204,6 +243,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             choices: widget.choices,
             hasvariables: variables.length > 0,
             variables: variables,
+            hastable: (widget.table || []).length > 0,
+            table: widget.table || [],
+            columnsjson: JSON.stringify(widget.columns || []),
             taxonomy: widget.taxonomy,
             difficulty: widget.difficulty,
             bars: bars,
@@ -302,7 +344,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                             feedback: item.feedback,
                             useranswer: item.useranswer,
                             useranswers: item.useranswers || [],
-                            answers: item.answers || []
+                            answers: item.answers || [],
+                            usertable: item.usertable || [],
+                            answertable: item.answertable || []
                         });
                     }
                     if (entry.js) {
@@ -424,10 +468,38 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
 
         var answer = '';
         var answers = [];
+        var table = [];
+        var columns = [];
+        try {
+            columns = JSON.parse(card.getAttribute('data-columns') || '[]');
+        } catch (e) {
+            columns = [];
+        }
         var chosen = card.querySelector('input[type="radio"]:checked');
         var textinput = card.querySelector(SELECTORS.PRACTICE_INPUT);
         var variableInputs = card.querySelectorAll(SELECTORS.PRACTICE_VARIABLE_INPUT);
-        if (variableInputs.length) {
+        var tableRows = card.querySelectorAll(SELECTORS.PRACTICE_TABLE_ROW);
+        if (tableRows.length) {
+            // Spreadsheet calculation: the whole table travels, given cells
+            // echoed and every asked cell filled.
+            var complete = true;
+            tableRows.forEach(function(row) {
+                var cells = {position: row.getAttribute('data-position')};
+                ['rate', 'amount'].forEach(function(cell) {
+                    var input = row.querySelector('input[data-cell="' + cell + '"]');
+                    var given = row.querySelector('span[data-cell="' + cell + '"]');
+                    var value = input ? input.value.trim() : (given ? given.textContent : '');
+                    if (input && value === '') {
+                        complete = false;
+                    }
+                    cells[cell] = (value || '').trim();
+                });
+                table.push(cells);
+            });
+            if (!complete) {
+                return;
+            }
+        } else if (variableInputs.length) {
             // Rule of three: every asked quantity needs a figure.
             variableInputs.forEach(function(input) {
                 if (input.value.trim() !== '') {
@@ -442,7 +514,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         } else if (textinput) {
             answer = textinput.value.trim();
         }
-        if (answer === '' && !answers.length) {
+        if (answer === '' && !answers.length && !table.length) {
             return;
         }
 
@@ -458,7 +530,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 widgetid: card.getAttribute('data-widget-id'),
                 widgettype: card.getAttribute('data-widget-type'),
                 answer: answer,
-                answers: answers
+                answers: answers,
+                table: table,
+                columns: columns
             }
         }])[0].then(function(result) {
             if (spinner) {
@@ -482,7 +556,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 feedback: result.feedback || result.answer || '',
                 useranswer: answer,
                 useranswers: answers,
-                answers: result.answers || []
+                answers: result.answers || [],
+                usertable: result.usertable || table,
+                answertable: result.answertable || []
             });
 
             updateXp(result.progress);

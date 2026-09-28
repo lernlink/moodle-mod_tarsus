@@ -138,6 +138,10 @@ class get_activity_feed extends external_api {
                     'useranswer' => (string) ($item['useranswer'] ?? ''),
                     'useranswers' => practice_labels::answers($item['useranswers'] ?? [], $render),
                     'answers' => practice_labels::answers($item['answers'] ?? [], $render),
+                    'table' => practice_labels::table($item['table'] ?? []),
+                    'columns' => array_values(array_map('strval', $item['columns'] ?? [])),
+                    'usertable' => practice_labels::table($item['usertable'] ?? []),
+                    'answertable' => practice_labels::table($item['answertable'] ?? []),
                 ];
             }
 
@@ -210,6 +214,14 @@ class get_activity_feed extends external_api {
                     ),
                     'useranswers' => practice_labels::answers_structure('The learner\'s per-variable answers (practice, answered).'),
                     'answers' => practice_labels::answers_structure('The model per-variable answers (practice, answered).'),
+                    'table' => practice_labels::table_structure('The costing table of a spreadsheet calculation (practice).'),
+                    'columns' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'A column name.'),
+                        'The three column names the costing table came with (practice).',
+                        VALUE_OPTIONAL
+                    ),
+                    'usertable' => practice_labels::table_structure('The learner\'s costing rows (practice, answered).'),
+                    'answertable' => practice_labels::table_structure('The model costing rows with verdicts (practice, answered).'),
                 ]),
                 'The activity feed, oldest first, all interaction modes interleaved.'
             ),

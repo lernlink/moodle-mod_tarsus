@@ -66,6 +66,22 @@ class submit_practice_answer extends external_api {
                 VALUE_DEFAULT,
                 []
             ),
+            'table' => new external_multiple_structure(
+                new external_single_structure([
+                    'position' => new external_value(PARAM_RAW, 'The row label.'),
+                    'rate' => new external_value(PARAM_RAW, 'The rate cell, given or answered.'),
+                    'amount' => new external_value(PARAM_RAW, 'The amount cell, given or answered.'),
+                ]),
+                'Every row of a spreadsheet calculation with the asked cells filled.',
+                VALUE_DEFAULT,
+                []
+            ),
+            'columns' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'A column name.'),
+                'The three column names the costing table came with.',
+                VALUE_DEFAULT,
+                []
+            ),
         ]);
     }
 
@@ -77,11 +93,13 @@ class submit_practice_answer extends external_api {
      * @param string $widgettype The question widget type.
      * @param string $answer     The learner's answer (single-answer types).
      * @param array  $answers    Per-variable answers (rule of three).
+     * @param array  $table      The filled costing table (spreadsheet calculation).
+     * @param array  $columns    The costing table's column names as the question came with them.
      * @return array Status, verdict, feedback, choices and progress.
      * @throws moodle_exception
      */
     public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer,
-            array $answers = []): array {
+            array $answers = [], array $table = [], array $columns = []): array {
         global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -90,6 +108,8 @@ class submit_practice_answer extends external_api {
             'widgettype' => $widgettype,
             'answer' => $answer,
             'answers' => $answers,
+            'table' => $table,
+            'columns' => $columns,
         ]);
 
         if (trim($params['widgetid']) === '' || !practice_labels::is_supported_type($params['widgettype'])) {
@@ -100,6 +120,7 @@ class submit_practice_answer extends external_api {
         // quantity needs an answer. Other types take the single answer.
         $answertext = trim($params['answer']);
         $useranswers = [];
+        $usertable = [];
         if ($params['widgettype'] === \mod_tarsuszero\local\didactics::TYPE_CROSSMULTIPLICATION) {
             foreach ($params['answers'] as $entry) {
                 $variable = trim((string) $entry['variable']);
@@ -110,6 +131,21 @@ class submit_practice_answer extends external_api {
                 $useranswers[] = ['variable' => $variable, 'answer' => $value];
             }
             if ($useranswers === []) {
+                throw new moodle_exception('empty_query', 'mod_tarsuszero');
+            }
+        } else if ($params['widgettype'] === \mod_tarsuszero\local\didactics::TYPE_TRADECOSTING) {
+            // A spreadsheet calculation travels as the whole table; no
+            // asked cell may stay blank or unanswered ('?').
+            foreach ($params['table'] as $row) {
+                $position = trim((string) $row['position']);
+                $rate = trim((string) $row['rate']);
+                $amount = trim((string) $row['amount']);
+                if ($position === '' || $rate === '?' || $amount === '?') {
+                    throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                }
+                $usertable[] = ['position' => $position, 'rate' => $rate, 'amount' => $amount];
+            }
+            if ($usertable === []) {
                 throw new moodle_exception('empty_query', 'mod_tarsuszero');
             }
         } else if ($answertext === '') {
@@ -136,6 +172,8 @@ class submit_practice_answer extends external_api {
             'widgettype' => $params['widgettype'],
             'useranswer' => $answertext,
             'useranswers' => $useranswers,
+            'usertable' => $usertable,
+            'columns' => array_values(array_map('trim', $params['columns'])),
         ];
 
         try {
@@ -165,6 +203,8 @@ class submit_practice_answer extends external_api {
                 'answer' => $render(practice_labels::choice((string) ($response['answer'] ?? ''), $params['widgettype'])),
                 'choices' => $choices,
                 'answers' => practice_labels::answers($response['answers'] ?? [], $render),
+                'usertable' => practice_labels::table($response['usertable'] ?? []),
+                'answertable' => practice_labels::table($response['answertable'] ?? []),
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
 
@@ -211,6 +251,8 @@ class submit_practice_answer extends external_api {
                 VALUE_OPTIONAL
             ),
             'answers' => practice_labels::answers_structure('The model per-variable answers with verdicts (rule of three).'),
+            'usertable' => practice_labels::table_structure('The learner\'s costing rows as evaluated (spreadsheet calculation).'),
+            'answertable' => practice_labels::table_structure('The model costing rows with verdicts (spreadsheet calculation).'),
             'progress' => practice_labels::progress_structure(),
         ]);
     }
