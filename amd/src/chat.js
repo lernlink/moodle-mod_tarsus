@@ -57,7 +57,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         PRACTICE_ANSWERS: '[data-region="answers"]',
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
-        XP_TOTAL: '[data-region="xp-total"]'
+        XP_TOTAL: '[data-region="xp-total"]',
+        XP_PROGRESS: '[data-region="xp-progress"]',
+        XP_PERCENT: '[data-region="xp-percent"]'
     };
 
     /**
@@ -388,6 +390,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         badge.classList.remove('d-none');
         badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(progress.earnedxp * 100) / 100;
         badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(progress.totalxp * 100) / 100;
+
+        // The practice progress the brain reports, as a percentage.
+        var progressBox = badge.querySelector(SELECTORS.XP_PROGRESS);
+        var percent = badge.querySelector(SELECTORS.XP_PERCENT);
+        if (progressBox && percent && typeof progress.practiceprogress === 'number') {
+            percent.textContent = Math.round(progress.practiceprogress);
+            progressBox.classList.remove('d-none');
+        }
     }
 
     /**

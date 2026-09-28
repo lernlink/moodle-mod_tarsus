@@ -63,6 +63,45 @@ final class didactics {
     /** @var int[] The Bloom taxonomy levels (1 Wissen, 2 Verstehen, 3 Anwenden). */
     public const TAXONOMY_LEVELS = [1, 2, 3];
 
+    /** @var string Operator taxonomy allowing any task operator. */
+    public const OPERATORS_STANDARD = 'standard';
+
+    /** @var string Operator taxonomy limited to the four IHK operators (nennen, beschreiben, erklären, erläutern). */
+    public const OPERATORS_IHK = 'ihk';
+
+    /** @var string[] The operator taxonomies the brain knows. */
+    public const OPERATORS = [self::OPERATORS_STANDARD, self::OPERATORS_IHK];
+
+    /** @var float[] The learning pace steps offered; 1 is the recommended pace. */
+    public const LEARN_TEMPOS = [0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+
+    /** @var float The recommended learning pace. */
+    public const LEARN_TEMPO_DEFAULT = 1.0;
+
+    /**
+     * Normalise a stored operator taxonomy.
+     *
+     * @param string|null $value The stored value.
+     * @return string A known taxonomy; 'standard' when unknown.
+     */
+    public static function operators(?string $value): string {
+        $value = strtolower(trim((string) $value));
+        return in_array($value, self::OPERATORS, true) ? $value : self::OPERATORS_STANDARD;
+    }
+
+    /**
+     * Normalise a stored learning pace into the brain's 0.1-2 range.
+     *
+     * @param mixed $value The stored value.
+     * @return float The pace; the recommended one when unset or invalid.
+     */
+    public static function learn_tempo($value): float {
+        if ($value === null || $value === '' || !is_numeric($value)) {
+            return self::LEARN_TEMPO_DEFAULT;
+        }
+        return max(0.1, min(2.0, round((float) $value, 2)));
+    }
+
     /**
      * The language string key of a question widget type's display label.
      *

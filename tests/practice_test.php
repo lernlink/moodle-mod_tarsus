@@ -97,6 +97,7 @@ final class practice_test extends \advanced_testcase {
 
         // The default practice settings echo back through the mock.
         $this->assertStringContainsString('[tax: 1,2,3]', $widget['question']);
+        $this->assertStringContainsString('[ops: standard, cheat: 0, tempo: 1]', $widget['question']);
         $this->assertStringContainsString('[types: 1:2 2:3 3:1]', $widget['question']);
 
         $this->assertCount(4, $widget['choices']);
@@ -117,10 +118,14 @@ final class practice_test extends \advanced_testcase {
 
         $DB->set_field('tarsuszero', 'taxonomylevels', '2', ['id' => $tz->id]);
         $DB->set_field('tarsuszero', 'questiontypes', '{"3":["openQuestionWidget"]}', ['id' => $tz->id]);
+        $DB->set_field('tarsuszero', 'operators', 'ihk', ['id' => $tz->id]);
+        $DB->set_field('tarsuszero', 'anticheat', 1, ['id' => $tz->id]);
+        $DB->set_field('tarsuszero', 'learntempo', 0.5, ['id' => $tz->id]);
 
         $result = get_practice_widget::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
+        $this->assertStringContainsString('[ops: ihk, cheat: 1, tempo: 0.5]', $result['widgets'][0]['question']);
         $this->assertStringContainsString('[tax: 2]', $result['widgets'][0]['question']);
         // The brain requires every grade to carry a type, so the grades the
         // teacher left empty travel with their defaults (2 and 3 types).

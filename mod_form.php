@@ -133,6 +133,31 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             $mform->addHelpButton($name, 'questiontypes', 'mod_tarsuszero');
         }
 
+        // Operator taxonomy, anti-cheat and learning pace, per the Tarsus
+        // developer's answers.
+        $mform->addElement('select', 'operators', get_string('operators', 'mod_tarsuszero'), [
+            didactics::OPERATORS_STANDARD => get_string('operators_standard', 'mod_tarsuszero'),
+            didactics::OPERATORS_IHK => get_string('operators_ihk', 'mod_tarsuszero'),
+        ]);
+        $mform->setType('operators', PARAM_ALPHA);
+        $mform->setDefault('operators', didactics::OPERATORS_STANDARD);
+        $mform->addHelpButton('operators', 'operators', 'mod_tarsuszero');
+
+        $mform->addElement('advcheckbox', 'anticheat', get_string('anticheat', 'mod_tarsuszero'));
+        $mform->setDefault('anticheat', 0);
+        $mform->addHelpButton('anticheat', 'anticheat', 'mod_tarsuszero');
+
+        $tempos = [];
+        foreach (didactics::LEARN_TEMPOS as $tempo) {
+            $label = 'x' . rtrim(rtrim(number_format($tempo, 2, '.', ''), '0'), '.');
+            $tempos[(string) $tempo] = $tempo === didactics::LEARN_TEMPO_DEFAULT
+                ? get_string('learntempo_recommended', 'mod_tarsuszero', $label) : $label;
+        }
+        $mform->addElement('select', 'learntempo', get_string('learntempo', 'mod_tarsuszero'), $tempos);
+        $mform->setType('learntempo', PARAM_FLOAT);
+        $mform->setDefault('learntempo', (string) didactics::LEARN_TEMPO_DEFAULT);
+        $mform->addHelpButton('learntempo', 'learntempo', 'mod_tarsuszero');
+
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
     }
@@ -164,6 +189,11 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             foreach (didactics::GRADES as $grade) {
                 $defaultvalues[self::qtypes_field($grade)] = $map[$grade] ?? [];
             }
+
+            // The pace is stored as a decimal (1.00); the select keys are the
+            // plain floats (1).
+            $defaultvalues['learntempo'] = (string) didactics::learn_tempo($defaultvalues['learntempo'] ?? null);
+            $defaultvalues['operators'] = didactics::operators($defaultvalues['operators'] ?? null);
         }
     }
 

@@ -124,5 +124,23 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026092903, 'tarsuszero');
     }
 
+    if ($oldversion < 2026092905) {
+        // Practice settings from the Tarsus developer's answers: the operator
+        // taxonomy (standard / ihk), anti-cheat and the learning pace.
+        $table = new xmldb_table('tarsuszero');
+        $fields = [
+            new xmldb_field('operators', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'standard', 'questiontypes'),
+            new xmldb_field('anticheat', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'operators'),
+            new xmldb_field('learntempo', XMLDB_TYPE_NUMBER, '4, 2', null, XMLDB_NOTNULL, null, '1', 'anticheat'),
+        ];
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026092905, 'tarsuszero');
+    }
+
     return true;
 }

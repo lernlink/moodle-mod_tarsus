@@ -89,6 +89,21 @@ final class didactics_test extends \advanced_testcase {
     }
 
     /**
+     * Operators and learning pace normalise to what the brain accepts.
+     */
+    public function test_operators_and_learn_tempo_normalise(): void {
+        $this->assertSame('standard', didactics::operators(null));
+        $this->assertSame('standard', didactics::operators('bogus'));
+        $this->assertSame('ihk', didactics::operators(' IHK '));
+
+        $this->assertSame(1.0, didactics::learn_tempo(null));
+        $this->assertSame(1.0, didactics::learn_tempo('abc'));
+        $this->assertSame(0.5, didactics::learn_tempo('0.50'));
+        $this->assertSame(0.1, didactics::learn_tempo(0));
+        $this->assertSame(2.0, didactics::learn_tempo(9));
+    }
+
+    /**
      * The defaults mirror the Tarsus reference configuration.
      */
     public function test_defaults_match_the_tarsus_reference(): void {
