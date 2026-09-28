@@ -48,8 +48,9 @@ final class didactics_test extends \advanced_testcase {
     }
 
     /**
-     * The question types map survives an encode/decode round trip; empty
-     * grades disappear from the stored value.
+     * The question types map survives an encode/decode round trip; a grade
+     * left empty is not stored and comes back as its default, because the
+     * brain requires every grade to carry at least one type.
      */
     public function test_question_types_round_trip(): void {
         $map = [
@@ -64,6 +65,7 @@ final class didactics_test extends \advanced_testcase {
 
         $this->assertSame([
             1 => [didactics::TYPE_SINGLECHOICE],
+            2 => didactics::default_question_types()[2],
             3 => [didactics::TYPE_OPEN, didactics::TYPE_TRUEFALSE],
         ], didactics::decode_question_types($encoded));
     }
@@ -81,7 +83,7 @@ final class didactics_test extends \advanced_testcase {
         $this->assertSame($defaults, didactics::decode_question_types('{"7":["bogusWidget"]}'));
 
         $this->assertSame(
-            [2 => [didactics::TYPE_TRUEFALSE]],
+            [1 => $defaults[1], 2 => [didactics::TYPE_TRUEFALSE], 3 => $defaults[3]],
             didactics::decode_question_types('{"2":["trueFalseQuestionWidget","bogusWidget"],"7":["openQuestionWidget"]}')
         );
     }

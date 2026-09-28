@@ -122,7 +122,9 @@ final class practice_test extends \advanced_testcase {
 
         $this->assertEquals('success', $result['status']);
         $this->assertStringContainsString('[tax: 2]', $result['widgets'][0]['question']);
-        $this->assertStringContainsString('[types: 3:1]', $result['widgets'][0]['question']);
+        // The brain requires every grade to carry a type, so the grades the
+        // teacher left empty travel with their defaults (2 and 3 types).
+        $this->assertStringContainsString('[types: 1:2 2:3 3:1]', $result['widgets'][0]['question']);
     }
 
     /**

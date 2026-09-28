@@ -24,7 +24,8 @@ namespace mod_tarsuszero\local;
  * 3 Anwenden) and a map of difficulty grade (1 Einfach, 2 Mittel, 3 Schwer)
  * to the question widget types the brain may generate in that grade. The
  * difficulty has no API parameter of its own — it is expressed entirely
- * through which grades of the question_types map carry entries.
+ * through the question_types map, and the brain requires every grade to
+ * carry at least one type (verified live: an empty grade list is rejected).
  *
  * @package    mod_tarsuszero
  * @copyright  2026 lern.link GmbH
@@ -49,6 +50,21 @@ final class didactics {
 
     /** @var int[] The Bloom taxonomy levels (1 Wissen, 2 Verstehen, 3 Anwenden). */
     public const TAXONOMY_LEVELS = [1, 2, 3];
+
+    /**
+     * The language string key of a question widget type's display label.
+     *
+     * @param string $type The question widget type.
+     * @return string The string key in mod_tarsuszero.
+     */
+    public static function type_label_key(string $type): string {
+        return match ($type) {
+            self::TYPE_SINGLECHOICE => 'qtype_singlechoice',
+            self::TYPE_TRUEFALSE => 'qtype_truefalse',
+            self::TYPE_OPEN => 'qtype_open',
+            default => 'qtype_unknown',
+        };
+    }
 
     /**
      * The default taxonomy levels: all of them.
@@ -125,11 +141,13 @@ final class didactics {
     /**
      * Decode the stored question types map.
      *
-     * Unknown grades and types are dropped; an empty or invalid value falls
-     * back to the defaults, so legacy rows behave sensibly.
+     * Unknown grades and types are dropped. The brain requires every grade
+     * to carry at least one type, so a grade that ends up empty — a legacy
+     * row, an invalid value — takes its default; the result is always a
+     * complete, sendable map.
      *
      * @param string|null $encoded The stored JSON.
-     * @return array<int, string[]> Grade => question widget types, at least one entry.
+     * @return array<int, string[]> Grade => question widget types, every grade present.
      */
     public static function decode_question_types(?string $encoded): array {
         $decoded = json_decode((string) $encoded, true);
@@ -146,7 +164,10 @@ final class didactics {
                 }
             }
         }
+        foreach (self::default_question_types() as $grade => $types) {
+            $map[$grade] = $map[$grade] ?? $types;
+        }
         ksort($map);
-        return $map === [] ? self::default_question_types() : $map;
+        return $map;
     }
 }
