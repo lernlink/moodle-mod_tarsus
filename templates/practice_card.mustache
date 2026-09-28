@@ -25,6 +25,8 @@
     * question - string, the rendered question HTML (server-cleaned).
     * haschoices - bool, whether the question offers answer choices.
     * choices - array of {value, label} answer choices.
+    * hasvariables - bool, whether the question asks for named quantities (rule of three).
+    * variables - array of {name} quantities to answer, one input each.
     * taxonomy - string, display label of the taxonomy level (may be empty).
     * difficulty - string, display label of the difficulty grade (may be empty).
     * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
@@ -55,11 +57,22 @@
         {{/choices}}
     </div>
     {{/haschoices}}
-    {{^haschoices}}
+    {{#hasvariables}}
+    <div class="tarsus-practice-card__variables" data-region="variables">
+        {{#variables}}
+        <label class="tarsus-practice-variable">
+            <span class="tarsus-practice-variable__name">{{name}}</span>
+            <input type="text" class="tarsus-practice-variable__input form-control" data-variable="{{name}}"
+                   placeholder="{{#str}}practice_variable_placeholder, mod_tarsuszero{{/str}}" autocomplete="off">
+        </label>
+        {{/variables}}
+    </div>
+    {{/hasvariables}}
+    {{^haschoices}}{{^hasvariables}}
     <textarea class="tarsus-practice-card__input form-control" rows="3"
               placeholder="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"
               aria-label="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"></textarea>
-    {{/haschoices}}
+    {{/hasvariables}}{{/haschoices}}
     <div class="tarsus-practice-card__actions">
         <button type="button" class="tarsus-practice-check btn btn-primary">
             <span class="tarsus-practice-check__spinner spinner-border spinner-border-sm d-none"
@@ -68,5 +81,6 @@
         </button>
     </div>
     <div class="tarsus-practice-card__feedback d-none" data-region="feedback"></div>
+    <dl class="tarsus-practice-card__answers d-none" data-region="answers"></dl>
     </div>
 </div>

@@ -18,6 +18,7 @@ namespace mod_tarsuszero\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core_external\external_multiple_structure;
 use core_external\external_single_structure;
 use core_external\external_value;
 use local_tarsus\client\client_interface;
@@ -78,6 +79,45 @@ final class practice_labels {
             }
         }
         return $value;
+    }
+
+    /**
+     * Shape per-variable answers (rule of three) for the wire.
+     *
+     * @param array    $answers The client's list of {variable, answer, iscorrect, clarification}.
+     * @param callable $render  Renders Markdown clarifications to HTML.
+     * @return array<int, array{variable: string, answer: string, iscorrect: bool, clarification: string}>
+     */
+    public static function answers(array $answers, callable $render): array {
+        $out = [];
+        foreach ($answers as $entry) {
+            $out[] = [
+                'variable' => (string) ($entry['variable'] ?? ''),
+                'answer' => (string) ($entry['answer'] ?? ''),
+                'iscorrect' => !empty($entry['iscorrect']),
+                'clarification' => $render((string) ($entry['clarification'] ?? '')),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * The wire structure of per-variable answers.
+     *
+     * @param string $description What the list holds.
+     * @return external_multiple_structure
+     */
+    public static function answers_structure(string $description): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'variable' => new external_value(PARAM_RAW, 'The asked quantity.'),
+                'answer' => new external_value(PARAM_RAW, 'The answer text.'),
+                'iscorrect' => new external_value(PARAM_BOOL, 'Whether this answer was judged correct.'),
+                'clarification' => new external_value(PARAM_RAW, 'Rendered clarification HTML, may be empty.'),
+            ]),
+            $description,
+            VALUE_OPTIONAL
+        );
     }
 
     /**

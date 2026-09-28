@@ -42,8 +42,16 @@ final class didactics {
     /** @var string Open question widget type. */
     public const TYPE_OPEN = 'openQuestionWidget';
 
+    /** @var string Rule-of-three (Dreisatz) question widget type. */
+    public const TYPE_CROSSMULTIPLICATION = 'crossMultiplicationQuestionWidget';
+
     /** @var string[] Every question widget type the plugin supports. */
-    public const TYPES = [self::TYPE_SINGLECHOICE, self::TYPE_TRUEFALSE, self::TYPE_OPEN];
+    public const TYPES = [
+        self::TYPE_SINGLECHOICE,
+        self::TYPE_TRUEFALSE,
+        self::TYPE_OPEN,
+        self::TYPE_CROSSMULTIPLICATION,
+    ];
 
     /** @var int[] The difficulty grades (1 Einfach, 2 Mittel, 3 Schwer). */
     public const GRADES = [1, 2, 3];
@@ -62,6 +70,7 @@ final class didactics {
             self::TYPE_SINGLECHOICE => 'qtype_singlechoice',
             self::TYPE_TRUEFALSE => 'qtype_truefalse',
             self::TYPE_OPEN => 'qtype_open',
+            self::TYPE_CROSSMULTIPLICATION => 'qtype_crossmultiplication',
             default => 'qtype_unknown',
         };
     }

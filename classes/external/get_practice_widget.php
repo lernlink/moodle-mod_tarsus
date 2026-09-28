@@ -120,6 +120,7 @@ class get_practice_widget extends external_api {
                     'taxonomy' => practice_labels::taxonomy((string) ($widget['taxonomylevel'] ?? '')),
                     'difficulty' => practice_labels::difficulty((int) ($widget['difficultylevel'] ?? 0)),
                     'difficultylevel' => (int) ($widget['difficultylevel'] ?? 0),
+                    'variables' => array_values(array_map('strval', $widget['variables'] ?? [])),
                 ];
             }
 
@@ -171,6 +172,10 @@ class get_practice_widget extends external_api {
                     'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
                     'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade.'),
                     'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).'),
+                    'variables' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'An asked quantity.'),
+                        'Quantities a rule-of-three question asks for; empty for other types.'
+                    ),
                 ]),
                 'The generated question widgets, as many as the brain sent.',
                 VALUE_OPTIONAL

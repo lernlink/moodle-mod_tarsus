@@ -226,6 +226,32 @@ final class practice_test extends \advanced_testcase {
     }
 
     /**
+     * A rule-of-three question is answered per variable and judged per
+     * variable; an incomplete answer set is rejected before any API call.
+     */
+    public function test_submit_rule_of_three_answers(): void {
+        [$tz] = $this->make_ready_activity();
+
+        $result = submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-widget-3', 'crossMultiplicationQuestionWidget', '',
+            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '42']]);
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertTrue($result['hasverdict']);
+        $this->assertFalse($result['correct']);
+        $this->assertCount(2, $result['answers']);
+        $this->assertSame('A_E', $result['answers'][0]['variable']);
+        $this->assertTrue($result['answers'][0]['iscorrect']);
+        $this->assertFalse($result['answers'][1]['iscorrect']);
+        $this->assertStringContainsString('Alpha', $result['answers'][1]['clarification']);
+
+        $this->expectException(\moodle_exception::class);
+        submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-widget-3', 'crossMultiplicationQuestionWidget', '',
+            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '   ']]);
+    }
+
+    /**
      * An unsupported widget type is rejected before any API call.
      */
     public function test_submit_with_unsupported_type_is_rejected(): void {

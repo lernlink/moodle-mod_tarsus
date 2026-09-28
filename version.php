@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092900;
+$plugin->version   = 2026092901;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.17.0 (Chip selectors for practice settings; every grade needs a type)';
+$plugin->release   = '0.18.0 (Rule-of-three practice questions)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

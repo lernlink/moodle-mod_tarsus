@@ -131,10 +131,13 @@ class get_activity_feed extends external_api {
                     'taxonomy' => practice_labels::taxonomy((string) ($item['taxonomylevel'] ?? '')),
                     'difficulty' => practice_labels::difficulty((int) ($item['difficultylevel'] ?? 0)),
                     'difficultylevel' => (int) ($item['difficultylevel'] ?? 0),
+                    'variables' => array_values(array_map('strval', $item['variables'] ?? [])),
                     'answered' => !empty($item['answered']),
                     'correct' => (bool) ($item['correct'] ?? false),
                     'feedback' => $render((string) ($item['feedback'] ?? '')),
                     'useranswer' => (string) ($item['useranswer'] ?? ''),
+                    'useranswers' => practice_labels::answers($item['useranswers'] ?? [], $render),
+                    'answers' => practice_labels::answers($item['answers'] ?? [], $render),
                 ];
             }
 
@@ -200,6 +203,13 @@ class get_activity_feed extends external_api {
                         VALUE_OPTIONAL),
                     'useranswer' => new external_value(PARAM_RAW, 'The learner\'s answer (practice, answered).',
                         VALUE_OPTIONAL),
+                    'variables' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'An asked quantity.'),
+                        'Quantities a rule-of-three question asks for (practice).',
+                        VALUE_OPTIONAL
+                    ),
+                    'useranswers' => practice_labels::answers_structure('The learner\'s per-variable answers (practice, answered).'),
+                    'answers' => practice_labels::answers_structure('The model per-variable answers (practice, answered).'),
                 ]),
                 'The activity feed, oldest first, all interaction modes interleaved.'
             ),

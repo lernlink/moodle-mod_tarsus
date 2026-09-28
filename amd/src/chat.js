@@ -49,7 +49,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         PRACTICE_CHECK_SPINNER: '.tarsus-practice-check__spinner',
         PRACTICE_CHOICE: '.tarsus-practice-choice',
         PRACTICE_INPUT: '.tarsus-practice-card__input',
+        PRACTICE_VARIABLE: '.tarsus-practice-variable',
+        PRACTICE_VARIABLE_INPUT: '.tarsus-practice-variable__input',
         PRACTICE_FEEDBACK: '[data-region="feedback"]',
+        PRACTICE_ANSWERS: '[data-region="answers"]',
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]'
@@ -83,10 +86,50 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
      * Shared by fresh evaluations and by cards restored from the brain.
      *
      * @param {Element} card The practice card element.
-     * @param {Object} verdict {correct: bool, feedback: string (HTML), useranswer: string}
+     * @param {Object} verdict {correct: bool, feedback: string (HTML), useranswer: string,
+     *                          useranswers: [{variable, answer}], answers: [{variable, answer, iscorrect}]}
      */
     function finalizePracticeCard(card, verdict) {
         card.classList.add('tarsus-practice-card--answered');
+
+        // Rule of three: restore the learner's figures, mark each quantity
+        // by its verdict and list the model answers beneath.
+        var verdictByVariable = {};
+        (verdict.answers || []).forEach(function(entry) {
+            verdictByVariable[entry.variable] = entry;
+        });
+        var givenByVariable = {};
+        (verdict.useranswers || []).forEach(function(entry) {
+            givenByVariable[entry.variable] = entry.answer;
+        });
+        card.querySelectorAll(SELECTORS.PRACTICE_VARIABLE_INPUT).forEach(function(input) {
+            var name = input.getAttribute('data-variable');
+            if (input.value === '' && givenByVariable[name] !== undefined) {
+                input.value = givenByVariable[name];
+            }
+            input.disabled = true;
+            var row = input.closest(SELECTORS.PRACTICE_VARIABLE);
+            if (row && verdictByVariable[name]) {
+                row.classList.add(verdictByVariable[name].iscorrect
+                    ? 'tarsus-practice-variable--correct'
+                    : 'tarsus-practice-variable--incorrect');
+            }
+        });
+        var answersList = card.querySelector(SELECTORS.PRACTICE_ANSWERS);
+        if (answersList && (verdict.answers || []).length) {
+            answersList.innerHTML = '';
+            verdict.answers.forEach(function(entry) {
+                var row = document.createElement('div');
+                var dt = document.createElement('dt');
+                dt.textContent = entry.variable;
+                var dd = document.createElement('dd');
+                dd.textContent = entry.answer;
+                row.appendChild(dt);
+                row.appendChild(dd);
+                answersList.appendChild(row);
+            });
+            answersList.classList.remove('d-none');
+        }
 
         var chosen = card.querySelector('input[type="radio"]:checked');
         if (!chosen && verdict.useranswer) {
@@ -149,12 +192,18 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             return {filled: bar <= level};
         }) : [];
 
+        var variables = (widget.variables || []).map(function(name) {
+            return {name: name};
+        });
+
         return {
             widgetid: widget.id,
             widgettype: widget.type,
             question: widget.question,
             haschoices: widget.choices.length > 0,
             choices: widget.choices,
+            hasvariables: variables.length > 0,
+            variables: variables,
             taxonomy: widget.taxonomy,
             difficulty: widget.difficulty,
             bars: bars,
@@ -251,7 +300,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                         finalizePracticeCard(entry.card, {
                             correct: item.correct,
                             feedback: item.feedback,
-                            useranswer: item.useranswer
+                            useranswer: item.useranswer,
+                            useranswers: item.useranswers || [],
+                            answers: item.answers || []
                         });
                     }
                     if (entry.js) {
@@ -372,14 +423,26 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         }
 
         var answer = '';
+        var answers = [];
         var chosen = card.querySelector('input[type="radio"]:checked');
         var textinput = card.querySelector(SELECTORS.PRACTICE_INPUT);
-        if (chosen) {
+        var variableInputs = card.querySelectorAll(SELECTORS.PRACTICE_VARIABLE_INPUT);
+        if (variableInputs.length) {
+            // Rule of three: every asked quantity needs a figure.
+            variableInputs.forEach(function(input) {
+                if (input.value.trim() !== '') {
+                    answers.push({variable: input.getAttribute('data-variable'), answer: input.value.trim()});
+                }
+            });
+            if (answers.length !== variableInputs.length) {
+                return;
+            }
+        } else if (chosen) {
             answer = chosen.value;
         } else if (textinput) {
             answer = textinput.value.trim();
         }
-        if (answer === '') {
+        if (answer === '' && !answers.length) {
             return;
         }
 
@@ -394,7 +457,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 cmid: state.cmid,
                 widgetid: card.getAttribute('data-widget-id'),
                 widgettype: card.getAttribute('data-widget-type'),
-                answer: answer
+                answer: answer,
+                answers: answers
             }
         }])[0].then(function(result) {
             if (spinner) {
@@ -416,7 +480,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             finalizePracticeCard(card, {
                 correct: result.correct,
                 feedback: result.feedback || result.answer || '',
-                useranswer: answer
+                useranswer: answer,
+                useranswers: answers,
+                answers: result.answers || []
             });
 
             updateXp(result.progress);

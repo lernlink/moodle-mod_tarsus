@@ -56,7 +56,16 @@ class submit_practice_answer extends external_api {
             'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
             'widgetid' => new external_value(PARAM_RAW, 'The question widget id from get_practice_widget.'),
             'widgettype' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type.'),
-            'answer' => new external_value(PARAM_RAW, 'The learner\'s answer.'),
+            'answer' => new external_value(PARAM_RAW, 'The learner\'s answer (single-answer question types).'),
+            'answers' => new external_multiple_structure(
+                new external_single_structure([
+                    'variable' => new external_value(PARAM_RAW, 'The asked quantity.'),
+                    'answer' => new external_value(PARAM_RAW, 'The learner\'s answer for it.'),
+                ]),
+                'Per-variable answers of a rule-of-three question.',
+                VALUE_DEFAULT,
+                []
+            ),
         ]);
     }
 
@@ -66,11 +75,13 @@ class submit_practice_answer extends external_api {
      * @param int    $cmid       The course module id.
      * @param string $widgetid   The question widget id.
      * @param string $widgettype The question widget type.
-     * @param string $answer     The learner's answer.
+     * @param string $answer     The learner's answer (single-answer types).
+     * @param array  $answers    Per-variable answers (rule of three).
      * @return array Status, verdict, feedback, choices and progress.
      * @throws moodle_exception
      */
-    public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer): array {
+    public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer,
+            array $answers = []): array {
         global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -78,13 +89,30 @@ class submit_practice_answer extends external_api {
             'widgetid' => $widgetid,
             'widgettype' => $widgettype,
             'answer' => $answer,
+            'answers' => $answers,
         ]);
 
         if (trim($params['widgetid']) === '' || !practice_labels::is_supported_type($params['widgettype'])) {
             throw new moodle_exception('invalidparameter', 'debug');
         }
+
+        // A rule-of-three question is answered per variable; every asked
+        // quantity needs an answer. Other types take the single answer.
         $answertext = trim($params['answer']);
-        if ($answertext === '') {
+        $useranswers = [];
+        if ($params['widgettype'] === \mod_tarsuszero\local\didactics::TYPE_CROSSMULTIPLICATION) {
+            foreach ($params['answers'] as $entry) {
+                $variable = trim((string) $entry['variable']);
+                $value = trim((string) $entry['answer']);
+                if ($variable === '' || $value === '') {
+                    throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                }
+                $useranswers[] = ['variable' => $variable, 'answer' => $value];
+            }
+            if ($useranswers === []) {
+                throw new moodle_exception('empty_query', 'mod_tarsuszero');
+            }
+        } else if ($answertext === '') {
             throw new moodle_exception('empty_query', 'mod_tarsuszero');
         }
 
@@ -107,6 +135,7 @@ class submit_practice_answer extends external_api {
             'widgetid' => $params['widgetid'],
             'widgettype' => $params['widgettype'],
             'useranswer' => $answertext,
+            'useranswers' => $useranswers,
         ];
 
         try {
@@ -135,6 +164,7 @@ class submit_practice_answer extends external_api {
                 'feedback' => $render((string) ($response['feedback'] ?? '')),
                 'answer' => $render(practice_labels::choice((string) ($response['answer'] ?? ''), $params['widgettype'])),
                 'choices' => $choices,
+                'answers' => practice_labels::answers($response['answers'] ?? [], $render),
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
 
@@ -180,6 +210,7 @@ class submit_practice_answer extends external_api {
                 'The choices with their verdicts; empty for open questions.',
                 VALUE_OPTIONAL
             ),
+            'answers' => practice_labels::answers_structure('The model per-variable answers with verdicts (rule of three).'),
             'progress' => practice_labels::progress_structure(),
         ]);
     }
