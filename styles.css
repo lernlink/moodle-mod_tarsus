@@ -370,7 +370,8 @@
 }
 
 /* Spreadsheet calculation questions: the costing table with asked cells
-   as inputs; after evaluation each cell shows its verdict. */
+   as inputs; after evaluation the wrong cells are marked, the feedback
+   text carries the solution. */
 .tarsus-practice-card__table-wrap {
     overflow-x: auto;
     margin-bottom: 0.25rem;
@@ -410,19 +411,7 @@
     max-width: 10rem;
 }
 
-.tarsus-practice-table__cell--correct .tarsus-practice-table__input {
-    border-color: #57b87b;
-    background: #e9f7ec;
-}
-
 .tarsus-practice-table__cell--incorrect .tarsus-practice-table__input {
     border-color: #d9534f;
     background: #fdeef0;
-}
-
-.tarsus-practice-table__model {
-    display: block;
-    margin-top: 0.15rem;
-    font-size: 0.8rem;
-    color: #2f7a4a;
 }

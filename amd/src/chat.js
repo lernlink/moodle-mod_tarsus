@@ -129,9 +129,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                     : 'tarsus-practice-variable--incorrect');
             }
         });
-        // Spreadsheet calculation: restore the learner's cells, mark each
-        // asked cell by its verdict and show the model figure under a
-        // wrong one.
+        // Spreadsheet calculation: restore the learner's cells and mark the
+        // wrong ones. Correct cells stay plain and no model figure is shown
+        // — the feedback text already explains the solution.
         var userRows = {};
         (verdict.usertable || []).forEach(function(row) {
             userRows[row.position] = row;
@@ -153,15 +153,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                     return;
                 }
                 var mark = cell === 'rate' ? model.rateverdict : model.amountverdict;
-                var holder = input.parentNode;
-                if (mark > 0) {
-                    holder.classList.add('tarsus-practice-table__cell--correct');
-                } else if (mark < 0) {
-                    holder.classList.add('tarsus-practice-table__cell--incorrect');
-                    var hint = document.createElement('span');
-                    hint.className = 'tarsus-practice-table__model';
-                    hint.textContent = model[cell] || '';
-                    holder.appendChild(hint);
+                if (mark < 0) {
+                    input.parentNode.classList.add('tarsus-practice-table__cell--incorrect');
                 }
             });
         });
