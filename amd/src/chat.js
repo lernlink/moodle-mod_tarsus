@@ -491,23 +491,23 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
 
     /**
      * Fill the bar across the top of the chat with the figure of the active
-     * mode, as in the Tarsus interface: the overall activity progress for
-     * the chat, the practice progress for Test knowledge, the learn progress
-     * for Build knowledge.
+     * mode: the practice progress for Test knowledge, the learn progress
+     * for Build knowledge. The chat has no progress of its own, so the bar
+     * stays hidden in Ask a question.
      */
     function renderProgressBar() {
         var bar = state.container.querySelector(SELECTORS.PROGRESS);
         var fill = state.container.querySelector(SELECTORS.PROGRESS_FILL);
-        if (!bar || !fill || !state.progress) {
+        if (!bar || !fill) {
             return;
         }
-        var figure = state.progress.progress;
-        if (state.mode === 'test') {
-            figure = state.progress.practiceprogress;
-        } else if (state.mode === 'build') {
-            figure = state.progress.learnprogress;
+        if (state.mode === 'ask' || !state.progress) {
+            bar.classList.add('d-none');
+            return;
         }
+        var figure = state.mode === 'build' ? state.progress.learnprogress : state.progress.practiceprogress;
         if (typeof figure !== 'number') {
+            bar.classList.add('d-none');
             return;
         }
         var percent = Math.max(0, Math.min(100, Math.round(figure)));
