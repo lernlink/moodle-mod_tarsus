@@ -293,6 +293,19 @@ final class practice_test extends \advanced_testcase {
     }
 
     /**
+     * A switched-off practice mode refuses before any API call.
+     */
+    public function test_practice_refused_when_mode_is_off(): void {
+        global $DB;
+        [$tz] = $this->make_ready_activity();
+        $DB->set_field('tarsuszero', 'testenabled', 0, ['id' => $tz->id]);
+
+        $this->assertEquals('disabled', get_practice_widget::execute((int) $tz->cmid)['status']);
+        $this->assertEquals('disabled', submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-widget-1', 'singleChoiceQuestionWidget', 'Alpha')['status']);
+    }
+
+    /**
      * An unsupported widget type is rejected before any API call.
      */
     public function test_submit_with_unsupported_type_is_rejected(): void {

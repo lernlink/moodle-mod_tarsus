@@ -142,5 +142,24 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026092905, 'tarsuszero');
     }
 
+    if ($oldversion < 2026092918) {
+        // Per-mode switches, as in the Tarsus interface: chat and practice
+        // stay on for existing activities, Build knowledge (not available
+        // yet) starts off.
+        $table = new xmldb_table('tarsuszero');
+        $fields = [
+            new xmldb_field('askenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'learntempo'),
+            new xmldb_field('testenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'askenabled'),
+            new xmldb_field('buildenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'testenabled'),
+        ];
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026092918, 'tarsuszero');
+    }
+
     return true;
 }

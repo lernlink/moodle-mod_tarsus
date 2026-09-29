@@ -69,7 +69,18 @@ $string['actionfailed'] = 'The requested action could not be applied to this res
 $string['includenotindexed'] = 'Only indexed resources can be included. Index it first, then switch it on.';
 
 // Per-activity didactic settings.
-$string['didactics'] = 'AI settings';
+$string['settings_general'] = 'AI settings: general';
+$string['settings_ask'] = 'AI settings: Ask a question';
+$string['settings_test'] = 'AI settings: Test knowledge';
+$string['settings_build'] = 'AI settings: Build knowledge';
+$string['askenabled'] = 'Enable Ask a question';
+$string['askenabled_help'] = 'When switched off, the chat mode is hidden from learners in this activity.';
+$string['testenabled'] = 'Enable Test knowledge';
+$string['testenabled_help'] = 'When switched off, the practice mode is hidden from learners in this activity.';
+$string['buildenabled'] = 'Enable Build knowledge';
+$string['buildenabled_help'] = 'The Build knowledge mode is not available yet. When switched on, learners see it as coming soon.';
+$string['error_modesrequired'] = 'Enable at least one of Ask a question and Test knowledge.';
+$string['chat_modedisabled'] = 'This mode is switched off in this activity.';
 $string['conversationstyle'] = 'Conversation style';
 $string['conversationstyle_help'] = 'How the assistant leads the conversation in this activity: from Closed (short, factual answers) through Lexical, Tutorial and Socratic (guiding counter-questions) to Open (free-ranging discussion).';
 $string['style_closed'] = 'Closed';

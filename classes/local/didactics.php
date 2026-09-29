@@ -78,6 +78,27 @@ final class didactics {
     /** @var float The recommended learning pace. */
     public const LEARN_TEMPO_DEFAULT = 1.0;
 
+    /** @var string[] The interaction modes a teacher can switch, in switcher order. */
+    public const MODES = ['build', 'test', 'ask'];
+
+    /**
+     * Whether an interaction mode is switched on for an activity.
+     *
+     * Chat and practice default to on (legacy rows carry no column),
+     * Build knowledge to off — it is not available yet.
+     *
+     * @param \stdClass $activity The tarsuszero record.
+     * @param string    $mode     One of {@see MODES}.
+     * @return bool True when learners may use the mode.
+     */
+    public static function mode_enabled(\stdClass $activity, string $mode): bool {
+        $column = $mode . 'enabled';
+        if (!property_exists($activity, $column) || $activity->{$column} === null) {
+            return $mode !== 'build';
+        }
+        return !empty($activity->{$column});
+    }
+
     /**
      * Normalise a stored operator taxonomy.
      *

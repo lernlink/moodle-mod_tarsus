@@ -86,6 +86,11 @@ final class chat_test extends \advanced_testcase {
 
         $this->assertEquals($tz->cmid, $exported['cmid']);
         $this->assertEquals('tarsus-chat-box-' . $tz->cmid, $exported['containerid']);
+        // Chat and practice are on by default, Build knowledge off.
+        $this->assertTrue($exported['askenabled']);
+        $this->assertTrue($exported['testenabled']);
+        $this->assertFalse($exported['buildenabled']);
+        $this->assertSame('test,ask', $exported['modes']);
     }
 
     /**
@@ -222,6 +227,30 @@ final class chat_test extends \advanced_testcase {
         $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
 
         $this->assertEquals('noscope', $result['status']);
+    }
+
+    /**
+     * A switched-off chat mode refuses before any API call.
+     */
+    public function test_send_refused_when_chat_mode_is_off(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        $this->setAdminUser();
+        $this->make_included_page($course, $tz);
+        $DB->set_field('tarsuszero', 'askenabled', 0, ['id' => $tz->id]);
+
+        $this->setUser($student);
+        set_config('mockmode', '1', 'local_tarsus');
+
+        $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
+
+        $this->assertEquals('disabled', $result['status']);
+        $this->assertEquals(get_string('chat_modedisabled', 'mod_tarsuszero'), $result['error']);
     }
 
     /**

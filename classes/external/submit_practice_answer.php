@@ -100,7 +100,7 @@ class submit_practice_answer extends external_api {
      */
     public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer,
             array $answers = [], array $table = [], array $columns = []): array {
-        global $USER;
+        global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid' => $cmid,
@@ -157,6 +157,12 @@ class submit_practice_answer extends external_api {
         self::validate_context($context);
 
         require_capability('mod/tarsuszero:view', $context);
+
+        // The teacher may have switched the practice off for this activity.
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, 'test')) {
+            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsuszero'));
+        }
 
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
@@ -234,7 +240,7 @@ class submit_practice_answer extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
+            'status' => new external_value(PARAM_ALPHA, 'Status (success, noscope, disabled, blocked, error).'),
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'hasverdict' => new external_value(PARAM_BOOL, 'Whether the brain judged the answer.', VALUE_OPTIONAL),
             'correct' => new external_value(PARAM_BOOL, 'Whether the answer was correct.', VALUE_OPTIONAL),

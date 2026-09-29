@@ -36,6 +36,7 @@ final class install_test extends \advanced_testcase {
             'id', 'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'conversationstyle', 'dqr', 'industry',
             'taxonomylevels', 'questiontypes', 'operators', 'anticheat', 'learntempo',
+            'askenabled', 'testenabled', 'buildenabled',
         ],
         'tarsuszero_inclusions' => [
             'id', 'tarsuszeroid', 'resourceid', 'timecreated',

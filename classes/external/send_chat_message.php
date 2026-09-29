@@ -67,7 +67,7 @@ class send_chat_message extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid, string $query): array {
-        global $USER;
+        global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid'  => $cmid,
@@ -84,6 +84,17 @@ class send_chat_message extends external_api {
         self::validate_context($context);
 
         require_capability('mod/tarsuszero:view', $context);
+
+        // The teacher may have switched the chat off for this activity.
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, 'ask')) {
+            return [
+                'status'  => 'disabled',
+                'answer'  => '',
+                'sources' => [],
+                'error'   => get_string('chat_modedisabled', 'mod_tarsuszero'),
+            ];
+        }
 
         // The answer may only be grounded in what the teacher included in
         // this activity — and of that, only what is actually live in the
@@ -173,7 +184,7 @@ class send_chat_message extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
+            'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, disabled, blocked, error).'),
             'answer'  => new external_value(PARAM_RAW, 'The grounded answer.'),
             'messages' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'Rendered informational message from the assistant (e.g. welcome).'),

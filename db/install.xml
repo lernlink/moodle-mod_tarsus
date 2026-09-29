@@ -21,6 +21,9 @@
         <FIELD NAME="operators" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="standard" SEQUENCE="false" COMMENT="Operator taxonomy for practice questions: standard or ihk."/>
         <FIELD NAME="anticheat" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the learner may not ask the chat about the current practice question."/>
         <FIELD NAME="learntempo" TYPE="number" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Learning pace 0.1-2 steering XP growth; 1 is recommended."/>
+        <FIELD NAME="askenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Ask a question mode is available to learners."/>
+        <FIELD NAME="testenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Test knowledge mode is available to learners."/>
+        <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is shown to learners (not available yet)."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

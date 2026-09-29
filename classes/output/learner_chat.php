@@ -19,6 +19,7 @@ namespace mod_tarsuszero\output;
 defined('MOODLE_INTERNAL') || die();
 
 use local_tarsus\config;
+use mod_tarsuszero\local\didactics;
 use renderable;
 use templatable;
 use renderer_base;
@@ -51,7 +52,7 @@ class learner_chat implements renderable, templatable {
      * @return array Exported variables.
      */
     public function export_for_template(renderer_base $output): array {
-        global $USER, $PAGE;
+        global $DB, $USER, $PAGE;
 
         if (!empty($USER->id)) {
             $userpicture = new \user_picture($USER);
@@ -70,12 +71,23 @@ class learner_chat implements renderable, templatable {
 
         $robotname = trim((string) get_config('local_tarsus', 'robot_name'));
 
+        // The teacher's mode switches decide which modes the switcher offers;
+        // the first enabled one opens by default.
+        $cm = get_coursemodule_from_id('tarsuszero', $this->cmid, 0, false, MUST_EXIST);
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $modes = array_values(array_filter(didactics::MODES,
+            static fn(string $mode): bool => didactics::mode_enabled($activity, $mode)));
+
         return [
             'cmid'          => $this->cmid,
             'containerid'   => 'tarsus-chat-box-' . $this->cmid,
             'useravatarurl' => $useravatar,
             'robotavatarurl' => $robotavatar,
             'robotname'     => $robotname !== '' ? $robotname : 'Tarsus',
+            'askenabled'    => in_array('ask', $modes, true),
+            'testenabled'   => in_array('test', $modes, true),
+            'buildenabled'  => in_array('build', $modes, true),
+            'modes'         => implode(',', $modes),
         ];
     }
 }

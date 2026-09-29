@@ -54,22 +54,18 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements();
 
-        // Didactic settings: how the assistant converses in this activity.
-        // Deliberately separate from the site-wide local_tarsus settings
-        // (connection, assistant identity, guardrails) — nothing overlaps.
-        $mform->addElement('header', 'didactics', get_string('didactics', 'mod_tarsuszero'));
+        // AI settings, grouped as in the Tarsus interface: general, then one
+        // block per interaction mode with its own switch. Deliberately
+        // separate from the site-wide local_tarsus settings (connection,
+        // assistant identity, guardrails) — nothing overlaps. Array defaults
+        // belong to a new activity only: QuickForm merges defaults with the
+        // stored value index by index, so a stored selection would otherwise
+        // reappear padded with default entries.
+        $isnew = empty($this->_instance);
 
-        $styles = [
-            1 => get_string('style_closed', 'mod_tarsuszero'),
-            2 => get_string('style_lexical', 'mod_tarsuszero'),
-            3 => get_string('style_tutorial', 'mod_tarsuszero'),
-            4 => get_string('style_socratic', 'mod_tarsuszero'),
-            5 => get_string('style_open', 'mod_tarsuszero'),
-        ];
-        $mform->addElement('select', 'conversationstyle', get_string('conversationstyle', 'mod_tarsuszero'), $styles);
-        $mform->setType('conversationstyle', PARAM_INT);
-        $mform->setDefault('conversationstyle', 3);
-        $mform->addHelpButton('conversationstyle', 'conversationstyle', 'mod_tarsuszero');
+        // --- General -------------------------------------------------------
+        $mform->addElement('header', 'settings_general', get_string('settings_general', 'mod_tarsuszero'));
+        $mform->setExpanded('settings_general');
 
         // DQR levels as named on the Tarsus site; the wire value stays 3..7.
         $dqrlevels = [
@@ -84,17 +80,6 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->setDefault('dqr', 6);
         $mform->addHelpButton('dqr', 'dqr', 'mod_tarsuszero');
 
-        $mform->addElement('text', 'industry', get_string('industry', 'mod_tarsuszero'), ['size' => 48]);
-        $mform->setType('industry', PARAM_TEXT);
-        $mform->addRule('industry', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('industry', 'industry', 'mod_tarsuszero');
-
-        // Practice (Test knowledge) settings: which Bloom taxonomy levels
-        // the questions may target, and which question types the brain may
-        // generate per difficulty grade. The difficulty grades have no API
-        // parameter of their own — a grade takes part exactly when it has
-        // question types enabled. Both are chip selectors, as in the Tarsus
-        // interface; the stored values are packed in data_postprocessing().
         $taxonomies = [
             1 => get_string('taxonomy_knowledge', 'mod_tarsuszero'),
             2 => get_string('taxonomy_understanding', 'mod_tarsuszero'),
@@ -108,15 +93,57 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             ]);
         $mform->setType('taxonomylevels', PARAM_INT);
         $mform->addHelpButton('taxonomylevels', 'taxonomylevels', 'mod_tarsuszero');
-
-        // Array defaults belong to a new activity only: QuickForm merges
-        // defaults with the stored value index by index, so a stored
-        // selection would otherwise reappear padded with default entries.
-        $isnew = empty($this->_instance);
         if ($isnew) {
             $mform->setDefault('taxonomylevels', didactics::default_taxonomy_levels());
         }
 
+        $mform->addElement('text', 'industry', get_string('industry', 'mod_tarsuszero'), ['size' => 48]);
+        $mform->setType('industry', PARAM_TEXT);
+        $mform->addRule('industry', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->addHelpButton('industry', 'industry', 'mod_tarsuszero');
+
+        $mform->addElement('advcheckbox', 'anticheat', get_string('anticheat', 'mod_tarsuszero'));
+        $mform->setDefault('anticheat', 0);
+        $mform->addHelpButton('anticheat', 'anticheat', 'mod_tarsuszero');
+
+        // --- Ask a question ------------------------------------------------
+        $mform->addElement('header', 'settings_ask', get_string('settings_ask', 'mod_tarsuszero'));
+        $mform->setExpanded('settings_ask');
+
+        $mform->addElement('advcheckbox', 'askenabled', get_string('askenabled', 'mod_tarsuszero'));
+        $mform->setDefault('askenabled', 1);
+        $mform->addHelpButton('askenabled', 'askenabled', 'mod_tarsuszero');
+
+        $styles = [
+            1 => get_string('style_closed', 'mod_tarsuszero'),
+            2 => get_string('style_lexical', 'mod_tarsuszero'),
+            3 => get_string('style_tutorial', 'mod_tarsuszero'),
+            4 => get_string('style_socratic', 'mod_tarsuszero'),
+            5 => get_string('style_open', 'mod_tarsuszero'),
+        ];
+        $mform->addElement('select', 'conversationstyle', get_string('conversationstyle', 'mod_tarsuszero'), $styles);
+        $mform->setType('conversationstyle', PARAM_INT);
+        $mform->setDefault('conversationstyle', 3);
+        $mform->addHelpButton('conversationstyle', 'conversationstyle', 'mod_tarsuszero');
+
+        // --- Test knowledge ------------------------------------------------
+        $mform->addElement('header', 'settings_test', get_string('settings_test', 'mod_tarsuszero'));
+        $mform->setExpanded('settings_test');
+
+        $mform->addElement('advcheckbox', 'testenabled', get_string('testenabled', 'mod_tarsuszero'));
+        $mform->setDefault('testenabled', 1);
+        $mform->addHelpButton('testenabled', 'testenabled', 'mod_tarsuszero');
+
+        $mform->addElement('select', 'operators', get_string('operators', 'mod_tarsuszero'), [
+            didactics::OPERATORS_STANDARD => get_string('operators_standard', 'mod_tarsuszero'),
+            didactics::OPERATORS_IHK => get_string('operators_ihk', 'mod_tarsuszero'),
+        ]);
+        $mform->setType('operators', PARAM_ALPHA);
+        $mform->setDefault('operators', didactics::OPERATORS_STANDARD);
+        $mform->addHelpButton('operators', 'operators', 'mod_tarsuszero');
+
+        // Question types per difficulty grade. The brain requires every grade
+        // to carry at least one type; difficulty has no parameter of its own.
         $qtypes = [];
         foreach (didactics::TYPES as $type) {
             $qtypes[$type] = get_string(didactics::type_label_key($type), 'mod_tarsuszero');
@@ -142,20 +169,6 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             $mform->addHelpButton($name, 'questiontypes', 'mod_tarsuszero');
         }
 
-        // Operator taxonomy, anti-cheat and learning pace, per the Tarsus
-        // developer's answers.
-        $mform->addElement('select', 'operators', get_string('operators', 'mod_tarsuszero'), [
-            didactics::OPERATORS_STANDARD => get_string('operators_standard', 'mod_tarsuszero'),
-            didactics::OPERATORS_IHK => get_string('operators_ihk', 'mod_tarsuszero'),
-        ]);
-        $mform->setType('operators', PARAM_ALPHA);
-        $mform->setDefault('operators', didactics::OPERATORS_STANDARD);
-        $mform->addHelpButton('operators', 'operators', 'mod_tarsuszero');
-
-        $mform->addElement('advcheckbox', 'anticheat', get_string('anticheat', 'mod_tarsuszero'));
-        $mform->setDefault('anticheat', 0);
-        $mform->addHelpButton('anticheat', 'anticheat', 'mod_tarsuszero');
-
         $tempos = [];
         foreach (didactics::LEARN_TEMPOS as $tempo) {
             $label = 'x' . rtrim(rtrim(number_format($tempo, 2, '.', ''), '0'), '.');
@@ -166,6 +179,13 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->setType('learntempo', PARAM_FLOAT);
         $mform->setDefault('learntempo', (string) didactics::LEARN_TEMPO_DEFAULT);
         $mform->addHelpButton('learntempo', 'learntempo', 'mod_tarsuszero');
+
+        // --- Build knowledge (not available yet) ---------------------------
+        $mform->addElement('header', 'settings_build', get_string('settings_build', 'mod_tarsuszero'));
+
+        $mform->addElement('advcheckbox', 'buildenabled', get_string('buildenabled', 'mod_tarsuszero'));
+        $mform->setDefault('buildenabled', 0);
+        $mform->addHelpButton('buildenabled', 'buildenabled', 'mod_tarsuszero');
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
@@ -236,6 +256,11 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
 
         if (didactics::encode_taxonomy_levels((array) ($data['taxonomylevels'] ?? [])) === '') {
             $errors['taxonomylevels'] = get_string('error_taxonomyrequired', 'mod_tarsuszero');
+        }
+
+        // A learner needs at least one working mode.
+        if (empty($data['askenabled']) && empty($data['testenabled'])) {
+            $errors['askenabled'] = get_string('error_modesrequired', 'mod_tarsuszero');
         }
 
         // The brain rejects a grade without question types (verified live),

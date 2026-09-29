@@ -940,6 +940,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             practice.addEventListener('click', handlePracticeNext);
         }
 
+        // The teacher's switches decide which modes exist; open with the
+        // first one (Ask a question when it is on).
+        var modes = (state.container.getAttribute('data-modes') || '').split(',').filter(Boolean);
+        var initial = modes.indexOf('ask') !== -1 ? 'ask' : (modes[0] || 'ask');
+        setMode(initial);
+
         // Practice cards render later; delegate their check buttons.
         state.container.addEventListener('click', function(e) {
             var check = e.target.closest(SELECTORS.PRACTICE_CHECK);

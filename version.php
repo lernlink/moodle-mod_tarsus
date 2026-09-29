@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092917;
+$plugin->version   = 2026092918;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.22.3 (Section renamed to AI settings)';
+$plugin->release   = '0.23.0 (AI settings grouped per mode, with mode switches)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

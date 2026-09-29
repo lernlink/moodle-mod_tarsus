@@ -25,11 +25,14 @@
     * useravatarurl - string, the learner's profile picture URL.
     * robotavatarurl - string, the assistant's avatar URL.
     * robotname - string, the assistant's display name.
+    * askenabled, testenabled, buildenabled - bool, which modes the teacher switched on.
+    * modes - string, the enabled modes in switcher order (CSV); the first opens by default.
 }}
 <div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
      data-user-avatar="{{useravatarurl}}"
      data-robot-avatar="{{robotavatarurl}}"
-     data-robot-name="{{robotname}}">
+     data-robot-name="{{robotname}}"
+     data-modes="{{modes}}">
     <!-- Practice progress: a fill bar across the top of the chat, hidden until the brain reports figures -->
     <div class="tarsus-progress d-none" data-region="progress" role="progressbar"
          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
@@ -61,15 +64,21 @@
         <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
             <div class="d-flex align-items-center" style="gap: 0.75rem;">
             <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsuszero{{/str}}">
+                {{#buildenabled}}
                 <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
                     {{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}mode_build, mod_tarsuszero{{/str}}
                 </button>
+                {{/buildenabled}}
+                {{#testenabled}}
                 <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
                     {{#pix}}mode_test, mod_tarsuszero{{/pix}}{{#str}}mode_test, mod_tarsuszero{{/str}}
                 </button>
-                <button type="button" class="tarsus-mode-switch__btn tarsus-mode-switch__btn--active" data-mode="ask" aria-pressed="true">
+                {{/testenabled}}
+                {{#askenabled}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="ask" aria-pressed="false">
                     {{#pix}}mode_ask, mod_tarsuszero{{/pix}}{{#str}}mode_ask, mod_tarsuszero{{/str}}
                 </button>
+                {{/askenabled}}
             </div>
             <!-- Experience figures: appear once the practice mode reports them -->
             <span class="tarsus-xp-badge d-none" data-region="xp-badge"><span data-region="xp-earned">0</span>&nbsp;/&nbsp;<span data-region="xp-total">0</span>&nbsp;{{#str}}xp, mod_tarsuszero{{/str}}</span>

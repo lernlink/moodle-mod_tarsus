@@ -65,7 +65,7 @@ class get_practice_widget extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid): array {
-        global $USER;
+        global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid]);
 
@@ -74,6 +74,12 @@ class get_practice_widget extends external_api {
         self::validate_context($context);
 
         require_capability('mod/tarsuszero:view', $context);
+
+        // The teacher may have switched the practice off for this activity.
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, 'test')) {
+            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsuszero'));
+        }
 
         // Questions may only be generated from what the teacher included —
         // an empty scope must never reach the API (see send_chat_message).
@@ -157,7 +163,7 @@ class get_practice_widget extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_ALPHA, 'Status (success, noscope, blocked, error).'),
+            'status' => new external_value(PARAM_ALPHA, 'Status (success, noscope, disabled, blocked, error).'),
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'widgets' => new external_multiple_structure(
                 new external_single_structure([
