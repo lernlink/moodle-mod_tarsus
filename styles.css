@@ -160,14 +160,16 @@
     outline-offset: 2px;
 }
 
-.tarsus-chat-box .tarsus-chat-submit {
+.tarsus-chat-box .tarsus-chat-submit,
+.tarsus-chat-box .tarsus-practice-next {
     gap: 0.4rem;
 }
 
 /* The theme's .icon class carries its own right margin; the flex gap
    already spaces the glyphs, so it would double up. */
 .tarsus-mode-switch__btn .icon,
-.tarsus-chat-box .tarsus-chat-submit .icon {
+.tarsus-chat-box .tarsus-chat-submit .icon,
+.tarsus-chat-box .tarsus-practice-next .icon {
     margin-right: 0;
 }
 
