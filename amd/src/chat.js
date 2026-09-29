@@ -43,6 +43,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         MODE_BTN: '.tarsus-mode-switch__btn',
         PRACTICE_NEXT: '.tarsus-practice-next',
         PRACTICE_NEXT_SPINNER: '.tarsus-practice-next__spinner',
+        PRACTICE_NEXT_ICON: '.tarsus-practice-next__icon',
         PRACTICE_LABEL: '[data-region="practice-label"]',
         PRACTICE_CARD: '[data-region="practice-card"]',
         PRACTICE_CHECK: '.tarsus-practice-check',
@@ -637,27 +638,41 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Lock the Start/Next button while a step is generated: the spinner
+     * takes the paper plane's place and gives it back afterwards.
+     *
+     * @param {boolean} busy Whether a request is in flight
+     */
+    function setNextBusy(busy) {
+        var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
+        var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
+        var icon = state.container.querySelector(SELECTORS.PRACTICE_NEXT_ICON);
+        if (button) {
+            button.disabled = busy;
+        }
+        if (spinner) {
+            spinner.classList.toggle('d-none', !busy);
+        }
+        if (icon) {
+            icon.classList.toggle('d-none', busy);
+        }
+    }
+
+    /**
      * Fetch and render the next learning unit (Build knowledge).
      */
     function handleLearnNext() {
         var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
-        var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
         var alertBox = state.container.querySelector(SELECTORS.ALERT);
         if (!button || button.disabled) {
             return;
         }
-        button.disabled = true;
-        if (spinner) {
-            spinner.classList.remove('d-none');
-        }
+        setNextBusy(true);
         if (alertBox) {
             alertBox.classList.add('d-none');
         }
         var unlock = function() {
-            button.disabled = false;
-            if (spinner) {
-                spinner.classList.add('d-none');
-            }
+            setNextBusy(false);
         };
 
         Ajax.call([{
@@ -715,25 +730,18 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return;
         }
         var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
-        var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
         var alertBox = state.container.querySelector(SELECTORS.ALERT);
         if (!button || button.disabled) {
             return;
         }
 
-        button.disabled = true;
-        if (spinner) {
-            spinner.classList.remove('d-none');
-        }
+        setNextBusy(true);
         if (alertBox) {
             alertBox.classList.add('d-none');
         }
 
         var unlock = function() {
-            button.disabled = false;
-            if (spinner) {
-                spinner.classList.add('d-none');
-            }
+            setNextBusy(false);
         };
 
         Ajax.call([{
