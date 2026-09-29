@@ -54,7 +54,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         PRACTICE_TABLE_ROW: '.tarsus-practice-table__row',
         PRACTICE_TABLE_INPUT: '.tarsus-practice-table__input',
         PRACTICE_FEEDBACK: '[data-region="feedback"]',
-        PRACTICE_ANSWERS: '[data-region="answers"]',
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]',
@@ -106,8 +105,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     function finalizePracticeCard(card, verdict) {
         card.classList.add('tarsus-practice-card--answered');
 
-        // Rule of three: restore the learner's figures, mark each quantity
-        // by its verdict and list the model answers beneath.
+        // Rule of three: restore the learner's figures and mark the wrong
+        // quantities. Correct ones stay plain and no model answers are
+        // listed — the feedback text already explains the solution.
         var verdictByVariable = {};
         (verdict.answers || []).forEach(function(entry) {
             verdictByVariable[entry.variable] = entry;
@@ -123,10 +123,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             }
             input.disabled = true;
             var row = input.closest(SELECTORS.PRACTICE_VARIABLE);
-            if (row && verdictByVariable[name]) {
-                row.classList.add(verdictByVariable[name].iscorrect
-                    ? 'tarsus-practice-variable--correct'
-                    : 'tarsus-practice-variable--incorrect');
+            if (row && verdictByVariable[name] && !verdictByVariable[name].iscorrect) {
+                row.classList.add('tarsus-practice-variable--incorrect');
             }
         });
         // Spreadsheet calculation: restore the learner's cells and mark the
@@ -159,21 +157,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             });
         });
 
-        var answersList = card.querySelector(SELECTORS.PRACTICE_ANSWERS);
-        if (answersList && (verdict.answers || []).length) {
-            answersList.innerHTML = '';
-            verdict.answers.forEach(function(entry) {
-                var row = document.createElement('div');
-                var dt = document.createElement('dt');
-                dt.textContent = entry.variable;
-                var dd = document.createElement('dd');
-                dd.textContent = entry.answer;
-                row.appendChild(dt);
-                row.appendChild(dd);
-                answersList.appendChild(row);
-            });
-            answersList.classList.remove('d-none');
-        }
 
         var chosen = card.querySelector('input[type="radio"]:checked');
         if (!chosen && verdict.useranswer) {

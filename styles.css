@@ -337,36 +337,9 @@
     color: #1d2125;
 }
 
-.tarsus-practice-variable--correct .tarsus-practice-variable__input {
-    border-color: #57b87b;
-    background: #e9f7ec;
-}
-
 .tarsus-practice-variable--incorrect .tarsus-practice-variable__input {
     border-color: #d9534f;
     background: #fdeef0;
-}
-
-.tarsus-practice-card__answers {
-    margin-top: 0.75rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    font-size: 0.9rem;
-}
-
-.tarsus-practice-card__answers dt {
-    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
-    font-weight: 500;
-    display: inline;
-}
-
-.tarsus-practice-card__answers dd {
-    display: inline;
-    margin: 0 0 0 0.5rem;
-}
-
-.tarsus-practice-card__answers div {
-    margin-top: 0.2rem;
 }
 
 /* Spreadsheet calculation questions: the costing table with asked cells
