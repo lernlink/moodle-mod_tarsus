@@ -215,6 +215,7 @@ final class practice_test extends \advanced_testcase {
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
         $this->assertTrue($result['correct']);
+        $this->assertSame(100.0, $result['score']);
         // Feedback arrives as rendered Markdown.
         $this->assertStringContainsString('<strong>Mock clarification:</strong>', $result['feedback']);
         $this->assertTrue($result['choices'][0]['iscorrect']);
@@ -286,6 +287,8 @@ final class practice_test extends \advanced_testcase {
         $this->assertSame(1, $result['answertable'][1]['amountverdict']);
         $this->assertSame(-1, $result['answertable'][2]['amountverdict']);
         $this->assertSame('3,60 EUR', $result['usertable'][2]['amount']);
+        // One wrong cell earns partial credit.
+        $this->assertSame(50.0, $result['score']);
 
         $this->expectException(\moodle_exception::class);
         $table[2]['amount'] = '?';

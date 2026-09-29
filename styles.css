@@ -313,6 +313,47 @@
     background: #fdeef0;
 }
 
+.tarsus-practice-card__feedback--partial {
+    background: #fff4e0;
+}
+
+/* Partial credit: a slim score bar above the feedback. */
+.tarsus-practice-card__score {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.tarsus-practice-card__score-track {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 999px;
+    background: #e6e9ef;
+    overflow: hidden;
+}
+
+.tarsus-practice-card__score-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0932b 0%, #f6c453 100%);
+    transition: width 0.5s ease;
+}
+
+.tarsus-practice-card__score-value {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    color: #50555c;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-practice-card__score-fill {
+        transition: none;
+    }
+}
+
 .tarsus-practice-card__feedback p:last-child {
     margin-bottom: 0;
 }

@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092922;
+$plugin->version   = 2026092923;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.23.4 (No progress bar in Ask a question)';
+$plugin->release   = '0.24.0 (Partial credit shown as a score bar)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

@@ -55,6 +55,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         PRACTICE_TABLE_ROW: '.tarsus-practice-table__row',
         PRACTICE_TABLE_INPUT: '.tarsus-practice-table__input',
         PRACTICE_FEEDBACK: '[data-region="feedback"]',
+        PRACTICE_SCORE: '[data-region="score"]',
+        PRACTICE_SCORE_FILL: '[data-region="score-fill"]',
+        PRACTICE_SCORE_VALUE: '[data-region="score-value"]',
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]',
@@ -209,12 +212,31 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
         }
 
+        // Partial credit (a score strictly between 0 and 100 — open
+        // questions, rule of three, Tabellenkalkulation) shows as a slim
+        // score bar above the feedback, which then reads amber rather than
+        // green or red.
+        var score = typeof verdict.score === 'number' ? verdict.score : -1;
+        var partial = score > 0 && score < 100;
+        var scoreBox = card.querySelector(SELECTORS.PRACTICE_SCORE);
+        if (scoreBox && partial) {
+            var rounded = Math.round(score);
+            scoreBox.querySelector(SELECTORS.PRACTICE_SCORE_FILL).style.width = rounded + '%';
+            scoreBox.querySelector(SELECTORS.PRACTICE_SCORE_VALUE).textContent = rounded + ' %';
+            scoreBox.setAttribute('aria-valuenow', rounded);
+            scoreBox.classList.remove('d-none');
+        }
+
         var feedback = card.querySelector(SELECTORS.PRACTICE_FEEDBACK);
         if (feedback && verdict.feedback) {
             feedback.classList.remove('d-none');
-            feedback.classList.add(verdict.correct
-                ? 'tarsus-practice-card__feedback--correct'
-                : 'tarsus-practice-card__feedback--incorrect');
+            if (partial) {
+                feedback.classList.add('tarsus-practice-card__feedback--partial');
+            } else {
+                feedback.classList.add(verdict.correct
+                    ? 'tarsus-practice-card__feedback--correct'
+                    : 'tarsus-practice-card__feedback--incorrect');
+            }
             // Server-cleaned HTML from the external function.
             feedback.innerHTML = verdict.feedback;
             notifyFilters(feedback);
@@ -325,6 +347,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (item.kind === 'practice' && item.answered) {
             finalizePracticeCard(entry.card, {
                 correct: item.correct,
+                score: item.score,
                 feedback: item.feedback,
                 useranswer: item.useranswer,
                 useranswers: item.useranswers || [],
@@ -682,6 +705,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             // show the feedback, as in the Tarsus interface.
             finalizePracticeCard(card, {
                 correct: result.correct,
+                score: result.score,
                 feedback: result.feedback || result.answer || '',
                 useranswer: answer,
                 useranswers: answers,

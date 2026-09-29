@@ -112,6 +112,11 @@
             {{#str}}practice_check, mod_tarsuszero{{/str}}
         </button>
     </div>
+    <div class="tarsus-practice-card__score d-none" data-region="score" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         aria-label="{{#str}}practice_score, mod_tarsuszero{{/str}}">
+        <div class="tarsus-practice-card__score-track"><div class="tarsus-practice-card__score-fill" data-region="score-fill"></div></div>
+        <span class="tarsus-practice-card__score-value" data-region="score-value"></span>
+    </div>
     <div class="tarsus-practice-card__feedback d-none" data-region="feedback"></div>
     </div>
 </div>

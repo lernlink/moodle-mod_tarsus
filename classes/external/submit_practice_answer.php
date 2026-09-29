@@ -205,6 +205,7 @@ class submit_practice_answer extends external_api {
             return self::result('success', '', [
                 'hasverdict' => $response['correct'] !== null,
                 'correct' => (bool) ($response['correct'] ?? false),
+                'score' => $response['score'] === null ? -1 : (float) $response['score'],
                 'feedback' => $render((string) ($response['feedback'] ?? '')),
                 'answer' => $render(practice_labels::choice((string) ($response['answer'] ?? ''), $params['widgettype'])),
                 'choices' => $choices,
@@ -244,6 +245,8 @@ class submit_practice_answer extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'hasverdict' => new external_value(PARAM_BOOL, 'Whether the brain judged the answer.', VALUE_OPTIONAL),
             'correct' => new external_value(PARAM_BOOL, 'Whether the answer was correct.', VALUE_OPTIONAL),
+            'score' => new external_value(PARAM_FLOAT, 'The brain\'s score 0-100 (partial credit as a fraction); -1 when unknown.',
+                VALUE_OPTIONAL),
             'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML.', VALUE_OPTIONAL),
             'answer' => new external_value(PARAM_RAW, 'Rendered model answer HTML, may be empty.', VALUE_OPTIONAL),
             'choices' => new external_multiple_structure(
