@@ -254,6 +254,8 @@ final class practice_labels {
         return [
             'earnedxp' => (float) ($progress['earnedxp'] ?? 0),
             'totalxp' => (float) ($progress['totalxp'] ?? 0),
+            'earnedunits' => (float) ($progress['earnedunits'] ?? 0),
+            'totalunits' => (float) ($progress['totalunits'] ?? 0),
             'practiceprogress' => (float) ($progress['practiceprogress'] ?? 0),
             'learnprogress' => (float) ($progress['learnprogress'] ?? 0),
             'progress' => (float) ($progress['progress'] ?? 0),
@@ -269,6 +271,8 @@ final class practice_labels {
         return new external_single_structure([
             'earnedxp' => new external_value(PARAM_FLOAT, 'Experience points earned so far.'),
             'totalxp' => new external_value(PARAM_FLOAT, 'Experience points available in this activity.'),
+            'earnedunits' => new external_value(PARAM_FLOAT, 'Learning units earned so far (Build knowledge).'),
+            'totalunits' => new external_value(PARAM_FLOAT, 'Learning units available in this activity.'),
             'practiceprogress' => new external_value(PARAM_FLOAT, 'Practice progress in percent.'),
             'learnprogress' => new external_value(PARAM_FLOAT, 'Learn (Build knowledge) progress in percent.'),
             'progress' => new external_value(PARAM_FLOAT, 'Overall activity progress in percent.'),

@@ -317,6 +317,8 @@ final class practice_test extends \advanced_testcase {
         $this->assertStringContainsString('[method: micro-learning, gif: 1]', $stack['slides'][0]['text']);
         $this->assertStringStartsWith('data:image/svg+xml;base64,', $stack['slides'][1]['image']);
         $this->assertSame(10.0, $result['progress']['learnprogress']);
+        $this->assertSame(2.0, $result['progress']['earnedunits']);
+        $this->assertSame(24.0, $result['progress']['totalunits']);
     }
 
     /**

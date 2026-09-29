@@ -61,6 +61,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]',
+        XP_UNIT: '[data-region="xp-unit"]',
         PROGRESS: '[data-region="progress"]',
         PROGRESS_FILL: '[data-region="progress-fill"]',
         FEED_OLDER: '[data-region="feed-older"]',
@@ -536,19 +537,44 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @param {Object|undefined} progress {earnedxp, totalxp, practiceprogress}
      */
     function updateXp(progress) {
-        if (!progress || !(progress.totalxp > 0)) {
+        if (!progress) {
             return;
         }
+        state.progress = progress;
+        renderBadge();
+        renderProgressBar();
+    }
+
+    /**
+     * Show the tally of the active mode beside the switcher: experience
+     * points for Test knowledge, learning units for Build knowledge — both
+     * straight from the brain's activity figures. Ask a question keeps
+     * showing the experience points, as before; a total still at 0 hides
+     * the badge.
+     */
+    function renderBadge() {
         var badge = state.container.querySelector(SELECTORS.XP_BADGE);
         if (!badge) {
             return;
         }
+        var progress = state.progress;
+        var build = state.mode === 'build';
+        var earned = progress ? (build ? progress.earnedunits : progress.earnedxp) : 0;
+        var total = progress ? (build ? progress.totalunits : progress.totalxp) : 0;
+        if (!(total > 0)) {
+            badge.classList.add('d-none');
+            return;
+        }
         badge.classList.remove('d-none');
-        badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(progress.earnedxp * 100) / 100;
-        badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(progress.totalxp * 100) / 100;
-
-        state.progress = progress;
-        renderProgressBar();
+        badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(earned * 100) / 100;
+        badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(total * 100) / 100;
+        var unit = badge.querySelector(SELECTORS.XP_UNIT);
+        if (unit) {
+            Str.get_string(build ? 'learning_units' : 'xp', 'mod_tarsuszero').then(function(text) {
+                unit.textContent = text;
+                return null;
+            }).catch(Notification.exception);
+        }
     }
 
     /**
@@ -931,6 +957,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (practice) {
             practice.classList.toggle('d-none', !test);
         }
+        renderBadge();
         renderProgressBar();
         updateNextLabel();
     }
