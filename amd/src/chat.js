@@ -91,7 +91,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         practiceStarted: false,
         feedOffset: 0,
         feedHasMore: false,
-        feedLoading: false
+        feedLoading: false,
+        progress: null
     };
 
     /**
@@ -484,17 +485,36 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(progress.earnedxp * 100) / 100;
         badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(progress.totalxp * 100) / 100;
 
-        // The practice progress the brain reports fills the bar across the
-        // top of the chat, from the left.
+        state.progress = progress;
+        renderProgressBar();
+    }
+
+    /**
+     * Fill the bar across the top of the chat with the figure of the active
+     * mode, as in the Tarsus interface: the overall activity progress for
+     * the chat, the practice progress for Test knowledge, the learn progress
+     * for Build knowledge.
+     */
+    function renderProgressBar() {
         var bar = state.container.querySelector(SELECTORS.PROGRESS);
         var fill = state.container.querySelector(SELECTORS.PROGRESS_FILL);
-        if (bar && fill && typeof progress.practiceprogress === 'number') {
-            var percent = Math.max(0, Math.min(100, Math.round(progress.practiceprogress)));
-            fill.style.width = percent + '%';
-            bar.setAttribute('aria-valuenow', percent);
-            bar.setAttribute('title', percent + ' %');
-            bar.classList.remove('d-none');
+        if (!bar || !fill || !state.progress) {
+            return;
         }
+        var figure = state.progress.progress;
+        if (state.mode === 'test') {
+            figure = state.progress.practiceprogress;
+        } else if (state.mode === 'build') {
+            figure = state.progress.learnprogress;
+        }
+        if (typeof figure !== 'number') {
+            return;
+        }
+        var percent = Math.max(0, Math.min(100, Math.round(figure)));
+        fill.style.width = percent + '%';
+        bar.setAttribute('aria-valuenow', percent);
+        bar.setAttribute('title', percent + ' %');
+        bar.classList.remove('d-none');
     }
 
     /**
@@ -724,6 +744,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (hint) {
             hint.classList.toggle('d-none', ask || test);
         }
+
+        renderProgressBar();
     }
 
     /**
