@@ -25,7 +25,8 @@
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], function(Ajax, Templates, Notification, Str) {
+define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events'],
+        function(Ajax, Templates, Notification, Str, FilterEvents) {
 
     /**
      * DOM selectors.
@@ -92,6 +93,19 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         feedHasMore: false,
         feedLoading: false
     };
+
+    /**
+     * Let Moodle's text filters (MathJax above all) process freshly inserted
+     * content: the brain writes formulas in TeX, which the filter only
+     * renders for nodes it is told about.
+     *
+     * @param {Element|null} node The inserted node
+     */
+    function notifyFilters(node) {
+        if (node) {
+            FilterEvents.notifyFilterContentUpdated([node]);
+        }
+    }
 
     /**
      * Freeze an answered practice card: mark the pick, show the feedback.
@@ -202,6 +216,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                 : 'tarsus-practice-card__feedback--incorrect');
             // Server-cleaned HTML from the external function.
             feedback.innerHTML = verdict.feedback;
+            notifyFilters(feedback);
         }
     }
 
@@ -320,6 +335,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
         if (entry.js) {
             Templates.runTemplateJS(entry.js);
         }
+        notifyFilters(entry.card);
     }
 
     /**
@@ -737,6 +753,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
             if (js) {
                 Templates.runTemplateJS(js);
             }
+            notifyFilters(card);
             return card;
         });
     }
@@ -844,6 +861,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
                     if (slot) {
                         // Server-cleaned HTML from the external function.
                         slot.innerHTML = result.answer;
+                        notifyFilters(slot);
                     }
                     var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
                     if (flow) {
