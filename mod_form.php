@@ -107,8 +107,15 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
                 'noselectionstring' => get_string('taxonomylevels_none', 'mod_tarsuszero'),
             ]);
         $mform->setType('taxonomylevels', PARAM_INT);
-        $mform->setDefault('taxonomylevels', didactics::default_taxonomy_levels());
         $mform->addHelpButton('taxonomylevels', 'taxonomylevels', 'mod_tarsuszero');
+
+        // Array defaults belong to a new activity only: QuickForm merges
+        // defaults with the stored value index by index, so a stored
+        // selection would otherwise reappear padded with default entries.
+        $isnew = empty($this->_instance);
+        if ($isnew) {
+            $mform->setDefault('taxonomylevels', didactics::default_taxonomy_levels());
+        }
 
         $qtypes = [];
         foreach (didactics::TYPES as $type) {
@@ -129,7 +136,9 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
                     'noselectionstring' => get_string('questiontypes_none', 'mod_tarsuszero'),
                 ]);
             $mform->setType($name, PARAM_ALPHANUMEXT);
-            $mform->setDefault($name, $defaultmap[$grade] ?? []);
+            if ($isnew) {
+                $mform->setDefault($name, $defaultmap[$grade] ?? []);
+            }
             $mform->addHelpButton($name, 'questiontypes', 'mod_tarsuszero');
         }
 

@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092909;
+$plugin->version   = 2026092910;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.21.3 (Feed pages of 10, per Tarsus)';
+$plugin->release   = '0.21.4 (Stored chip selections no longer padded with defaults)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
