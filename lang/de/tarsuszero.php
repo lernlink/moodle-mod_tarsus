@@ -134,6 +134,7 @@ $string['practice_table_amount'] = 'Betrag';
 $string['choice_true'] = 'Wahr';
 $string['choice_false'] = 'Falsch';
 $string['xp'] = 'XP';
+$string['practice_progress'] = 'Übungsfortschritt';
 $string['mode_switch'] = 'Interaktionsmodus';
 $string['mode_build'] = 'Wissen aufbauen';
 $string['mode_test'] = 'Wissen testen';

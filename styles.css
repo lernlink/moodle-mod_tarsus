@@ -388,3 +388,27 @@
     border-color: #d9534f;
     background: #fdeef0;
 }
+
+/* Practice progress: a slim fill bar across the top of the chat. */
+.tarsus-chat-box .tarsus-progress {
+    height: 6px;
+    margin-bottom: 0.6rem;
+    border-radius: 999px;
+    background: #e6e9ef;
+    overflow: hidden;
+}
+
+.tarsus-chat-box .tarsus-progress__fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.35);
+    transition: width 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-chat-box .tarsus-progress__fill {
+        transition: none;
+    }
+}

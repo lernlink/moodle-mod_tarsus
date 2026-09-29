@@ -30,6 +30,12 @@
      data-user-avatar="{{useravatarurl}}"
      data-robot-avatar="{{robotavatarurl}}"
      data-robot-name="{{robotname}}">
+    <!-- Practice progress: a fill bar across the top of the chat, hidden until the brain reports figures -->
+    <div class="tarsus-progress d-none" data-region="progress" role="progressbar"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         aria-label="{{#str}}practice_progress, mod_tarsuszero{{/str}}" title="">
+        <div class="tarsus-progress__fill" data-region="progress-fill"></div>
+    </div>
     <!-- Chat log flow -->
     <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
         <!-- Older-page loading indicator, shown while the feed lazy-loads on scroll-up -->
@@ -66,7 +72,7 @@
                 </button>
             </div>
             <!-- Experience figures: appear once the practice mode reports them -->
-            <span class="tarsus-xp-badge d-none" data-region="xp-badge"><span data-region="xp-earned">0</span>&nbsp;/&nbsp;<span data-region="xp-total">0</span>&nbsp;{{#str}}xp, mod_tarsuszero{{/str}}<span class="tarsus-xp-badge__progress d-none" data-region="xp-progress">&nbsp;&middot;&nbsp;<span data-region="xp-percent">0</span>&nbsp;%</span></span>
+            <span class="tarsus-xp-badge d-none" data-region="xp-badge"><span data-region="xp-earned">0</span>&nbsp;/&nbsp;<span data-region="xp-total">0</span>&nbsp;{{#str}}xp, mod_tarsuszero{{/str}}</span>
             </div>
             <span class="tarsus-mode-comingsoon text-muted small d-none">{{#str}}mode_comingsoon, mod_tarsuszero{{/str}}</span>
             <button class="tarsus-practice-next btn btn-primary d-flex align-items-center flex-shrink-0 d-none" type="button">

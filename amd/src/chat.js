@@ -58,8 +58,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         XP_BADGE: '[data-region="xp-badge"]',
         XP_EARNED: '[data-region="xp-earned"]',
         XP_TOTAL: '[data-region="xp-total"]',
-        XP_PROGRESS: '[data-region="xp-progress"]',
-        XP_PERCENT: '[data-region="xp-percent"]',
+        PROGRESS: '[data-region="progress"]',
+        PROGRESS_FILL: '[data-region="progress-fill"]',
         FEED_OLDER: '[data-region="feed-older"]'
     };
 
@@ -484,12 +484,16 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         badge.querySelector(SELECTORS.XP_EARNED).textContent = Math.round(progress.earnedxp * 100) / 100;
         badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(progress.totalxp * 100) / 100;
 
-        // The practice progress the brain reports, as a percentage.
-        var progressBox = badge.querySelector(SELECTORS.XP_PROGRESS);
-        var percent = badge.querySelector(SELECTORS.XP_PERCENT);
-        if (progressBox && percent && typeof progress.practiceprogress === 'number') {
-            percent.textContent = Math.round(progress.practiceprogress);
-            progressBox.classList.remove('d-none');
+        // The practice progress the brain reports fills the bar across the
+        // top of the chat, from the left.
+        var bar = state.container.querySelector(SELECTORS.PROGRESS);
+        var fill = state.container.querySelector(SELECTORS.PROGRESS_FILL);
+        if (bar && fill && typeof progress.practiceprogress === 'number') {
+            var percent = Math.max(0, Math.min(100, Math.round(progress.practiceprogress)));
+            fill.style.width = percent + '%';
+            bar.setAttribute('aria-valuenow', percent);
+            bar.setAttribute('title', percent + ' %');
+            bar.classList.remove('d-none');
         }
     }
 
