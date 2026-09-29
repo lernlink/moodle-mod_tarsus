@@ -64,7 +64,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str'], functio
     };
 
     /** @var {number} The feed page size, matching the external function. */
-    var FEED_PAGE_SIZE = 20;
+    var FEED_PAGE_SIZE = 10;
 
     /** @var {number} Scroll distance from the top that triggers loading an older page. */
     var FEED_SCROLL_THRESHOLD = 80;

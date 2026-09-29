@@ -47,7 +47,7 @@ use moodle_exception;
 class get_activity_feed extends external_api {
 
     /** @var int How many widgets one call reads back (the page size Tarsus recommends). */
-    public const PAGE_SIZE = 20;
+    public const PAGE_SIZE = 10;
 
     /**
      * Declares parameters for execute().

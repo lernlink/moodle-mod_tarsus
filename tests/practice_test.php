@@ -161,7 +161,7 @@ final class practice_test extends \advanced_testcase {
 
         // The fixture fits one page; an older page is empty and final.
         $this->assertFalse($result['hasmore']);
-        $older = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid, 20);
+        $older = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid, 10);
         $this->assertEquals('success', $older['status']);
         $this->assertSame([], $older['items']);
         $this->assertFalse($older['hasmore']);
