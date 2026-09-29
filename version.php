@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092920;
+$plugin->version   = 2026092921;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.23.2 (Even spacing inside the practice Next button)';
+$plugin->release   = '0.23.3 (Honest message when no question fits the materials)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
