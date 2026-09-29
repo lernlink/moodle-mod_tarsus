@@ -1,0 +1,43 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsuszero/learn_objectives_card
+
+    The learning objectives the brain sets out at the start of Build knowledge.
+
+    Context variables required for this template:
+    * title - string, the programme title.
+    * message - string, rendered introduction HTML (server-cleaned).
+    * objectives - array of {objective, taxonomy, done}.
+}}
+<div class="tarsus-card tarsus-learn-card tarsus-learn-card--objectives" data-region="learn-objectives">
+    <div class="tarsus-learn-card__inner">
+        <div class="tarsus-learn-card__meta">
+            <span class="badge badge-light tarsus-practice-card__badge">{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}learn_objectives, mod_tarsuszero{{/str}}</span>
+        </div>
+        {{#title}}<h5 class="tarsus-learn-slide__title">{{title}}</h5>{{/title}}
+        <div class="tarsus-learn-slide__text">{{{message}}}</div>
+        <ol class="tarsus-learn-objectives">
+            {{#objectives}}
+            <li class="tarsus-learn-objectives__item{{#done}} tarsus-learn-objectives__item--done{{/done}}">
+                <span class="tarsus-learn-objectives__text">{{objective}}</span>
+                {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
+            </li>
+            {{/objectives}}
+        </ol>
+    </div>
+</div>

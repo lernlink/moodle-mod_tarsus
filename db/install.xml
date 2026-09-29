@@ -23,7 +23,9 @@
         <FIELD NAME="learntempo" TYPE="number" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Learning pace 0.1-2 steering XP growth; 1 is recommended."/>
         <FIELD NAME="askenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Ask a question mode is available to learners."/>
         <FIELD NAME="testenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Test knowledge mode is available to learners."/>
-        <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is shown to learners (not available yet)."/>
+        <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is available to learners."/>
+        <FIELD NAME="gifenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether Build knowledge widgets may include GIF animations."/>
+        <FIELD NAME="learningmethod" TYPE="char" LENGTH="40" NOTNULL="true" DEFAULT="micro-learning" SEQUENCE="false" COMMENT="Didactic concept of the Build knowledge mode (learning_method)."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

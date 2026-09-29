@@ -81,11 +81,27 @@ final class didactics {
     /** @var string[] The interaction modes a teacher can switch, in switcher order. */
     public const MODES = ['build', 'test', 'ask'];
 
+    /** @var string The micro-learning didactic concept (the brain's learning_method). */
+    public const METHOD_MICROLEARNING = 'micro-learning';
+
+    /** @var string[] The didactic concepts the brain knows for Build knowledge. */
+    public const LEARNING_METHODS = [self::METHOD_MICROLEARNING];
+
+    /**
+     * Normalise a stored didactic concept.
+     *
+     * @param string|null $value The stored value.
+     * @return string A known concept; micro-learning when unknown.
+     */
+    public static function learning_method(?string $value): string {
+        $value = strtolower(trim((string) $value));
+        return in_array($value, self::LEARNING_METHODS, true) ? $value : self::METHOD_MICROLEARNING;
+    }
+
     /**
      * Whether an interaction mode is switched on for an activity.
      *
-     * Chat and practice default to on (legacy rows carry no column),
-     * Build knowledge to off — it is not available yet.
+     * Every mode defaults to on when a legacy row carries no column.
      *
      * @param \stdClass $activity The tarsuszero record.
      * @param string    $mode     One of {@see MODES}.
@@ -94,7 +110,7 @@ final class didactics {
     public static function mode_enabled(\stdClass $activity, string $mode): bool {
         $column = $mode . 'enabled';
         if (!property_exists($activity, $column) || $activity->{$column} === null) {
-            return $mode !== 'build';
+            return true;
         }
         return !empty($activity->{$column});
     }

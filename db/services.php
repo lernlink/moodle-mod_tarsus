@@ -49,6 +49,14 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_get_learn_widget' => [
+        'classname'   => 'mod_tarsuszero\external\get_learn_widget',
+        'methodname'  => 'execute',
+        'description' => 'Generate the next learning unit (Build knowledge mode).',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
     'mod_tarsuszero_submit_practice_answer' => [
         'classname'   => 'mod_tarsuszero\external\submit_practice_answer',
         'methodname'  => 'execute',

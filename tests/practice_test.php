@@ -142,7 +142,7 @@ final class practice_test extends \advanced_testcase {
         $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(4, $result['items']);
+        $this->assertCount(5, $result['items']);
 
         [, , $answered, $open] = $result['items'];
         $this->assertTrue($answered['answered']);
@@ -293,6 +293,41 @@ final class practice_test extends \advanced_testcase {
         $this->expectException(\moodle_exception::class);
         $table[2]['amount'] = '?';
         submit_practice_answer::execute((int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table);
+    }
+
+    /**
+     * Build knowledge returns the objectives and a stack of rendered slides,
+     * carrying the activity's didactic concept and GIF switch.
+     */
+    public function test_get_learn_widget_returns_objectives_and_slides(): void {
+        global $DB;
+        [$tz] = $this->make_ready_activity();
+        $DB->set_field('tarsuszero', 'gifenabled', 1, ['id' => $tz->id]);
+
+        $result = \mod_tarsuszero\external\get_learn_widget::execute((int) $tz->cmid);
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertSame(['objectives', 'stack'], array_column($result['items'], 'kind'));
+        $objectives = $result['items'][0];
+        $this->assertSame('Mock learning goals', $objectives['title']);
+        $this->assertStringContainsString('<strong>mock</strong>', $objectives['message']);
+        $this->assertSame(get_string('taxonomy_understanding', 'mod_tarsuszero'), $objectives['objectives'][1]['taxonomy']);
+        $stack = $result['items'][1];
+        $this->assertCount(2, $stack['slides']);
+        $this->assertStringContainsString('[method: micro-learning, gif: 1]', $stack['slides'][0]['text']);
+        $this->assertStringStartsWith('data:image/svg+xml;base64,', $stack['slides'][1]['image']);
+        $this->assertSame(10.0, $result['progress']['learnprogress']);
+    }
+
+    /**
+     * A switched-off Build knowledge mode refuses before any API call.
+     */
+    public function test_learn_refused_when_mode_is_off(): void {
+        global $DB;
+        [$tz] = $this->make_ready_activity();
+        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
+
+        $this->assertEquals('disabled', \mod_tarsuszero\external\get_learn_widget::execute((int) $tz->cmid)['status']);
     }
 
     /**

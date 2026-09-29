@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092923;
+$plugin->version   = 2026092924;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.24.0 (Partial credit shown as a score bar)';
+$plugin->release   = '0.25.0 (Build knowledge mode: micro-learning stacks)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];

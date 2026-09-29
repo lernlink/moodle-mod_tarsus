@@ -86,11 +86,11 @@ final class chat_test extends \advanced_testcase {
 
         $this->assertEquals($tz->cmid, $exported['cmid']);
         $this->assertEquals('tarsus-chat-box-' . $tz->cmid, $exported['containerid']);
-        // Chat and practice are on by default, Build knowledge off.
+        // Every mode is on by default.
         $this->assertTrue($exported['askenabled']);
         $this->assertTrue($exported['testenabled']);
-        $this->assertFalse($exported['buildenabled']);
-        $this->assertSame('test,ask', $exported['modes']);
+        $this->assertTrue($exported['buildenabled']);
+        $this->assertSame('build,test,ask', $exported['modes']);
     }
 
     /**
@@ -147,8 +147,11 @@ final class chat_test extends \advanced_testcase {
         // a chat exchange and the practice questions in original order.
         $feed = get_activity_feed::execute((int) $tz->cmid);
         $this->assertEquals('success', $feed['status']);
-        $this->assertSame(['message', 'exchange', 'practice', 'practice'],
+        $this->assertSame(['message', 'exchange', 'practice', 'practice', 'stack'],
             array_column($feed['items'], 'kind'));
+        // A stored learning unit renders its slides.
+        $this->assertSame('mock-stack-0', $feed['items'][4]['id']);
+        $this->assertStringContainsString('<strong>stored</strong>', $feed['items'][4]['slides'][0]['text']);
         $this->assertStringContainsString('<strong>Mock welcome</strong>', $feed['items'][0]['text']);
         $this->assertEquals('Mock question?', $feed['items'][1]['query']);
         $this->assertStringContainsString('Mock stored answer', $feed['items'][1]['answer']);

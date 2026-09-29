@@ -119,6 +119,10 @@ class get_activity_feed extends external_api {
                     ];
                     continue;
                 }
+                if ($kind === 'objectives' || $kind === 'stack') {
+                    $items[] = practice_labels::learn_item($item, $render);
+                    continue;
+                }
                 if ($kind !== 'practice') {
                     continue;
                 }
@@ -190,7 +194,11 @@ class get_activity_feed extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: message, exchange or practice.'),
+                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: message, exchange, practice, objectives or stack.'),
+                    'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),
+                    'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
+                    'objectives' => practice_labels::objectives_structure(),
+                    'slides' => practice_labels::slides_structure(),
                     'text' => new external_value(PARAM_RAW, 'Rendered message HTML (message).', VALUE_OPTIONAL),
                     'query' => new external_value(PARAM_RAW, 'The learner\'s question (exchange).', VALUE_OPTIONAL),
                     'answer' => new external_value(PARAM_RAW, 'Rendered answer HTML (exchange).', VALUE_OPTIONAL),

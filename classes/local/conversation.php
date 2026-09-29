@@ -80,6 +80,8 @@ final class conversation {
             'taxonomylevels' => didactics::decode_taxonomy_levels($activity->taxonomylevels ?? ''),
             'questiontypes' => didactics::decode_question_types($activity->questiontypes ?? ''),
             'operators' => didactics::operators($activity->operators ?? null),
+            'gif' => !empty($activity->gifenabled),
+            'learningmethod' => didactics::learning_method($activity->learningmethod ?? null),
             'anticheat' => !empty($activity->anticheat),
             'learntempo' => didactics::learn_tempo($activity->learntempo ?? null),
             'robotname' => $robotname,

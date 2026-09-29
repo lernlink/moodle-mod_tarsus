@@ -165,6 +165,86 @@ final class practice_labels {
     }
 
     /**
+     * Shape a learn item (objectives or stack) for the wire.
+     *
+     * @param array    $item   The client's learn item.
+     * @param callable $render Renders Markdown to HTML.
+     * @return array<string, mixed>
+     */
+    public static function learn_item(array $item, callable $render): array {
+        if (($item['kind'] ?? '') === 'objectives') {
+            $objectives = [];
+            foreach (($item['objectives'] ?? []) as $objective) {
+                $objectives[] = [
+                    'id' => (string) ($objective['id'] ?? ''),
+                    'objective' => (string) ($objective['objective'] ?? ''),
+                    'taxonomy' => self::taxonomy((string) ($objective['taxonomylevel'] ?? '')),
+                    'done' => !empty($objective['done']),
+                ];
+            }
+            return [
+                'kind' => 'objectives',
+                'id' => (string) ($item['id'] ?? ''),
+                'title' => (string) ($item['title'] ?? ''),
+                'message' => $render((string) ($item['message'] ?? '')),
+                'objectives' => $objectives,
+            ];
+        }
+        $slides = [];
+        foreach (($item['slides'] ?? []) as $slide) {
+            $slides[] = [
+                'id' => (string) ($slide['id'] ?? ''),
+                'title' => (string) ($slide['title'] ?? ''),
+                'text' => $render((string) ($slide['text'] ?? '')),
+                'image' => (string) ($slide['image'] ?? ''),
+                'imageposition' => (string) ($slide['imageposition'] ?? 'right'),
+            ];
+        }
+        return [
+            'kind' => 'stack',
+            'id' => (string) ($item['id'] ?? ''),
+            'slides' => $slides,
+        ];
+    }
+
+    /**
+     * The wire structure of learning objectives.
+     *
+     * @return external_multiple_structure
+     */
+    public static function objectives_structure(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_RAW, 'The objective id.'),
+                'objective' => new external_value(PARAM_TEXT, 'The objective text.'),
+                'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level.'),
+                'done' => new external_value(PARAM_BOOL, 'Whether the learner has reached it.'),
+            ]),
+            'The learning objectives.',
+            VALUE_OPTIONAL
+        );
+    }
+
+    /**
+     * The wire structure of learning slides.
+     *
+     * @return external_multiple_structure
+     */
+    public static function slides_structure(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'id' => new external_value(PARAM_RAW, 'The slide id.'),
+                'title' => new external_value(PARAM_TEXT, 'The slide title, may be empty.'),
+                'text' => new external_value(PARAM_RAW, 'Rendered slide HTML.'),
+                'image' => new external_value(PARAM_RAW, 'Illustration as an image data URI, may be empty.'),
+                'imageposition' => new external_value(PARAM_ALPHA, 'left or right.'),
+            ]),
+            'The slides of a learning unit.',
+            VALUE_OPTIONAL
+        );
+    }
+
+    /**
      * Shape the progress figures for the wire.
      *
      * @param array $progress The client's progress array.

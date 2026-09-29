@@ -161,5 +161,23 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026092918, 'tarsuszero');
     }
 
+    if ($oldversion < 2026092924) {
+        // Build knowledge arrives: its GIF switch and didactic concept.
+        // Existing activities keep the mode switched off until a teacher
+        // turns it on.
+        $table = new xmldb_table('tarsuszero');
+        $fields = [
+            new xmldb_field('gifenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'buildenabled'),
+            new xmldb_field('learningmethod', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, 'micro-learning', 'gifenabled'),
+        ];
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026092924, 'tarsuszero');
+    }
+
     return true;
 }

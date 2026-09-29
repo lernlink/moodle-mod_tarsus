@@ -41,7 +41,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         SPINNER: '.tarsus-chat-spinner',
         CARD_ANSWER: '[data-region="card-answer"]',
         MODE_BTN: '.tarsus-mode-switch__btn',
-        MODE_HINT: '.tarsus-mode-comingsoon',
         PRACTICE_NEXT: '.tarsus-practice-next',
         PRACTICE_NEXT_SPINNER: '.tarsus-practice-next__spinner',
         PRACTICE_LABEL: '[data-region="practice-label"]',
@@ -63,7 +62,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         XP_TOTAL: '[data-region="xp-total"]',
         PROGRESS: '[data-region="progress"]',
         PROGRESS_FILL: '[data-region="progress-fill"]',
-        FEED_OLDER: '[data-region="feed-older"]'
+        FEED_OLDER: '[data-region="feed-older"]',
+        LEARN_CARD: '[data-region="learn-card"]',
+        LEARN_SLIDE: '[data-region="slide"]',
+        LEARN_NAV: '.tarsus-learn-nav',
+        LEARN_COUNTER: '[data-region="counter"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -92,8 +95,13 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         robotName: '',
         mode: 'ask',
         practiceStarted: false,
+        learnStarted: false,
         feedOffset: 0,
         feedHasMore: false,
+        // Slides of every learning stack on the page, by stack id: the
+        // brain pages by slide and may split one stack across two pages,
+        // so the older half has to merge into the card already shown.
+        stacks: {},
         feedLoading: false,
         progress: null
     };
@@ -327,11 +335,15 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     robotavatarurl: state.robotAvatar,
                     robotname: state.robotName
                 });
+            } else if (item.kind === 'objectives' || item.kind === 'stack') {
+                var learn = learnCard(item);
+                build = buildCard(learn.template, learn.context);
             } else {
                 build = buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
             }
             return build.then(function(entry) {
                 entry.item = item;
+                entry.replaces = item.replaces || null;
                 return entry;
             });
         }));
@@ -369,20 +381,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Promise} Resolves when the label is settled
      */
     function notePracticeHistory(items) {
-        var haspractice = items.some(function(item) {
-            return item.kind === 'practice';
-        });
-        if (!haspractice || state.practiceStarted) {
-            return Promise.resolve();
-        }
-        state.practiceStarted = true;
-        var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
-        return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
-            if (label) {
-                label.textContent = next;
+        items.forEach(function(item) {
+            if (item.kind === 'practice') {
+                state.practiceStarted = true;
+            } else if (item.kind === 'objectives' || item.kind === 'stack') {
+                state.learnStarted = true;
             }
-            return null;
         });
+        return updateNextLabel();
     }
 
     /**
@@ -440,6 +446,33 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Join the older half of a learning stack that straddles two pages.
+     *
+     * When the older page ends with a stack whose id is already on the
+     * page (its newer slides came first), the two halves become one item,
+     * older slides first, flagged to replace the card already shown.
+     *
+     * @param {Element} flow The chat flow
+     * @param {Array} items The older page's items, oldest first
+     * @return {Array} The items to build
+     */
+    function mergeStraddlingStack(flow, items) {
+        var last = items[items.length - 1];
+        if (!last || last.kind !== 'stack' || !state.stacks[last.id]) {
+            return items;
+        }
+        var shown = flow.querySelector(SELECTORS.LEARN_CARD + '[data-stack-id="' + last.id + '"]');
+        if (!shown) {
+            return items;
+        }
+        var merged = Object.assign({}, last, {
+            slides: (last.slides || []).concat(state.stacks[last.id]),
+            replaces: shown
+        });
+        return items.slice(0, -1).concat([merged]);
+    }
+
+    /**
      * Load the page before the oldest one shown and slot it in above,
      * keeping the reader's viewport where it is.
      */
@@ -466,14 +499,19 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             state.feedOffset = offset + FEED_PAGE_SIZE;
             state.feedHasMore = Boolean(result.hasmore) && result.items.length > 0;
 
-            return buildFeedCards(result.items).then(function(built) {
+            var items = mergeStraddlingStack(flow, result.items);
+            return buildFeedCards(items).then(function(built) {
                 var anchor = older && older.nextSibling ? older.nextSibling : flow.firstChild;
                 var grewBy = flow.scrollHeight;
                 built.forEach(function(entry) {
                     if (!entry.card) {
                         return;
                     }
-                    flow.insertBefore(entry.card, anchor);
+                    if (entry.replaces) {
+                        flow.replaceChild(entry.card, entry.replaces);
+                    } else {
+                        flow.insertBefore(entry.card, anchor);
+                    }
                     settleFeedCard(entry);
                 });
                 flow.scrollTop += flow.scrollHeight - grewBy;
@@ -541,9 +579,141 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * Fetch and render the next practice question.
+     * The template context of one learn item (objectives or stack).
+     *
+     * @param {Object} item The learn item from the external function
+     * @return {Object} {template, context}
+     */
+    function learnCard(item) {
+        if (item.kind === 'objectives') {
+            return {
+                template: 'mod_tarsuszero/learn_objectives_card',
+                context: {title: item.title, message: item.message, objectives: item.objectives || []}
+            };
+        }
+        state.stacks[item.id] = item.slides || [];
+        var slides = (item.slides || []).map(function(slide, index) {
+            return {
+                index: index,
+                number: index + 1,
+                first: index === 0,
+                title: slide.title,
+                text: slide.text,
+                image: slide.image,
+                imageposition: slide.imageposition === 'left' ? 'left' : 'right'
+            };
+        });
+        return {
+            template: 'mod_tarsuszero/learn_stack_card',
+            context: {stackid: item.id, total: slides.length, single: slides.length < 2, slides: slides}
+        };
+    }
+
+    /**
+     * Show the previous or next slide of a learning unit.
+     *
+     * @param {Element} card The learn card
+     * @param {number} dir -1 or 1
+     */
+    function turnSlide(card, dir) {
+        var slides = Array.prototype.slice.call(card.querySelectorAll(SELECTORS.LEARN_SLIDE));
+        var current = slides.findIndex(function(slide) {
+            return !slide.classList.contains('d-none');
+        });
+        var target = Math.max(0, Math.min(slides.length - 1, current + dir));
+        if (target === current) {
+            return;
+        }
+        slides[current].classList.add('d-none');
+        slides[target].classList.remove('d-none');
+        var counter = card.querySelector(SELECTORS.LEARN_COUNTER);
+        if (counter) {
+            counter.textContent = (target + 1) + ' / ' + slides.length;
+        }
+        card.querySelectorAll(SELECTORS.LEARN_NAV).forEach(function(button) {
+            var step = parseInt(button.getAttribute('data-dir'), 10);
+            button.disabled = (step < 0 && target === 0) || (step > 0 && target === slides.length - 1);
+        });
+    }
+
+    /**
+     * Fetch and render the next learning unit (Build knowledge).
+     */
+    function handleLearnNext() {
+        var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
+        var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
+        var alertBox = state.container.querySelector(SELECTORS.ALERT);
+        if (!button || button.disabled) {
+            return;
+        }
+        button.disabled = true;
+        if (spinner) {
+            spinner.classList.remove('d-none');
+        }
+        if (alertBox) {
+            alertBox.classList.add('d-none');
+        }
+        var unlock = function() {
+            button.disabled = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+        };
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_get_learn_widget',
+            args: {cmid: state.cmid}
+        }])[0].then(function(result) {
+            unlock();
+            if (result.status !== 'success' || !result.items || !result.items.length) {
+                if (alertBox) {
+                    alertBox.classList.remove('d-none');
+                    alertBox.textContent = result.error || 'Unknown error occurred.';
+                }
+                return null;
+            }
+            updateXp(result.progress);
+            return result.items.reduce(function(previous, item) {
+                return previous.then(function() {
+                    var card = learnCard(item);
+                    return attachCard(card.template, card.context, null);
+                });
+            }, Promise.resolve()).then(function() {
+                state.learnStarted = true;
+                return updateNextLabel();
+            });
+        }).catch(function(ex) {
+            unlock();
+            Notification.exception(ex);
+        });
+    }
+
+    /**
+     * Label the Start/Next button for the active mode.
+     *
+     * @return {Promise} Resolves when the label is settled
+     */
+    function updateNextLabel() {
+        var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
+        if (!label) {
+            return Promise.resolve();
+        }
+        var started = state.mode === 'build' ? state.learnStarted : state.practiceStarted;
+        return Str.get_string(started ? 'practice_next' : 'practice_start', 'mod_tarsuszero').then(function(text) {
+            label.textContent = text;
+            return null;
+        });
+    }
+
+    /**
+     * Fetch and render the next practice question — or learning unit in
+     * Build knowledge.
      */
     function handlePracticeNext() {
+        if (state.mode === 'build') {
+            handleLearnNext();
+            return;
+        }
         var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
         var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
         var alertBox = state.container.querySelector(SELECTORS.ALERT);
@@ -588,17 +758,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     return attachPracticeCard(widget);
                 });
             }, Promise.resolve()).then(function() {
-                if (!state.practiceStarted) {
-                    state.practiceStarted = true;
-                    var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
-                    return Str.get_string('practice_next', 'mod_tarsuszero').then(function(next) {
-                        if (label) {
-                            label.textContent = next;
-                        }
-                        return null;
-                    });
-                }
-                return null;
+                state.practiceStarted = true;
+                return updateNextLabel();
             });
         }).catch(function(ex) {
             unlock();
@@ -732,11 +893,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     /**
      * Switch the interaction mode.
      *
-     * Only 'ask' (the chat) is functional so far; the other modes will
-     * steer the assistant's behaviour later. The chat input and the send
-     * button belong to 'ask' alone — the other modes will interact
-     * through cards in the flow, so the composer collapses to the
-     * switcher row with a coming-soon hint.
+     * The chat input and the send button belong to 'ask' alone — the
+     * practice and learn modes interact through cards in the flow, so the
+     * composer collapses to the switcher row plus the Start/Next button.
      *
      * @param {string} mode One of 'build', 'test', 'ask'
      */
@@ -750,10 +909,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         });
 
         var ask = mode === 'ask';
-        var test = mode === 'test';
+        var test = mode === 'test' || mode === 'build';
         var input = state.container.querySelector(SELECTORS.INPUT);
         var submit = state.container.querySelector(SELECTORS.SUBMIT);
-        var hint = state.container.querySelector(SELECTORS.MODE_HINT);
         var practice = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
         if (input) {
             input.classList.toggle('d-none', !ask);
@@ -765,11 +923,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (practice) {
             practice.classList.toggle('d-none', !test);
         }
-        if (hint) {
-            hint.classList.toggle('d-none', ask || test);
-        }
-
         renderProgressBar();
+        updateNextLabel();
     }
 
     /**
@@ -970,13 +1125,21 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var initial = modes.indexOf('ask') !== -1 ? 'ask' : (modes[0] || 'ask');
         setMode(initial);
 
-        // Practice cards render later; delegate their check buttons.
+        // Practice and learn cards render later; delegate their buttons.
         state.container.addEventListener('click', function(e) {
             var check = e.target.closest(SELECTORS.PRACTICE_CHECK);
             if (check && state.container.contains(check)) {
                 var card = check.closest(SELECTORS.PRACTICE_CARD);
                 if (card) {
                     handlePracticeCheck(card);
+                }
+                return;
+            }
+            var nav = e.target.closest(SELECTORS.LEARN_NAV);
+            if (nav && state.container.contains(nav)) {
+                var learncard = nav.closest(SELECTORS.LEARN_CARD);
+                if (learncard) {
+                    turnSlide(learncard, parseInt(nav.getAttribute('data-dir'), 10));
                 }
             }
         });

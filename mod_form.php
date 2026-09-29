@@ -180,12 +180,26 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         $mform->setDefault('learntempo', (string) didactics::LEARN_TEMPO_DEFAULT);
         $mform->addHelpButton('learntempo', 'learntempo', 'mod_tarsuszero');
 
-        // --- Build knowledge (not available yet) ---------------------------
+        // --- Build knowledge -----------------------------------------------
         $mform->addElement('header', 'settings_build', get_string('settings_build', 'mod_tarsuszero'));
+        $mform->setExpanded('settings_build');
 
         $mform->addElement('advcheckbox', 'buildenabled', get_string('buildenabled', 'mod_tarsuszero'));
-        $mform->setDefault('buildenabled', 0);
+        $mform->setDefault('buildenabled', 1);
         $mform->addHelpButton('buildenabled', 'buildenabled', 'mod_tarsuszero');
+
+        $mform->addElement('advcheckbox', 'gifenabled', get_string('gifenabled', 'mod_tarsuszero'));
+        $mform->setDefault('gifenabled', 0);
+        $mform->addHelpButton('gifenabled', 'gifenabled', 'mod_tarsuszero');
+
+        $methods = [];
+        foreach (didactics::LEARNING_METHODS as $method) {
+            $methods[$method] = get_string('learningmethod_' . str_replace('-', '', $method), 'mod_tarsuszero');
+        }
+        $mform->addElement('select', 'learningmethod', get_string('learningmethod', 'mod_tarsuszero'), $methods);
+        $mform->setType('learningmethod', PARAM_ALPHAEXT);
+        $mform->setDefault('learningmethod', didactics::METHOD_MICROLEARNING);
+        $mform->addHelpButton('learningmethod', 'learningmethod', 'mod_tarsuszero');
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
@@ -223,6 +237,7 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             // plain floats (1).
             $defaultvalues['learntempo'] = (string) didactics::learn_tempo($defaultvalues['learntempo'] ?? null);
             $defaultvalues['operators'] = didactics::operators($defaultvalues['operators'] ?? null);
+            $defaultvalues['learningmethod'] = didactics::learning_method($defaultvalues['learningmethod'] ?? null);
         }
     }
 
@@ -258,8 +273,8 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             $errors['taxonomylevels'] = get_string('error_taxonomyrequired', 'mod_tarsuszero');
         }
 
-        // A learner needs at least one working mode.
-        if (empty($data['askenabled']) && empty($data['testenabled'])) {
+        // A learner needs at least one mode.
+        if (empty($data['askenabled']) && empty($data['testenabled']) && empty($data['buildenabled'])) {
             $errors['askenabled'] = get_string('error_modesrequired', 'mod_tarsuszero');
         }
 
