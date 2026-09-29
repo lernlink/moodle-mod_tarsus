@@ -69,7 +69,7 @@ $string['actionfailed'] = 'The requested action could not be applied to this res
 $string['includenotindexed'] = 'Only indexed resources can be included. Index it first, then switch it on.';
 
 // Per-activity didactic settings.
-$string['didactics'] = 'Didactic settings';
+$string['didactics'] = 'AI settings';
 $string['conversationstyle'] = 'Conversation style';
 $string['conversationstyle_help'] = 'How the assistant leads the conversation in this activity: from Closed (short, factual answers) through Lexical, Tutorial and Socratic (guiding counter-questions) to Open (free-ranging discussion).';
 $string['style_closed'] = 'Closed';

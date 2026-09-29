@@ -71,7 +71,7 @@ $string['includenotindexed'] = 'Nur indexierte Ressourcen können einbezogen wer
 $string['send'] = 'Senden';
 $string['sources'] = 'Quellen';
 // Didaktische Einstellungen pro Aktivität.
-$string['didactics'] = 'Didaktische Einstellungen';
+$string['didactics'] = 'KI-Einstellungen';
 $string['conversationstyle'] = 'Gesprächsstil';
 $string['conversationstyle_help'] = 'Wie der Assistent das Gespräch in dieser Aktivität führt: von Geschlossen (kurze, faktische Antworten) über Lexikalisch, Tutorisch und Sokratisch (leitende Gegenfragen) bis Offen (freies Gespräch).';
 $string['style_closed'] = 'Geschlossen';

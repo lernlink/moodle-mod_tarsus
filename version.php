@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026092916;
+$plugin->version   = 2026092917;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.22.2 (Renamed: Target group, Cheat prevention, Tabellen calculation)';
+$plugin->release   = '0.22.3 (Section renamed to AI settings)';
 $plugin->dependencies = [
     'local_tarsus' => 2026072905,
 ];
