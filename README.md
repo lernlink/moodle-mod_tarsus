@@ -13,6 +13,16 @@ on the `local_tarsus` client interface.
 
 See the project technical specification for full design details.
 
+## Site requirements
+
+- **MathJax filter for formulas.** The brain writes formulas in TeX with
+  single-dollar delimiters (`$V=2\cdot7$`). For them to render, the
+  *MathJax loader* filter must be enabled (it is by default) and its
+  **Additional equation delimiters** setting (Site administration › Plugins ›
+  Filters › MathJax loader) must contain `$`. The chat module notifies the
+  filter system about every inserted card, so formulas also render in content
+  loaded after the page.
+
 ## License
 
 GNU GPL v3 or later — https://www.gnu.org/licenses/
