@@ -16,12 +16,17 @@ See the project technical specification for full design details.
 ## Site requirements
 
 - **MathJax filter for formulas.** The brain writes formulas in TeX with
-  single-dollar delimiters (`$V=2\cdot7$`). For them to render, the
-  *MathJax loader* filter must be enabled (it is by default) and its
-  **Additional equation delimiters** setting (Site administration › Plugins ›
-  Filters › MathJax loader) must contain `$`. The chat module notifies the
-  filter system about every inserted card, so formulas also render in content
-  loaded after the page.
+  single-dollar delimiters (`$V=2\cdot7$`), which MathJax does not recognise
+  by default. The *MathJax loader* filter must be enabled (it is by default)
+  and its **MathJax configuration** setting (Site administration › Plugins ›
+  Filters › MathJax loader) must declare the delimiters, e.g.
+
+  ```json
+  {"tex":{"inlineMath":[["$","$"],["\\(","\\)"]],"displayMath":[["$$","$$"],["\\[","\\]"]],"processEscapes":true}}
+  ```
+
+  The chat module notifies the filter system about every inserted card, so
+  formulas also render in content loaded after the page.
 
 ## License
 
