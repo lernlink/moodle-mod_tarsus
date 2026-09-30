@@ -599,9 +599,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     /**
      * Show the tally of the active mode beside the switcher: experience
      * points for Test knowledge, learning units for Build knowledge — both
-     * straight from the brain's activity figures. Ask a question keeps
-     * showing the experience points, as before; a total still at 0 hides
-     * the badge.
+     * straight from the brain's activity figures. The chat has no tally,
+     * and a total still at 0 hides the badge too.
      */
     function renderBadge() {
         var badge = state.container.querySelector(SELECTORS.XP_BADGE);
@@ -612,7 +611,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var build = state.mode === 'build';
         var earned = progress ? (build ? progress.earnedunits : progress.earnedxp) : 0;
         var total = progress ? (build ? progress.totalunits : progress.totalxp) : 0;
-        if (!(total > 0)) {
+        if (state.mode === 'ask' || !(total > 0)) {
             badge.classList.add('d-none');
             return;
         }

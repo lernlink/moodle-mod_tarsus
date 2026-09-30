@@ -153,7 +153,7 @@ $string['practice_table_amount'] = 'Amount';
 $string['choice_true'] = 'True';
 $string['choice_false'] = 'False';
 $string['xp'] = 'XP';
-$string['learning_units'] = 'units';
+$string['learning_units'] = 'LU';
 $string['practice_score'] = 'Answer score';
 $string['practice_progress'] = 'Practice progress';
 
