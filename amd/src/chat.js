@@ -98,6 +98,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         mode: 'ask',
         practiceStarted: false,
         learnStarted: false,
+        // Every learning objective done: the brain has nothing more to
+        // build, so Next locks in Build knowledge.
+        learnComplete: false,
         feedOffset: 0,
         feedHasMore: false,
         // Slides of every learning stack on the page, by stack id: the
@@ -382,7 +385,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     robotavatarurl: state.robotAvatar,
                     robotname: state.robotName
                 });
-            } else if (item.kind === 'objectives' || item.kind === 'stack') {
+            } else if (item.kind === 'objectives' || item.kind === 'stack' || item.kind === 'complete') {
                 var learn = learnCard(item);
                 build = buildCard(learn.template, learn.context);
             } else {
@@ -433,6 +436,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 state.practiceStarted = true;
             } else if (item.kind === 'objectives' || item.kind === 'stack') {
                 state.learnStarted = true;
+            } else if (item.kind === 'complete') {
+                state.learnStarted = true;
+                state.learnComplete = true;
             }
         });
         return updateNextLabel();
@@ -592,6 +598,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return;
         }
         state.progress = progress;
+        if (progress.learnprogress >= 100) {
+            state.learnComplete = true;
+        }
         renderBadge();
         renderProgressBar();
     }
@@ -662,6 +671,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Object} {template, context}
      */
     function learnCard(item) {
+        if (item.kind === 'complete') {
+            return {template: 'mod_tarsuszero/learn_complete_card', context: {text: item.text}};
+        }
+        if (item.kind === 'message') {
+            return {template: 'mod_tarsuszero/chat_welcome_card', context: {message: item.text}};
+        }
         if (item.kind === 'objectives') {
             return {
                 template: 'mod_tarsuszero/learn_objectives_card',
@@ -748,7 +763,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var spinner = state.container.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER);
         var icon = state.container.querySelector(SELECTORS.PRACTICE_NEXT_ICON);
         if (button) {
-            button.disabled = busy;
+            button.disabled = busy || nextLocked();
         }
         if (spinner) {
             spinner.classList.toggle('d-none', !busy);
@@ -788,6 +803,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 return null;
             }
             updateXp(result.progress);
+            if (result.complete) {
+                state.learnComplete = true;
+            }
             return result.items.reduce(function(previous, item) {
                 return previous.then(function() {
                     var card = learnCard(item);
@@ -804,11 +822,26 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * Label the Start/Next button for the active mode.
+     * Whether the Start/Next button has nothing left to fetch: Build
+     * knowledge once the course is complete.
+     *
+     * @return {boolean}
+     */
+    function nextLocked() {
+        return state.mode === 'build' && state.learnComplete;
+    }
+
+    /**
+     * Label the Start/Next button for the active mode and lock it once
+     * there is nothing more to build.
      *
      * @return {Promise} Resolves when the label is settled
      */
     function updateNextLabel() {
+        var button = state.container.querySelector(SELECTORS.PRACTICE_NEXT);
+        if (button && !button.querySelector(SELECTORS.PRACTICE_NEXT_SPINNER + ':not(.d-none)')) {
+            button.disabled = nextLocked();
+        }
         var label = state.container.querySelector(SELECTORS.PRACTICE_LABEL);
         if (!label) {
             return Promise.resolve();

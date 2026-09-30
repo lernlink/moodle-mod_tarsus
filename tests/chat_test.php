@@ -147,8 +147,9 @@ final class chat_test extends \advanced_testcase {
         // a chat exchange and the practice questions in original order.
         $feed = get_activity_feed::execute((int) $tz->cmid);
         $this->assertEquals('success', $feed['status']);
-        $this->assertSame(['message', 'exchange', 'practice', 'practice', 'stack'],
+        $this->assertSame(['message', 'exchange', 'practice', 'practice', 'stack', 'complete'],
             array_column($feed['items'], 'kind'));
+        $this->assertStringContainsString('<strong>completed</strong>', $feed['items'][5]['text']);
         // A stored learning unit renders its slides.
         $this->assertSame('mock-stack-0', $feed['items'][4]['id']);
         $this->assertStringContainsString('<strong>stored</strong>', $feed['items'][4]['slides'][0]['text']);

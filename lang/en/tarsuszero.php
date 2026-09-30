@@ -88,6 +88,7 @@ $string['error_modesrequired'] = 'Enable at least one of the modes.';
 $string['learn_slide_of'] = 'Slide {$a->current} of {$a->total}';
 $string['learn_previous'] = 'Previous';
 $string['learn_next'] = 'Next';
+$string['learn_complete_title'] = 'Well done! You have completed the learning unit.';
 $string['learn_objectives'] = 'Learning objectives';
 $string['learn_nowidget'] = 'The assistant could not prepare a learning unit from the included materials right now. Please try again.';
 $string['chat_modedisabled'] = 'This mode is switched off in this activity.';

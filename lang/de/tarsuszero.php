@@ -90,6 +90,7 @@ $string['error_modesrequired'] = 'Aktivieren Sie mindestens einen der Modi.';
 $string['learn_slide_of'] = 'Folie {$a->current} von {$a->total}';
 $string['learn_previous'] = 'Zurück';
 $string['learn_next'] = 'Weiter';
+$string['learn_complete_title'] = 'Super! Du hast die Lerneinheit geschafft.';
 $string['learn_objectives'] = 'Lernziele';
 $string['learn_nowidget'] = 'Der Assistent konnte gerade keine Lerneinheit aus den einbezogenen Materialien erstellen. Bitte versuche es erneut.';
 $string['chat_modedisabled'] = 'Dieser Modus ist in dieser Aktivität ausgeschaltet.';

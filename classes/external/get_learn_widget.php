@@ -108,10 +108,13 @@ class get_learn_widget extends external_api {
                 (int) $coursecontext->id, (int) $USER->id, 'learn_next', (int) ($response['credits'] ?? 6));
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
+            $done = (float) ($response['progress']['learnprogress'] ?? 0) >= 100
+                || in_array('complete', array_column($items, 'kind'), true);
 
             return self::result('success', '', [
                 'items' => array_map(static fn(array $item): array => practice_labels::learn_item($item, $render), $items),
                 'progress' => practice_labels::progress($response['progress'] ?? []),
+                'complete' => $done,
             ]);
 
         } catch (blocked_exception $e) {
@@ -130,7 +133,7 @@ class get_learn_widget extends external_api {
      * @return array The payload.
      */
     private static function result(string $status, string $error, array $extra = []): array {
-        return $extra + ['status' => $status, 'error' => $error, 'items' => []];
+        return $extra + ['status' => $status, 'error' => $error, 'items' => [], 'complete' => false];
     }
 
     /**
@@ -144,8 +147,9 @@ class get_learn_widget extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: objectives or stack.'),
+                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: objectives, stack, complete or message.'),
                     'id' => new external_value(PARAM_RAW, 'The widget or stack id.'),
+                    'text' => new external_value(PARAM_RAW, 'Rendered HTML (complete, message).', VALUE_OPTIONAL),
                     'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),
                     'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
                     'objectives' => practice_labels::objectives_structure(),
@@ -154,6 +158,7 @@ class get_learn_widget extends external_api {
                 'The learn items, as many as the brain sent.'
             ),
             'progress' => practice_labels::progress_structure(),
+            'complete' => new external_value(PARAM_BOOL, 'Whether every learning objective is done: nothing more to generate.'),
         ]);
     }
 }

@@ -172,7 +172,15 @@ final class practice_labels {
      * @return array<string, mixed>
      */
     public static function learn_item(array $item, callable $render): array {
-        if (($item['kind'] ?? '') === 'objectives') {
+        $kind = (string) ($item['kind'] ?? '');
+        if ($kind === 'complete' || $kind === 'message') {
+            return [
+                'kind' => $kind,
+                'id' => (string) ($item['id'] ?? ''),
+                'text' => $render((string) ($item['text'] ?? '')),
+            ];
+        }
+        if ($kind === 'objectives') {
             $objectives = [];
             foreach (($item['objectives'] ?? []) as $objective) {
                 $objectives[] = [
