@@ -303,6 +303,51 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Scroll the page so the end of the feed shows above the composer.
+     *
+     * The feed is part of the page, not an inner scroll box: the composer
+     * sticks to the bottom of the viewport and would otherwise cover the
+     * newest card.
+     */
+    function scrollToEnd() {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        var dock = state.container.querySelector(SELECTORS.FORM);
+        if (!flow) {
+            return;
+        }
+        var bottom = flow.getBoundingClientRect().bottom + window.pageYOffset;
+        var visible = window.innerHeight - (dock ? dock.offsetHeight : 0);
+        window.scrollTo(0, Math.max(0, bottom - visible));
+    }
+
+    /**
+     * Run a change that adds content above the viewport, keeping what the
+     * reader sees where it is.
+     *
+     * @param {Function} change Inserts the content
+     */
+    function keepViewport(change) {
+        var grewBy = document.documentElement.scrollHeight;
+        change();
+        window.scrollBy(0, document.documentElement.scrollHeight - grewBy);
+    }
+
+    /**
+     * Whether the reader is close enough to the top of the feed to want the
+     * page before it.
+     *
+     * @return {boolean}
+     */
+    function nearFeedTop() {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        if (!flow) {
+            return false;
+        }
+        var offset = parseInt(getComputedStyle(state.container).getPropertyValue('--tarsus-nav-offset'), 10) || 0;
+        return flow.getBoundingClientRect().top - offset > -FEED_SCROLL_THRESHOLD;
+    }
+
+    /**
      * Render one card's markup without attaching it to the flow.
      *
      * @param {string} template Template name
@@ -441,8 +486,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     flow.appendChild(entry.card);
                     settleFeedCard(entry);
                 });
-                flow.scrollTop = flow.scrollHeight;
-                return notePracticeHistory(result.items);
+                scrollToEnd();
+                return notePracticeHistory(result.items).then(function() {
+                    // A short history may leave the top in view: fetch on.
+                    if (nearFeedTop()) {
+                        loadOlderFeed();
+                    }
+                    return null;
+                });
             });
         }).catch(Notification.exception);
     }
@@ -504,19 +555,19 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             var items = mergeStraddlingStack(flow, result.items);
             return buildFeedCards(items).then(function(built) {
                 var anchor = older && older.nextSibling ? older.nextSibling : flow.firstChild;
-                var grewBy = flow.scrollHeight;
-                built.forEach(function(entry) {
-                    if (!entry.card) {
-                        return;
-                    }
-                    if (entry.replaces) {
-                        flow.replaceChild(entry.card, entry.replaces);
-                    } else {
-                        flow.insertBefore(entry.card, anchor);
-                    }
-                    settleFeedCard(entry);
+                keepViewport(function() {
+                    built.forEach(function(entry) {
+                        if (!entry.card) {
+                            return;
+                        }
+                        if (entry.replaces) {
+                            flow.replaceChild(entry.card, entry.replaces);
+                        } else {
+                            flow.insertBefore(entry.card, anchor);
+                        }
+                        settleFeedCard(entry);
+                    });
                 });
-                flow.scrollTop += flow.scrollHeight - grewBy;
                 return notePracticeHistory(result.items);
             });
         }).catch(function(ex) {
@@ -934,10 +985,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             });
 
             updateXp(result.progress);
-            var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
-            if (flow) {
-                flow.scrollTop = flow.scrollHeight;
-            }
+            scrollToEnd();
             return null;
         }).catch(function(ex) {
             check.disabled = false;
@@ -1007,12 +1055,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             if (before && before.parentNode === flow) {
                 // Inserting above (older history, welcome cards): keep the
                 // reader's viewport where it is instead of yanking it.
-                var grewBy = flow.scrollHeight;
-                flow.insertBefore(card, before);
-                flow.scrollTop += flow.scrollHeight - grewBy;
+                keepViewport(function() {
+                    flow.insertBefore(card, before);
+                });
             } else {
                 flow.appendChild(card);
-                flow.scrollTop = flow.scrollHeight;
+                scrollToEnd();
             }
             if (js) {
                 Templates.runTemplateJS(js);
@@ -1127,10 +1175,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                         slot.innerHTML = result.answer;
                         notifyFilters(slot);
                     }
-                    var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
-                    if (flow) {
-                        flow.scrollTop = flow.scrollHeight;
-                    }
+                    scrollToEnd();
                     return null;
                 });
             }).catch(function(ex) {
@@ -1203,15 +1248,17 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
         });
 
-        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
-        if (flow) {
-            // Scrolling near the top of the feed fetches the page before it.
-            flow.addEventListener('scroll', function() {
-                if (flow.scrollTop < FEED_SCROLL_THRESHOLD) {
-                    loadOlderFeed();
-                }
-            });
-        }
+        // The site navbar is fixed; the progress bar sticks right under it.
+        var navbar = document.querySelector('.navbar.fixed-top');
+        state.container.style.setProperty('--tarsus-nav-offset', (navbar ? navbar.offsetHeight : 0) + 'px');
+
+        // Scrolling the page near the top of the feed fetches the page
+        // before it.
+        window.addEventListener('scroll', function() {
+            if (nearFeedTop()) {
+                loadOlderFeed();
+            }
+        }, {passive: true});
 
         loadFeed();
     }

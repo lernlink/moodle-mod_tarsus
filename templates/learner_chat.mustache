@@ -33,14 +33,14 @@
      data-robot-avatar="{{robotavatarurl}}"
      data-robot-name="{{robotname}}"
      data-modes="{{modes}}">
-    <!-- Practice progress: a fill bar across the top of the chat, hidden until the brain reports figures -->
+    <!-- Progress: a fill bar pinned to the top of the viewport while the feed scrolls, hidden until the brain reports figures -->
     <div class="tarsus-progress d-none" data-region="progress" role="progressbar"
          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
          aria-label="{{#str}}practice_progress, mod_tarsuszero{{/str}}" title="">
         <div class="tarsus-progress__fill" data-region="progress-fill"></div>
     </div>
-    <!-- Chat log flow -->
-    <div class="tarsus-chat-flow p-3 border mb-3 flex-grow-1 bg-white" style="overflow-y: auto; border-radius: 8px;">
+    <!-- Chat log flow: cards run down the page itself, no framed window -->
+    <div class="tarsus-chat-flow py-3 flex-grow-1">
         <!-- Older-page loading indicator, shown while the feed lazy-loads on scroll-up -->
         <div class="tarsus-feed-older text-center py-2 text-muted d-none" data-region="feed-older">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -52,14 +52,14 @@
         </div>
     </div>
 
-    <!-- Alert details -->
-    <div class="tarsus-chat-alert alert alert-danger d-none mb-3" role="alert"></div>
-
-    <!-- Composer: the question input above, the mode switcher and the send
-         button in one row beneath, as in the Tarsus interface. The other
-         modes work without the input, so it hides outside 'ask'. -->
+    <!-- Composer, pinned to the bottom of the viewport: the question input
+         above, the mode switcher and the send button in one row beneath, as
+         in the Tarsus interface. The other modes work without the input, so
+         it hides outside 'ask'. -->
     <form class="tarsus-chat-form card p-2 bg-light" method="post" action="view.php">
         <input type="hidden" name="id" value="{{cmid}}">
+        <!-- Alert details -->
+        <div class="tarsus-chat-alert alert alert-danger d-none mb-2" role="alert"></div>
         <input type="text" class="tarsus-chat-input form-control mb-2" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
         <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
             <div class="d-flex align-items-center" style="gap: 0.75rem;">

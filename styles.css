@@ -1,9 +1,26 @@
-/* The chat flow grows with the viewport instead of a fixed 400px, so large
-   answer cards get room; the floor keeps it usable on small screens. */
+/* The feed runs down the page itself: no framed, inner-scrolling window.
+   The page scrolls, the progress bar stays pinned under the site navbar
+   and the composer at the bottom of the viewport. chat.js measures the
+   navbar into --tarsus-nav-offset. The floor keeps the composer at the
+   bottom even before the first cards arrive; overflow-anchor is off so
+   the script alone decides where the viewport stays when older pages
+   slot in above. */
 .tarsus-chat-box .tarsus-chat-flow {
-    height: 65vh;
-    min-height: 400px;
-    background: #fafafc;
+    min-height: calc(100vh - var(--tarsus-nav-offset, 60px) - 12rem);
+    overflow-anchor: none;
+}
+
+.tarsus-chat-box .tarsus-progress {
+    position: sticky;
+    top: var(--tarsus-nav-offset, 60px);
+    z-index: 5;
+}
+
+.tarsus-chat-box .tarsus-chat-form {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* Conversation cards: centred, comfortably wide, stacked with air. */
