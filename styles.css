@@ -475,15 +475,34 @@
 .tarsus-learn-card__meta {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.6rem;
     margin-bottom: 0.75rem;
 }
 
-.tarsus-learn-card__counter {
-    font-size: 0.85rem;
-    color: #50555c;
-    font-variant-numeric: tabular-nums;
+/* A ring that fills as the learner turns the slides, like the one on
+   the Tarsus card: the track is a faint circle, the fill a dashed stroke
+   whose offset chat.js shortens with every slide (circumference of
+   r=9 is 56.55). */
+.tarsus-learn-ring {
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+}
+
+.tarsus-learn-ring__track,
+.tarsus-learn-ring__fill {
+    fill: none;
+    stroke-width: 3;
+}
+
+.tarsus-learn-ring__track {
+    stroke: rgba(0, 0, 0, 0.08);
+}
+
+.tarsus-learn-ring__fill {
+    stroke: #23282d;
+    stroke-linecap: round;
+    stroke-dasharray: 56.55;
+    transition: stroke-dashoffset 0.3s ease;
 }
 
 .tarsus-learn-slide__title {

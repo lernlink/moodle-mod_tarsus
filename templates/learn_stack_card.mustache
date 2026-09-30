@@ -22,13 +22,18 @@
     Context variables required for this template:
     * stackid - string, the stack id.
     * total - int, the number of slides.
+    * ringoffset - number, the ring's stroke offset for the first slide (see chat.js).
     * slides - array of {index, number, first, title, text, image, imageposition}.
 }}
 <div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
     <div class="tarsus-learn-card__inner">
         <div class="tarsus-learn-card__meta">
+            <svg class="tarsus-learn-ring" data-region="ring" viewBox="0 0 24 24" width="24" height="24" role="img" aria-live="polite"
+                 aria-label="{{#str}}learn_slide_of, mod_tarsuszero, { "current": 1, "total": {{total}} }{{/str}}">
+                <circle class="tarsus-learn-ring__track" cx="12" cy="12" r="9"></circle>
+                <circle class="tarsus-learn-ring__fill" cx="12" cy="12" r="9" style="stroke-dashoffset: {{ringoffset}}"></circle>
+            </svg>
             <span class="badge badge-light tarsus-practice-card__badge">{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}mode_build, mod_tarsuszero{{/str}}</span>
-            <span class="tarsus-learn-card__counter" data-region="counter" aria-live="polite">1 / {{total}}</span>
         </div>
         {{#slides}}
         <div class="tarsus-learn-slide{{^first}} d-none{{/first}}" data-region="slide" data-index="{{index}}">

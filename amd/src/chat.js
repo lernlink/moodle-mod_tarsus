@@ -68,7 +68,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_CARD: '[data-region="learn-card"]',
         LEARN_SLIDE: '[data-region="slide"]',
         LEARN_NAV: '.tarsus-learn-nav',
-        LEARN_COUNTER: '[data-region="counter"]'
+        LEARN_RING: '[data-region="ring"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -632,8 +632,27 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         });
         return {
             template: 'mod_tarsuszero/learn_stack_card',
-            context: {stackid: item.id, total: slides.length, single: slides.length < 2, slides: slides}
+            context: {
+                stackid: item.id,
+                total: slides.length,
+                single: slides.length < 2,
+                ringoffset: ringOffset(1, slides.length),
+                slides: slides
+            }
         };
+    }
+
+    /**
+     * The stroke offset that fills the progress ring up to a slide.
+     *
+     * @param {number} shown Slides seen so far, including the current one
+     * @param {number} total Slides in the stack
+     * @return {number} Offset along the ring's circumference (r=9)
+     */
+    function ringOffset(shown, total) {
+        var circumference = 2 * Math.PI * 9;
+        var fraction = total > 0 ? shown / total : 1;
+        return Math.round(circumference * (1 - fraction) * 100) / 100;
     }
 
     /**
@@ -653,9 +672,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         slides[current].classList.add('d-none');
         slides[target].classList.remove('d-none');
-        var counter = card.querySelector(SELECTORS.LEARN_COUNTER);
-        if (counter) {
-            counter.textContent = (target + 1) + ' / ' + slides.length;
+        var ring = card.querySelector(SELECTORS.LEARN_RING);
+        if (ring) {
+            ring.querySelector('.tarsus-learn-ring__fill').style.strokeDashoffset = ringOffset(target + 1, slides.length);
+            Str.get_string('learn_slide_of', 'mod_tarsuszero', {current: target + 1, total: slides.length})
+                .then(function(text) {
+                    ring.setAttribute('aria-label', text);
+                    return null;
+                }).catch(Notification.exception);
         }
         card.querySelectorAll(SELECTORS.LEARN_NAV).forEach(function(button) {
             var step = parseInt(button.getAttribute('data-dir'), 10);
