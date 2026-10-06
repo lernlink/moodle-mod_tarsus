@@ -68,7 +68,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_CARD: '[data-region="learn-card"]',
         LEARN_SLIDE: '[data-region="slide"]',
         LEARN_NAV: '.tarsus-learn-nav',
-        LEARN_RING: '[data-region="ring"]'
+        LEARN_RING: '[data-region="ring"]',
+        JUMP_TOP: '[data-action="jump-top"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -107,6 +108,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         // brain pages by slide and may split one stack across two pages,
         // so the older half has to merge into the card already shown.
         stacks: {},
+        // True while a scroll was started by the script (jump to top, scroll
+        // to the newest card): such moves must not trigger lazy loading.
+        programmaticScroll: false,
         feedLoading: false,
         progress: null
     };
@@ -320,7 +324,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         var bottom = flow.getBoundingClientRect().bottom + window.pageYOffset;
         var visible = window.innerHeight - (dock ? dock.offsetHeight : 0) - footerOffset();
-        window.scrollTo(0, Math.max(0, bottom - visible));
+        scrollPage(Math.max(0, bottom - visible));
     }
 
     /**
@@ -353,9 +357,42 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @param {Function} change Inserts the content
      */
     function keepViewport(change) {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        // Content only pushes the reader when it lands above the viewport;
+        // a reader looking at the teacher's table above the feed stays put.
+        var above = flow ? flow.getBoundingClientRect().top < 0 : true;
         var grewBy = document.documentElement.scrollHeight;
         change();
-        window.scrollBy(0, document.documentElement.scrollHeight - grewBy);
+        if (above) {
+            window.scrollBy(0, document.documentElement.scrollHeight - grewBy);
+        }
+    }
+
+    /**
+     * Scroll the page by script, keeping the lazy loader quiet meanwhile.
+     *
+     * @param {number} top Target scroll position
+     */
+    function scrollPage(top) {
+        state.programmaticScroll = true;
+        window.scrollTo(0, top);
+        window.setTimeout(function() {
+            state.programmaticScroll = false;
+            toggleJumpTop();
+        }, 150);
+    }
+
+    /**
+     * Show the back-to-top button once the reader has scrolled past the
+     * top of the activity box.
+     */
+    function toggleJumpTop() {
+        var button = state.container.querySelector(SELECTORS.JUMP_TOP);
+        if (!button) {
+            return;
+        }
+        var offset = parseInt(getComputedStyle(state.container).getPropertyValue('--tarsus-nav-offset'), 10) || 0;
+        button.classList.toggle('d-none', state.container.getBoundingClientRect().top >= offset);
     }
 
     /**
@@ -1309,10 +1346,20 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         // Scrolling the page near the top of the feed fetches the page
         // before it.
         window.addEventListener('scroll', function() {
-            if (nearFeedTop()) {
+            toggleJumpTop();
+            if (!state.programmaticScroll && nearFeedTop()) {
                 loadOlderFeed();
             }
         }, {passive: true});
+
+        // Back to top: the teacher's index table and the activity menu sit
+        // above a feed that may be long and still lazy-loading.
+        var jump = state.container.querySelector(SELECTORS.JUMP_TOP);
+        if (jump) {
+            jump.addEventListener('click', function() {
+                scrollPage(0);
+            });
+        }
 
         loadFeed();
     }

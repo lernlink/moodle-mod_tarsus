@@ -136,5 +136,6 @@ function mod_tarsuszero_get_fontawesome_icon_map(): array {
         'mod_tarsuszero:mode_test' => 'fa-solid fa-dumbbell',
         'mod_tarsuszero:mode_ask' => 'fa-regular fa-hand',
         'mod_tarsuszero:send' => 'fa-regular fa-paper-plane',
+        'mod_tarsuszero:jump_top' => 'fa-solid fa-arrow-up',
     ];
 }

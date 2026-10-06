@@ -142,6 +142,7 @@ $string['learntempo_help'] = 'Bestimmt, wie schnell die Erfahrungspunkte im Modu
 $string['learntempo_recommended'] = '{$a} (empfohlen)';
 $string['error_taxonomyrequired'] = 'Aktivieren Sie mindestens eine Taxonomiestufe.';
 $string['error_questiontypesrequired'] = 'Wählen Sie für diesen Schwierigkeitsgrad mindestens einen Fragetyp.';
+$string['jump_top'] = 'Nach oben';
 $string['practice_start'] = 'Starten';
 $string['practice_next'] = 'Weiter';
 $string['practice_check'] = 'Prüfen';

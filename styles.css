@@ -12,6 +12,35 @@
     overflow-anchor: none;
 }
 
+/* The back-to-top button rides a zero-height sticky strip under the
+   navbar, so it takes no room in the flow and stays visible while the
+   reader is deep in the feed. */
+.tarsus-chat-box .tarsus-top-dock {
+    position: sticky;
+    top: calc(var(--tarsus-nav-offset, 60px) + 0.75rem);
+    height: 0;
+    z-index: 6;
+    display: flex;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+
+.tarsus-chat-box .tarsus-jump-top {
+    pointer-events: auto;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tarsus-chat-box .tarsus-jump-top .icon {
+    margin: 0;
+}
+
 .tarsus-chat-box .tarsus-progress {
     position: sticky;
     top: var(--tarsus-nav-offset, 60px);

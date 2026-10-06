@@ -140,6 +140,7 @@ $string['learntempo_help'] = 'Steers how fast experience points grow in the prac
 $string['learntempo_recommended'] = '{$a} (recommended)';
 $string['error_taxonomyrequired'] = 'Enable at least one taxonomy level.';
 $string['error_questiontypesrequired'] = 'Select at least one question type for this difficulty grade.';
+$string['jump_top'] = 'Back to top';
 $string['practice_start'] = 'Start';
 $string['practice_next'] = 'Next';
 $string['practice_check'] = 'Check';
