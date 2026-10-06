@@ -79,7 +79,8 @@ class teacher_dashboard implements renderable, templatable {
                 $controls = status_presenter::present(
                     $bit['resourceid'],
                     $bit['status'],
-                    $bit['statuslabel']
+                    $bit['statuslabel'],
+                    (int) ($bit['timemodified'] ?? 0)
                 );
                 $resources[] = $controls + [
                     'name' => $activity['name'],

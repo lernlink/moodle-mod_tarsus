@@ -91,6 +91,54 @@ final class resource_action_test extends \advanced_testcase {
     }
 
     /**
+     * An upload the brain never confirms offers no action at first, then
+     * Remove once it counts as stuck — and Remove really untracks it.
+     *
+     * @return void
+     */
+    public function test_stuck_confirmation_can_be_removed(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $data = $this->setup_course();
+        $repo = new \local_tarsus\index\repository();
+
+        set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'index');
+        $repo->set_status($data['resourceid'], status::PENDING_CONFIRMATION);
+
+        $fresh = $this->status_row($data['tz']->cmid, $data['resourceid']);
+        $this->assertTrue($fresh['inflight']);
+        $this->assertFalse($fresh['canremove']);
+
+        $DB->set_field('local_tarsus_index', 'timemodified',
+            time() - \mod_tarsuszero\local\status_presenter::STUCK_AFTER - 1, ['resourceid' => $data['resourceid']]);
+        $stuck = $this->status_row($data['tz']->cmid, $data['resourceid']);
+        $this->assertTrue($stuck['canremove']);
+        $this->assertFalse($stuck['canindex']);
+
+        $result = set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'remove');
+        $this->assertSame(status::NOT_INDEXED, $result['status']);
+        $this->assertNull($repo->get($data['resourceid']));
+    }
+
+    /**
+     * The polling endpoint's row for one resource.
+     *
+     * @param int    $cmid       The activity's course module id.
+     * @param string $resourceid The resource id.
+     * @return array<string, mixed>
+     */
+    private function status_row(int $cmid, string $resourceid): array {
+        $status = get_index_status::execute($cmid);
+        foreach ($status['resources'] as $row) {
+            if ($row['resourceid'] === $resourceid) {
+                return $row;
+            }
+        }
+        $this->fail('Resource missing from the status report.');
+    }
+
+    /**
      * The polling endpoint reports the live status of every bit.
      *
      * @return void

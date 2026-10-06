@@ -119,7 +119,8 @@ class sync_page_status extends external_api {
         foreach ($resourceids as $resourceid) {
             $row = $repo->get($resourceid);
             $current = $row->status ?? status::NOT_INDEXED;
-            $rows[] = status_presenter::present($resourceid, $current, status::label($current));
+            $rows[] = status_presenter::present($resourceid, $current, status::label($current),
+                (int) ($row->timemodified ?? 0));
         }
 
         return $rows;

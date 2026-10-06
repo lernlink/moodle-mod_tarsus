@@ -72,7 +72,8 @@ class get_index_status extends external_api {
                 $resources[] = status_presenter::present(
                     $bit['resourceid'],
                     $bit['status'],
-                    $bit['statuslabel']
+                    $bit['statuslabel'],
+                    (int) ($bit['timemodified'] ?? 0)
                 );
             }
         }

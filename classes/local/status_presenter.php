@@ -32,6 +32,14 @@ defined('MOODLE_INTERNAL') || die();
  */
 class status_presenter {
 
+    /**
+     * @var int Seconds after which a resource still awaiting the brain's
+     *          confirmation counts as stuck and may be removed by the teacher.
+     *          Normal ingestion confirms within a minute or two; a very large
+     *          document can sit in the brain's queue for good.
+     */
+    public const STUCK_AFTER = 600;
+
     /** @var array<string, string> Status value => Bootstrap badge modifier. */
     private const BADGES = [
         status::NOT_INDEXED => 'badge-light',
@@ -73,14 +81,18 @@ class status_presenter {
      * The action keys a manager may trigger from a given status.
      *
      * @param string $status One of the {@see status} constants.
+     * @param int    $age    Seconds since the row last changed state (0 when unknown).
      * @return string[] Subset of [index, reindex, remove, retry].
      */
-    public static function actions_for(string $status): array {
+    public static function actions_for(string $status, int $age = 0): array {
         return match ($status) {
             status::NOT_INDEXED => ['index'],
             status::INDEXED => ['reindex', 'remove'],
             status::PENDING_REINDEX => ['reindex', 'remove'],
             status::ERROR => ['retry', 'remove'],
+            // The brain never answered: after a while the teacher may give
+            // up on the upload and untrack it instead of waiting for ever.
+            status::PENDING_CONFIRMATION => $age >= self::STUCK_AFTER ? ['remove'] : [],
             default => [],
         };
     }
@@ -91,13 +103,15 @@ class status_presenter {
      * Used both to seed the mustache template and as the AJAX response shape,
      * so the front end can re-render a row from either source identically.
      *
-     * @param string $resourceid  The namespaced resource id.
-     * @param string $status       One of the {@see status} constants.
-     * @param string $statuslabel  The human-readable status label.
+     * @param string $resourceid   The namespaced resource id.
+     * @param string $status        One of the {@see status} constants.
+     * @param string $statuslabel   The human-readable status label.
+     * @param int    $timemodified  When the row last changed state (0 when unknown).
      * @return array<string, mixed>
      */
-    public static function present(string $resourceid, string $status, string $statuslabel): array {
-        $actions = self::actions_for($status);
+    public static function present(string $resourceid, string $status, string $statuslabel, int $timemodified = 0): array {
+        $age = $timemodified > 0 ? max(0, time() - $timemodified) : 0;
+        $actions = self::actions_for($status, $age);
         return [
             'resourceid' => $resourceid,
             'status' => $status,
