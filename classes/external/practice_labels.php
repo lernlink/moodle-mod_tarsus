@@ -165,6 +165,99 @@ final class practice_labels {
     }
 
     /**
+     * Shape a stored question — from the feed or inside a learning stack —
+     * for the wire, with its verdict when answered.
+     *
+     * @param array    $item   The client's 'practice' item.
+     * @param callable $render Renders Markdown to HTML.
+     * @return array<string, mixed>
+     */
+    public static function practice_item(array $item, callable $render): array {
+        $choices = [];
+        foreach (($item['choices'] ?? []) as $choice) {
+            $choices[] = [
+                'value' => (string) $choice,
+                'label' => practice_labels::choice((string) $choice, (string) $item['type']),
+            ];
+        }
+        return [
+            'kind' => 'practice',
+            'id' => (string) $item['id'],
+            'type' => (string) $item['type'],
+            'question' => $render((string) $item['question']),
+            'choices' => $choices,
+            'taxonomy' => practice_labels::taxonomy((string) ($item['taxonomylevel'] ?? '')),
+            'difficulty' => practice_labels::difficulty((int) ($item['difficultylevel'] ?? 0)),
+            'difficultylevel' => (int) ($item['difficultylevel'] ?? 0),
+            'variables' => array_values(array_map('strval', $item['variables'] ?? [])),
+            'answered' => !empty($item['answered']),
+            'correct' => (bool) ($item['correct'] ?? false),
+            'score' => ($item['score'] ?? null) === null ? -1 : (float) $item['score'],
+            'feedback' => $render((string) ($item['feedback'] ?? '')),
+            'useranswer' => (string) ($item['useranswer'] ?? ''),
+            'useranswers' => practice_labels::answers($item['useranswers'] ?? [], $render),
+            'answers' => practice_labels::answers($item['answers'] ?? [], $render),
+            'table' => practice_labels::table($item['table'] ?? []),
+            'columns' => array_values(array_map('strval', $item['columns'] ?? [])),
+            'usertable' => practice_labels::table($item['usertable'] ?? []),
+            'answertable' => practice_labels::table($item['answertable'] ?? []),
+        ];
+    }
+
+    /**
+     * The wire fields of a stored question, all optional so they can be
+     * merged into a wider item structure.
+     *
+     * @return array<string, external_value|external_multiple_structure>
+     */
+    public static function practice_structure(): array {
+        return [
+            'id' => new external_value(PARAM_RAW, 'The widget id (practice).', VALUE_OPTIONAL),
+            'type' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type (practice).', VALUE_OPTIONAL),
+            'question' => new external_value(PARAM_RAW, 'Rendered question HTML (practice).', VALUE_OPTIONAL),
+            'choices' => new external_multiple_structure(
+                new external_single_structure([
+                    'value' => new external_value(PARAM_RAW, 'The answer value to submit.'),
+                    'label' => new external_value(PARAM_RAW, 'The display label.'),
+                ]),
+                'Answer choices; empty for open questions (practice).',
+                VALUE_OPTIONAL
+            ),
+            'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level (practice).',
+                VALUE_OPTIONAL),
+            'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade (practice).',
+                VALUE_OPTIONAL),
+            'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).',
+                VALUE_OPTIONAL),
+            'answered' => new external_value(PARAM_BOOL, 'Whether the question has been answered (practice).',
+                VALUE_OPTIONAL),
+            'correct' => new external_value(PARAM_BOOL, 'Whether the answer was judged correct (practice).',
+                VALUE_OPTIONAL),
+            'score' => new external_value(PARAM_FLOAT, 'The brain\'s score 0-100 (practice, answered); -1 when unknown.',
+                VALUE_OPTIONAL),
+            'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML (practice, answered).',
+                VALUE_OPTIONAL),
+            'useranswer' => new external_value(PARAM_RAW, 'The learner\'s answer (practice, answered).',
+                VALUE_OPTIONAL),
+            'variables' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'An asked quantity.'),
+                'Quantities a rule-of-three question asks for (practice).',
+                VALUE_OPTIONAL
+            ),
+            'useranswers' => practice_labels::answers_structure('The learner\'s per-variable answers (practice, answered).'),
+            'answers' => practice_labels::answers_structure('The model per-variable answers (practice, answered).'),
+            'table' => practice_labels::table_structure('The costing table of a spreadsheet calculation (practice).'),
+            'columns' => new external_multiple_structure(
+                new external_value(PARAM_RAW, 'A column name.'),
+                'The three column names the costing table came with (practice).',
+                VALUE_OPTIONAL
+            ),
+            'usertable' => practice_labels::table_structure('The learner\'s costing rows (practice, answered).'),
+            'answertable' => practice_labels::table_structure('The model costing rows with verdicts (practice, answered).'),
+        ];
+    }
+
+    /**
      * Shape a learn item (objectives or stack) for the wire.
      *
      * @param array    $item   The client's learn item.
@@ -200,13 +293,19 @@ final class practice_labels {
         }
         $slides = [];
         foreach (($item['slides'] ?? []) as $slide) {
-            $slides[] = [
+            $isquestion = (($slide['kind'] ?? 'text') === 'question') && is_array($slide['question'] ?? null);
+            $out = [
                 'id' => (string) ($slide['id'] ?? ''),
+                'kind' => $isquestion ? 'question' : 'text',
                 'title' => (string) ($slide['title'] ?? ''),
                 'text' => $render((string) ($slide['text'] ?? '')),
                 'image' => (string) ($slide['image'] ?? ''),
                 'imageposition' => (string) ($slide['imageposition'] ?? 'right'),
             ];
+            if ($isquestion) {
+                $out['question'] = self::practice_item($slide['question'], $render);
+            }
+            $slides[] = $out;
         }
         return [
             'kind' => 'stack',
@@ -242,10 +341,13 @@ final class practice_labels {
         return new external_multiple_structure(
             new external_single_structure([
                 'id' => new external_value(PARAM_RAW, 'The slide id.'),
+                'kind' => new external_value(PARAM_ALPHA, 'text, or question for the unit\'s check question.'),
                 'title' => new external_value(PARAM_TEXT, 'The slide title, may be empty.'),
                 'text' => new external_value(PARAM_RAW, 'Rendered slide HTML.'),
                 'image' => new external_value(PARAM_RAW, 'Illustration as an image data URI, may be empty.'),
                 'imageposition' => new external_value(PARAM_ALPHA, 'left or right.'),
+                'question' => new external_single_structure(
+                    self::practice_structure(), 'The check question (question slides).', VALUE_OPTIONAL),
             ]),
             'The slides of a learning unit.',
             VALUE_OPTIONAL

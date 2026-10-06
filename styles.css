@@ -632,3 +632,17 @@
     background: linear-gradient(135deg, #a8e0b8 0%, #c4ecc9 35%, #e2f6df 70%, #a9dcc2 100%);
     box-shadow: 0 10px 28px rgba(40, 110, 60, 0.1);
 }
+
+/* A learning unit's check question sits inside the stack card: no frame
+   of its own, the slide already has one. */
+.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide .tarsus-practice-card__inner {
+    padding: 0;
+    border-radius: 0;
+}

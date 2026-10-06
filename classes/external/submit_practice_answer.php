@@ -82,6 +82,8 @@ class submit_practice_answer extends external_api {
                 VALUE_DEFAULT,
                 []
             ),
+            'state' => new external_value(PARAM_ALPHA,
+                'practice (Test knowledge) or learn (the check question of a learning unit).', VALUE_DEFAULT, 'practice'),
         ]);
     }
 
@@ -99,7 +101,7 @@ class submit_practice_answer extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer,
-            array $answers = [], array $table = [], array $columns = []): array {
+            array $answers = [], array $table = [], array $columns = [], string $state = 'practice'): array {
         global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -110,8 +112,12 @@ class submit_practice_answer extends external_api {
             'answers' => $answers,
             'table' => $table,
             'columns' => $columns,
+            'state' => $state,
         ]);
 
+        if (!in_array($params['state'], ['practice', 'learn'], true)) {
+            throw new moodle_exception('invalidparameter', 'debug');
+        }
         if (trim($params['widgetid']) === '' || !practice_labels::is_supported_type($params['widgettype'])) {
             throw new moodle_exception('invalidparameter', 'debug');
         }
@@ -160,7 +166,9 @@ class submit_practice_answer extends external_api {
 
         // The teacher may have switched the practice off for this activity.
         $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
-        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, 'test')) {
+        // A learning unit's check question belongs to Build knowledge.
+        $mode = $params['state'] === 'learn' ? 'build' : 'test';
+        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, $mode)) {
             return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsuszero'));
         }
 
@@ -180,6 +188,7 @@ class submit_practice_answer extends external_api {
             'useranswers' => $useranswers,
             'usertable' => $usertable,
             'columns' => array_values(array_map('trim', $params['columns'])),
+            'state' => $params['state'],
         ];
 
         try {
@@ -188,7 +197,8 @@ class submit_practice_answer extends external_api {
             }, 6);
 
             (new usage_meter())->record(
-                (int) $coursecontext->id, (int) $USER->id, 'practice_eval', (int) ($response['credits'] ?? 6));
+                (int) $coursecontext->id, (int) $USER->id,
+                $params['state'] === 'learn' ? 'learn_check' : 'practice_eval', (int) ($response['credits'] ?? 6));
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 

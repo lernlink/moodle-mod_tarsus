@@ -1,0 +1,106 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsuszero/practice_body
+
+    The inside of a question card: meta badges, question, answer inputs,
+    Check button, score bar and feedback. Shared by the Test knowledge card
+    and by the check question inside a learning stack.
+
+    Context variables required for this template: see mod_tarsuszero/practice_card.
+}}
+    <div class="tarsus-practice-card__inner">
+    {{#hasmeta}}
+    <div class="tarsus-practice-card__meta">
+        {{#hasbars}}
+        <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}
+        {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
+    </div>
+    {{/hasmeta}}
+    <div class="tarsus-practice-card__question">{{{question}}}</div>
+    {{#haschoices}}
+    <div class="tarsus-practice-card__choices" data-region="choices" role="radiogroup">
+        {{#choices}}
+        <label class="tarsus-practice-choice" data-value="{{value}}">
+            <input type="radio" class="tarsus-practice-choice__input" name="practice-{{widgetid}}" value="{{value}}">
+            <span class="tarsus-practice-choice__label">{{label}}</span>
+            <span class="tarsus-practice-choice__clarification d-none" data-region="clarification"></span>
+        </label>
+        {{/choices}}
+    </div>
+    {{/haschoices}}
+    {{#hasvariables}}
+    <div class="tarsus-practice-card__variables" data-region="variables">
+        {{#variables}}
+        <label class="tarsus-practice-variable">
+            <span class="tarsus-practice-variable__name">{{name}}</span>
+            <input type="text" class="tarsus-practice-variable__input form-control" data-variable="{{name}}"
+                   placeholder="{{#str}}practice_variable_placeholder, mod_tarsuszero{{/str}}" autocomplete="off">
+        </label>
+        {{/variables}}
+    </div>
+    {{/hasvariables}}
+    {{#hastable}}
+    <div class="tarsus-practice-card__table-wrap">
+    <table class="tarsus-practice-table" data-region="table">
+        <thead>
+            <tr>
+                <th>{{#str}}practice_table_position, mod_tarsuszero{{/str}}</th>
+                <th>{{#str}}practice_table_rate, mod_tarsuszero{{/str}}</th>
+                <th>{{#str}}practice_table_amount, mod_tarsuszero{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#table}}
+            <tr class="tarsus-practice-table__row" data-position="{{position}}">
+                <td class="tarsus-practice-table__position">{{position}}</td>
+                <td class="tarsus-practice-table__cell" data-cell="rate">
+                    {{#askrate}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="rate" autocomplete="off">{{/askrate}}
+                    {{^askrate}}<span class="tarsus-practice-table__value" data-cell="rate">{{rate}}</span>{{/askrate}}
+                </td>
+                <td class="tarsus-practice-table__cell" data-cell="amount">
+                    {{#askamount}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="amount" autocomplete="off">{{/askamount}}
+                    {{^askamount}}<span class="tarsus-practice-table__value" data-cell="amount">{{amount}}</span>{{/askamount}}
+                </td>
+            </tr>
+            {{/table}}
+        </tbody>
+    </table>
+    </div>
+    {{/hastable}}
+    {{^haschoices}}{{^hasvariables}}{{^hastable}}
+    <textarea class="tarsus-practice-card__input form-control" rows="3"
+              placeholder="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"
+              aria-label="{{#str}}practice_answer_placeholder, mod_tarsuszero{{/str}}"></textarea>
+    {{/hastable}}{{/hasvariables}}{{/haschoices}}
+    <div class="tarsus-practice-card__actions">
+        <button type="button" class="tarsus-practice-check btn btn-primary">
+            <span class="tarsus-practice-check__spinner spinner-border spinner-border-sm d-none"
+                  role="status" aria-hidden="true"></span>
+            {{#str}}practice_check, mod_tarsuszero{{/str}}
+        </button>
+    </div>
+    <div class="tarsus-practice-card__score d-none" data-region="score" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         aria-label="{{#str}}practice_score, mod_tarsuszero{{/str}}">
+        <div class="tarsus-practice-card__score-track"><div class="tarsus-practice-card__score-fill" data-region="score-fill"></div></div>
+        <span class="tarsus-practice-card__score-value" data-region="score-value"></span>
+    </div>
+    <div class="tarsus-practice-card__feedback d-none" data-region="feedback"></div>
+    </div>

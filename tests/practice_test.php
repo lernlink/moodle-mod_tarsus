@@ -313,13 +313,41 @@ final class practice_test extends \advanced_testcase {
         $this->assertStringContainsString('<strong>mock</strong>', $objectives['message']);
         $this->assertSame(get_string('taxonomy_understanding', 'mod_tarsuszero'), $objectives['objectives'][1]['taxonomy']);
         $stack = $result['items'][1];
-        $this->assertCount(2, $stack['slides']);
+        $this->assertSame(['text', 'text', 'question'], array_column($stack['slides'], 'kind'));
         $this->assertStringContainsString('[method: micro-learning, gif: 1]', $stack['slides'][0]['text']);
         $this->assertStringStartsWith('data:image/svg+xml;base64,', $stack['slides'][1]['image']);
+        // The unit's check question comes shaped like a practice question.
+        $question = $stack['slides'][2]['question'];
+        $this->assertSame('mock-learn-q', $question['id']);
+        $this->assertSame('singleChoiceQuestionWidget', $question['type']);
+        $this->assertSame(['Alpha', 'Beta'], array_column($question['choices'], 'value'));
+        $this->assertFalse($question['answered']);
         $this->assertSame(10.0, $result['progress']['learnprogress']);
         $this->assertSame(2.0, $result['progress']['earnedunits']);
         $this->assertSame(24.0, $result['progress']['totalunits']);
         $this->assertFalse($result['complete']);
+    }
+
+    /**
+     * Answering a learning unit's check question is judged in learn state:
+     * it pays out learning units and needs Build knowledge switched on.
+     */
+    public function test_learn_check_question_earns_units(): void {
+        global $DB;
+        [$tz] = $this->make_ready_activity();
+
+        $result = \mod_tarsuszero\external\submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
+        $result = \core_external\external_api::clean_returnvalue(
+            \mod_tarsuszero\external\submit_practice_answer::execute_returns(), $result);
+        $this->assertEquals('success', $result['status']);
+        $this->assertTrue($result['correct']);
+        $this->assertSame(1.0, $result['progress']['earnedunits']);
+
+        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
+        $refused = \mod_tarsuszero\external\submit_practice_answer::execute(
+            (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
+        $this->assertEquals('disabled', $refused['status']);
     }
 
     /**

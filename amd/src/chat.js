@@ -467,21 +467,44 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     function settleFeedCard(entry) {
         var item = entry.item;
         if (item.kind === 'practice' && item.answered) {
-            finalizePracticeCard(entry.card, {
-                correct: item.correct,
-                score: item.score,
-                feedback: item.feedback,
-                useranswer: item.useranswer,
-                useranswers: item.useranswers || [],
-                answers: item.answers || [],
-                usertable: item.usertable || [],
-                answertable: item.answertable || []
+            finalizePracticeCard(entry.card, storedVerdict(item));
+        }
+        if (item.kind === 'stack') {
+            // Check questions already answered freeze with their verdict.
+            (item.slides || []).forEach(function(slide) {
+                if (slide.kind !== 'question' || !slide.question || !slide.question.answered) {
+                    return;
+                }
+                var card = entry.card.querySelector('[data-widget-id="' + slide.question.id + '"]');
+                if (card) {
+                    finalizePracticeCard(card, storedVerdict(slide.question));
+                }
             });
         }
         if (entry.js) {
             Templates.runTemplateJS(entry.js);
         }
         notifyFilters(entry.card);
+    }
+
+    /**
+     * The verdict a stored, answered question carries, in the shape
+     * finalizePracticeCard() expects.
+     *
+     * @param {Object} item A 'practice' item or a question slide's question
+     * @return {Object}
+     */
+    function storedVerdict(item) {
+        return {
+            correct: item.correct,
+            score: item.score,
+            feedback: item.feedback,
+            useranswer: item.useranswer,
+            useranswers: item.useranswers || [],
+            answers: item.answers || [],
+            usertable: item.usertable || [],
+            answertable: item.answertable || []
+        };
     }
 
     /**
@@ -745,10 +768,13 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         state.stacks[item.id] = item.slides || [];
         var slides = (item.slides || []).map(function(slide, index) {
+            var isquestion = slide.kind === 'question' && slide.question;
             return {
                 index: index,
                 number: index + 1,
                 first: index === 0,
+                isquestion: Boolean(isquestion),
+                question: isquestion ? practiceCardContext(slide.question) : null,
                 title: slide.title,
                 text: slide.text,
                 image: slide.image,
@@ -1046,7 +1072,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 answer: answer,
                 answers: answers,
                 table: table,
-                columns: columns
+                columns: columns,
+                // A learning unit's check question is judged in learn state,
+                // which earns learning units rather than experience points.
+                state: card.getAttribute('data-state') || 'practice'
             }
         }])[0].then(function(result) {
             if (spinner) {
