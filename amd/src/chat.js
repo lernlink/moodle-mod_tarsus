@@ -319,8 +319,31 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return;
         }
         var bottom = flow.getBoundingClientRect().bottom + window.pageYOffset;
-        var visible = window.innerHeight - (dock ? dock.offsetHeight : 0);
+        var visible = window.innerHeight - (dock ? dock.offsetHeight : 0) - footerOffset();
         window.scrollTo(0, Math.max(0, bottom - visible));
+    }
+
+    /**
+     * Height of the site's own fixed footer, if any — Moodle 5.3's linear
+     * navigation (Previous/Next activity) lives there — so the composer
+     * can sit right above it instead of under it.
+     *
+     * @return {number} Pixels
+     */
+    function footerOffset() {
+        var footer = document.querySelector('.stickyfooter');
+        return footer ? footer.offsetHeight : 0;
+    }
+
+    /**
+     * Measure the fixed site chrome around the page into CSS variables:
+     * the navbar above (the progress bar sticks under it) and the sticky
+     * footer below (the composer sticks above it).
+     */
+    function measureChrome() {
+        var navbar = document.querySelector('.navbar.fixed-top');
+        state.container.style.setProperty('--tarsus-nav-offset', (navbar ? navbar.offsetHeight : 0) + 'px');
+        state.container.style.setProperty('--tarsus-footer-offset', footerOffset() + 'px');
     }
 
     /**
@@ -1280,9 +1303,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
         });
 
-        // The site navbar is fixed; the progress bar sticks right under it.
-        var navbar = document.querySelector('.navbar.fixed-top');
-        state.container.style.setProperty('--tarsus-nav-offset', (navbar ? navbar.offsetHeight : 0) + 'px');
+        measureChrome();
+        window.addEventListener('resize', measureChrome, {passive: true});
 
         // Scrolling the page near the top of the feed fetches the page
         // before it.
