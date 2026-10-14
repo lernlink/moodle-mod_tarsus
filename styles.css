@@ -270,6 +270,11 @@
     font-weight: 500;
 }
 
+/* The taxonomy badge on a learning stack: plain text, regular weight. */
+.tarsus-chat-box .tarsus-learn-badge {
+    font-weight: 400;
+}
+
 /* Difficulty as three ascending bars, filled up to the grade. */
 .tarsus-difficulty {
     display: inline-flex;

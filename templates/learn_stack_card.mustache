@@ -25,7 +25,7 @@
     * ringoffset - number, the ring's stroke offset for the first slide (see chat.js).
     * slides - array of {index, number, first, isquestion, taxonomy, taxonomyicon, title, text, image,
       imageposition, question (practice_card context, question slides only)}; the slide's taxonomy
-      level shows as the card badge, falling back to the mode name.
+      level shows as the card badge (text only), falling back to the mode name.
 }}
 <div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
     <div class="tarsus-card__band tarsus-learn-card__meta">
@@ -36,8 +36,8 @@
         </svg>
         {{#slides}}
         <span class="badge badge-light tarsus-practice-card__badge tarsus-learn-badge{{^first}} d-none{{/first}}" data-region="slide-badge" data-index="{{index}}">
-            {{#taxonomy}}{{#taxonomyicon}}{{#pix}}{{taxonomyicon}}, mod_tarsuszero{{/pix}}{{/taxonomyicon}}{{taxonomy}}{{/taxonomy}}
-            {{^taxonomy}}{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}mode_build, mod_tarsuszero{{/str}}{{/taxonomy}}
+            {{#taxonomy}}{{taxonomy}}{{/taxonomy}}
+            {{^taxonomy}}{{#str}}mode_build, mod_tarsuszero{{/str}}{{/taxonomy}}
         </span>
         {{/slides}}
     </div>
