@@ -32,6 +32,7 @@ use local_tarsus\usage_meter;
 use mod_tarsuszero\local\conversation;
 use mod_tarsuszero\local\didactics;
 use mod_tarsuszero\local\scope;
+use mod_tarsuszero\local\scoring;
 use moodle_exception;
 
 /**
@@ -103,6 +104,8 @@ class get_learn_widget extends external_api {
             if ($items === []) {
                 return self::result('error', get_string('learn_nowidget', 'mod_tarsuszero'));
             }
+
+            scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
                 (int) $coursecontext->id, (int) $USER->id, 'learn_next', (int) ($response['credits'] ?? 6));

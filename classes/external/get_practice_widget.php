@@ -31,6 +31,7 @@ use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
 use mod_tarsuszero\local\conversation;
 use mod_tarsuszero\local\scope;
+use mod_tarsuszero\local\scoring;
 use moodle_exception;
 
 /**
@@ -105,6 +106,8 @@ class get_practice_widget extends external_api {
                 // The brain sent no question this time; nothing to show.
                 return self::result('error', get_string('practice_nowidget', 'mod_tarsuszero'));
             }
+
+            scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
                 (int) $coursecontext->id, (int) $USER->id, 'practice_next', (int) ($response['credits'] ?? 6));

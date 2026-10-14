@@ -26,6 +26,7 @@
         <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is available to learners."/>
         <FIELD NAME="gifenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether Build knowledge widgets may include GIF animations."/>
         <FIELD NAME="learningmethod" TYPE="char" LENGTH="40" NOTNULL="true" DEFAULT="micro-learning" SEQUENCE="false" COMMENT="Didactic concept of the Build knowledge mode (learning_method)."/>
+        <FIELD NAME="completionprogress" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Completion rule: the activity completes once the learner's progress reaches this percentage; 0 switches the rule off."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -46,6 +47,29 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="tarsuszeroid_resourceid" UNIQUE="true" FIELDS="tarsuszeroid, resourceid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="tarsuszero_progress" COMMENT="The latest experience, learning-unit and progress figures the brain reported per learner and activity; the source of the gradebook grade and the completion rule.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tarsuszeroid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsuszero table."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The learner."/>
+        <FIELD NAME="earnedxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="earnedExperiencePoints (Test knowledge)."/>
+        <FIELD NAME="totalxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="totalExperiencePoints."/>
+        <FIELD NAME="earnedunits" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="earnedLearningUnits (Build knowledge)."/>
+        <FIELD NAME="totalunits" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="totalLearningUnits."/>
+        <FIELD NAME="practiceprogress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="practiceProgress in percent."/>
+        <FIELD NAME="learnprogress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="learnProgress in percent."/>
+        <FIELD NAME="progress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="The brain's overall progress in percent."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="tarsuszeroid" TYPE="foreign" FIELDS="tarsuszeroid" REFTABLE="tarsuszero" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="tarsuszeroid_userid" UNIQUE="true" FIELDS="tarsuszeroid, userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

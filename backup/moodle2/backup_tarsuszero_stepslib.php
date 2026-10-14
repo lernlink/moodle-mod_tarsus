@@ -39,21 +39,36 @@ class backup_tarsuszero_activity_structure_step extends backup_activity_structur
      * @return backup_nested_element
      */
     protected function define_structure() {
+        $userinfo = $this->get_setting_value('userinfo');
+
         $tarsuszero = new backup_nested_element('tarsuszero', ['id'], [
             'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'conversationstyle', 'dqr', 'industry', 'taxonomylevels', 'questiontypes',
             'operators', 'anticheat', 'learntempo', 'askenabled', 'testenabled', 'buildenabled',
-            'gifenabled', 'learningmethod',
+            'gifenabled', 'learningmethod', 'completionprogress',
         ]);
 
         $inclusions = new backup_nested_element('inclusions');
         $inclusion = new backup_nested_element('inclusion', ['id'], ['resourceid', 'timecreated']);
 
+        $progresses = new backup_nested_element('progresses');
+        $progress = new backup_nested_element('progress', ['id'], [
+            'userid', 'earnedxp', 'totalxp', 'earnedunits', 'totalunits',
+            'practiceprogress', 'learnprogress', 'progress', 'timemodified',
+        ]);
+
         $tarsuszero->add_child($inclusions);
         $inclusions->add_child($inclusion);
+        $tarsuszero->add_child($progresses);
+        $progresses->add_child($progress);
 
         $tarsuszero->set_source_table('tarsuszero', ['id' => backup::VAR_ACTIVITYID]);
         $inclusion->set_source_table('tarsuszero_inclusions', ['tarsuszeroid' => backup::VAR_PARENTID]);
+        if ($userinfo) {
+            $progress->set_source_table('tarsuszero_progress', ['tarsuszeroid' => backup::VAR_PARENTID]);
+        }
+
+        $progress->annotate_ids('user', 'userid');
 
         $tarsuszero->annotate_files('mod_tarsuszero', 'intro', null);
 

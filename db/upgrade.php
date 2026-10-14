@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_tarsuszero_upgrade(int $oldversion): bool {
-    global $DB;
+    global $CFG, $DB;
 
     $dbman = $DB->get_manager();
 
@@ -177,6 +177,44 @@ function xmldb_tarsuszero_upgrade(int $oldversion): bool {
         }
 
         upgrade_mod_savepoint(true, 2026092924, 'tarsuszero');
+    }
+
+    if ($oldversion < 2026101501) {
+        // Grades and completion: the completion threshold on the activity,
+        // and the per-learner figures the brain reports.
+        $table = new xmldb_table('tarsuszero');
+        $field = new xmldb_field('completionprogress', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'learningmethod');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('tarsuszero_progress');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('tarsuszeroid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('earnedxp', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('totalxp', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('earnedunits', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('totalunits', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('practiceprogress', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('learnprogress', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('progress', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('tarsuszeroid', XMLDB_KEY_FOREIGN, ['tarsuszeroid'], 'tarsuszero', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_index('tarsuszeroid_userid', XMLDB_INDEX_UNIQUE, ['tarsuszeroid', 'userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Every existing activity gets its grade item.
+        require_once($CFG->dirroot . '/mod/tarsuszero/lib.php');
+        foreach ($DB->get_records('tarsuszero') as $activity) {
+            tarsuszero_grade_item_update($activity);
+        }
+
+        upgrade_mod_savepoint(true, 2026101501, 'tarsuszero');
     }
 
     return true;

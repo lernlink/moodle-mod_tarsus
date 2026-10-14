@@ -39,6 +39,9 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
             new restore_path_element('tarsuszero', '/activity/tarsuszero'),
             new restore_path_element('tarsuszero_inclusion', '/activity/tarsuszero/inclusions/inclusion'),
         ];
+        if ($this->get_setting_value('userinfo')) {
+            $paths[] = new restore_path_element('tarsuszero_progress', '/activity/tarsuszero/progresses/progress');
+        }
 
         return $this->prepare_activity_structure($paths);
     }
@@ -74,6 +77,23 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
             return;
         }
         $DB->insert_record('tarsuszero_inclusions', $data);
+    }
+
+    /**
+     * Restore one learner's figures.
+     *
+     * @param array $data The element's data.
+     */
+    protected function process_tarsuszero_progress($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->tarsuszeroid = $this->get_new_parentid('tarsuszero');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        if (empty($data->userid)) {
+            return;
+        }
+        $DB->insert_record('tarsuszero_progress', $data);
     }
 
     /**

@@ -31,6 +31,7 @@ use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
 use mod_tarsuszero\local\conversation;
 use mod_tarsuszero\local\scope;
+use mod_tarsuszero\local\scoring;
 use moodle_exception;
 
 /**
@@ -195,6 +196,8 @@ class submit_practice_answer extends external_api {
             $response = $pipeline->execute(function() use ($client, $callparams) {
                 return $client->evaluate_practice_answer($callparams);
             }, 6);
+
+            scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
                 (int) $coursecontext->id, (int) $USER->id,

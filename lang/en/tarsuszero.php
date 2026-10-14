@@ -187,7 +187,7 @@ $string['guardrail_blocked_ratelimit'] = 'Too many requests. Please wait a few s
 $string['transport_error'] = 'Could not contact the Brain. Please check your network connection and try again.';
 
 // Privacy.
-$string['privacy:metadata'] = 'The Tarsus activity stores no personal data itself; indexation and usage data are handled by the local_tarsus plugin.';
+$string['privacy:metadata'] = 'The Tarsus activity keeps the latest figures the brain reported per learner (experience points, learning units, progress) for the grade and the completion state; the conversation, indexation and usage data live in the brain and in local_tarsus.';
 
 // The processing indicator's steps (what the brain does while a request runs).
 $string['proc_ask_classify'] = 'Your question is sorted by topic and intent';
@@ -230,3 +230,22 @@ $string['proc_learn_link'] = 'Links to what you already learned are made';
 $string['proc_learn_check'] = 'The learning cards are checked for clarity';
 $string['proc_learn_path_update'] = 'Your learning path is carried forward';
 $string['proc_learn_polish'] = 'Final polish of your learning unit';
+
+// Grades and completion.
+$string['completionprogress'] = 'Progress reached';
+$string['completionprogress_enabled'] = 'Learner\'s progress reaches';
+$string['completionprogress_help'] = 'The activity completes once the learner\'s progress, as the brain reports it, reaches this percentage. Test knowledge counts its practice progress, Build knowledge its learning progress, both together the brain\'s overall progress.';
+$string['completiondetail:progress'] = 'Reach {$a}% progress';
+$string['error_completionprogress'] = 'Enter a percentage between 1 and 100.';
+$string['privacy:metadata:tarsuszero_progress'] = 'The latest figures the brain reported per learner: experience points, learning units and progress, from which the grade and the completion state are derived.';
+$string['privacy:metadata:tarsuszero_progress:userid'] = 'The learner.';
+$string['privacy:metadata:tarsuszero_progress:earnedxp'] = 'Experience points earned in Test knowledge.';
+$string['privacy:metadata:tarsuszero_progress:totalxp'] = 'Experience points available.';
+$string['privacy:metadata:tarsuszero_progress:earnedunits'] = 'Learning units earned in Build knowledge.';
+$string['privacy:metadata:tarsuszero_progress:totalunits'] = 'Learning units available.';
+$string['privacy:metadata:tarsuszero_progress:practiceprogress'] = 'Practice progress in percent.';
+$string['privacy:metadata:tarsuszero_progress:learnprogress'] = 'Learning progress in percent.';
+$string['privacy:metadata:tarsuszero_progress:progress'] = 'Overall progress in percent.';
+$string['privacy:metadata:tarsuszero_progress:timemodified'] = 'When the figures were last reported.';
+$string['privacy:metadata:core_grades'] = 'The grade derived from the figures is stored in the gradebook.';
+$string['privacy:path:progress'] = 'Progress';

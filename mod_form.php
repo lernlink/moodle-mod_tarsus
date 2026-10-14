@@ -239,16 +239,69 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
             $defaultvalues['operators'] = didactics::operators($defaultvalues['operators'] ?? null);
             $defaultvalues['learningmethod'] = didactics::learning_method($defaultvalues['learningmethod'] ?? null);
         }
+
+        // The completion rule: the checkbox mirrors a stored threshold, and
+        // an unset one proposes a sensible default once ticked.
+        $suffix = $this->get_suffix();
+        $defaultvalues['completionprogressenabled' . $suffix] = !empty($defaultvalues['completionprogress' . $suffix]) ? 1 : 0;
+        if (empty($defaultvalues['completionprogress' . $suffix])) {
+            $defaultvalues['completionprogress' . $suffix] = 80;
+        }
     }
 
     /**
-     * Pack the chip selectors back into the stored practice settings.
+     * The completion rule: progress reached a percentage.
+     *
+     * @return string[] The group element names.
+     */
+    public function add_completion_rules(): array {
+        $mform = $this->_form;
+        $suffix = $this->get_suffix();
+
+        $enabledel = 'completionprogressenabled' . $suffix;
+        $valueel = 'completionprogress' . $suffix;
+        $groupel = 'completionprogressgroup' . $suffix;
+        $group = [
+            $mform->createElement('checkbox', $enabledel, '', get_string('completionprogress_enabled', 'mod_tarsuszero')),
+            $mform->createElement('text', $valueel, '', ['size' => 3]),
+            $mform->createElement('static', 'completionprogresspercent' . $suffix, '', '%'),
+        ];
+        $mform->setType($valueel, PARAM_INT);
+        $mform->addGroup($group, $groupel, get_string('completionprogress', 'mod_tarsuszero'), ' ', false);
+        $mform->hideIf($valueel, $enabledel, 'notchecked');
+        $mform->addHelpButton($groupel, 'completionprogress', 'mod_tarsuszero');
+
+        return [$groupel];
+    }
+
+    /**
+     * Whether the completion rule is switched on in the submitted data.
+     *
+     * @param array $data The submitted data.
+     * @return bool
+     */
+    public function completion_rule_enabled($data): bool {
+        $suffix = $this->get_suffix();
+        return !empty($data['completionprogressenabled' . $suffix]) && (int) ($data['completionprogress' . $suffix] ?? 0) > 0;
+    }
+
+    /**
+     * Pack the chip selectors back into the stored practice settings, and
+     * the completion rule into its single field.
      *
      * @param \stdClass $data The submitted form data (modified in place).
      * @return void
      */
     public function data_postprocessing($data): void {
         parent::data_postprocessing($data);
+
+        $suffix = $this->get_suffix();
+        if (!empty($data->completionunlocked)) {
+            $automatic = !empty($data->completion) && (int) $data->completion === COMPLETION_TRACKING_AUTOMATIC;
+            if (!$automatic || empty($data->{'completionprogressenabled' . $suffix})) {
+                $data->{'completionprogress' . $suffix} = 0;
+            }
+        }
 
         $data->taxonomylevels = didactics::encode_taxonomy_levels((array) ($data->taxonomylevels ?? []));
 
@@ -276,6 +329,14 @@ class mod_tarsuszero_mod_form extends moodleform_mod {
         // A learner needs at least one mode.
         if (empty($data['askenabled']) && empty($data['testenabled']) && empty($data['buildenabled'])) {
             $errors['askenabled'] = get_string('error_modesrequired', 'mod_tarsuszero');
+        }
+
+        $suffix = $this->get_suffix();
+        if (!empty($data['completionprogressenabled' . $suffix])) {
+            $threshold = (int) ($data['completionprogress' . $suffix] ?? 0);
+            if ($threshold < 1 || $threshold > 100) {
+                $errors['completionprogressgroup' . $suffix] = get_string('error_completionprogress', 'mod_tarsuszero');
+            }
         }
 
         // The brain rejects a grade without question types (verified live),

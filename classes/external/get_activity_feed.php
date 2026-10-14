@@ -30,6 +30,7 @@ use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use mod_tarsuszero\local\conversation;
 use mod_tarsuszero\local\scope;
+use mod_tarsuszero\local\scoring;
 use moodle_exception;
 
 /**
@@ -75,6 +76,8 @@ class get_activity_feed extends external_api {
      * @throws moodle_exception
      */
     public static function execute(int $cmid, int $offset = 0): array {
+        global $DB, $USER;
+
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'offset' => $offset]);
 
         $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
@@ -84,6 +87,7 @@ class get_activity_feed extends external_api {
         require_capability('mod/tarsuszero:view', $context);
 
         // No scope means no feed to read — and no call to the brain.
+        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
             return ['status' => 'success', 'error' => '', 'items' => [], 'hasmore' => false];
@@ -101,6 +105,8 @@ class get_activity_feed extends external_api {
             $response = $pipeline->execute(function() use ($client, $callparams) {
                 return $client->retrieve_feed($callparams);
             });
+
+            scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 

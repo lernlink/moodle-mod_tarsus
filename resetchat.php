@@ -70,6 +70,9 @@ if ($confirm) {
             \core\output\notification::NOTIFY_ERROR);
     }
 
+    // The brain forgot everything, so the grade and the figures go too.
+    \mod_tarsuszero\local\scoring::clear($moduleinstance, (int) $USER->id);
+
     redirect($viewurl, get_string('resetchat_done', 'mod_tarsuszero'), null,
         \core\output\notification::NOTIFY_SUCCESS);
 }

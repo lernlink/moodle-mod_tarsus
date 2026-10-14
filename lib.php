@@ -36,9 +36,10 @@ function tarsuszero_supports(string $feature): ?bool {
         FEATURE_SHOW_DESCRIPTION => true,
         FEATURE_BACKUP_MOODLE2 => true,
         FEATURE_COMPLETION_TRACKS_VIEWS => true,
+        FEATURE_COMPLETION_HAS_RULES => true,
         FEATURE_GROUPS => false,
         FEATURE_GROUPINGS => false,
-        FEATURE_GRADE_HAS_GRADE => false,
+        FEATURE_GRADE_HAS_GRADE => true,
         default => null,
     };
 }
@@ -58,7 +59,10 @@ function tarsuszero_add_instance(\stdClass $data, ?\mod_tarsuszero_mod_form $mfo
     $data->intro = $data->intro ?? '';
     $data->introformat = $data->introformat ?? FORMAT_HTML;
 
-    return (int) $DB->insert_record('tarsuszero', $data);
+    $data->id = (int) $DB->insert_record('tarsuszero', $data);
+    tarsuszero_grade_item_update($data);
+
+    return $data->id;
 }
 
 /**
@@ -74,7 +78,10 @@ function tarsuszero_update_instance(\stdClass $data, ?\mod_tarsuszero_mod_form $
     $data->id = $data->instance;
     $data->timemodified = time();
 
-    return $DB->update_record('tarsuszero', $data);
+    $updated = $DB->update_record('tarsuszero', $data);
+    tarsuszero_grade_item_update($data);
+
+    return $updated;
 }
 
 /**
@@ -90,10 +97,131 @@ function tarsuszero_delete_instance(int $id): bool {
         return false;
     }
 
+    $activity = $DB->get_record('tarsuszero', ['id' => $id], '*', MUST_EXIST);
+    tarsuszero_grade_item_delete($activity);
+    $DB->delete_records('tarsuszero_progress', ['tarsuszeroid' => $id]);
     $DB->delete_records('tarsuszero_inclusions', ['tarsuszeroid' => $id]);
     $DB->delete_records('tarsuszero', ['id' => $id]);
 
     return true;
+}
+
+/**
+ * Hand the course module its name, description and completion rule.
+ *
+ * The custom completion rule only counts once it sits in the module's
+ * customdata; without it Moodle sees no rule and completes the activity
+ * straight away.
+ *
+ * @param \stdClass $coursemodule The course_modules row.
+ * @return cached_cm_info|null
+ */
+function tarsuszero_get_coursemodule_info(\stdClass $coursemodule): ?cached_cm_info {
+    global $DB;
+
+    $activity = $DB->get_record('tarsuszero', ['id' => $coursemodule->instance],
+        'id, name, intro, introformat, completionprogress');
+    if (!$activity) {
+        return null;
+    }
+
+    $info = new cached_cm_info();
+    $info->name = $activity->name;
+    if ($coursemodule->showdescription) {
+        $info->content = format_module_intro('tarsuszero', $activity, $coursemodule->id, false);
+    }
+    if ((int) $coursemodule->completion === COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata['customcompletionrules']['completionprogress'] = (int) $activity->completionprogress;
+    }
+
+    return $info;
+}
+
+/**
+ * Create or update the activity's grade item: one value grade, 0-100.
+ *
+ * @param \stdClass        $activity The tarsuszero record (id, course, name).
+ * @param array|object|null $grades  Grades to store alongside, as grade_update() takes them.
+ * @return int One of the GRADE_UPDATE_* results.
+ */
+function tarsuszero_grade_item_update(\stdClass $activity, $grades = null): int {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+
+    $params = [
+        'itemname' => $activity->name,
+        'gradetype' => GRADE_TYPE_VALUE,
+        'grademax' => 100,
+        'grademin' => 0,
+    ];
+    if ($grades === 'reset') {
+        $params['reset'] = true;
+        $grades = null;
+    }
+
+    return grade_update('mod/tarsuszero', $activity->course, 'mod', 'tarsuszero', $activity->id, 0, $grades, $params);
+}
+
+/**
+ * Remove the activity's grade item.
+ *
+ * @param \stdClass $activity The tarsuszero record.
+ * @return int One of the GRADE_UPDATE_* results.
+ */
+function tarsuszero_grade_item_delete(\stdClass $activity): int {
+    global $CFG;
+    require_once($CFG->libdir . '/gradelib.php');
+
+    return grade_update('mod/tarsuszero', $activity->course, 'mod', 'tarsuszero', $activity->id, 0, null, ['deleted' => 1]);
+}
+
+/**
+ * The grades to store, from the figures the brain reported.
+ *
+ * @param \stdClass $activity The tarsuszero record.
+ * @param int       $userid   One learner, or 0 for everyone with figures.
+ * @return array<int, \stdClass> userid => {userid, rawgrade, dategraded}.
+ */
+function tarsuszero_get_user_grades(\stdClass $activity, int $userid = 0): array {
+    global $DB;
+
+    $conditions = ['tarsuszeroid' => $activity->id];
+    if ($userid) {
+        $conditions['userid'] = $userid;
+    }
+    $grades = [];
+    foreach ($DB->get_records('tarsuszero_progress', $conditions) as $row) {
+        $grade = \mod_tarsuszero\local\scoring::grade($activity, $row);
+        if ($grade === null) {
+            continue;
+        }
+        $grades[$row->userid] = (object) [
+            'userid' => (int) $row->userid,
+            'rawgrade' => $grade,
+            'dategraded' => (int) $row->timemodified,
+        ];
+    }
+
+    return $grades;
+}
+
+/**
+ * Push grades to the gradebook (one learner or all), as Moodle expects.
+ *
+ * @param \stdClass $activity   The tarsuszero record.
+ * @param int       $userid     One learner, or 0 for everyone.
+ * @param bool      $nullifnone Store a null grade when the learner has none.
+ * @return void
+ */
+function tarsuszero_update_grades(\stdClass $activity, int $userid = 0, bool $nullifnone = true): void {
+    $grades = tarsuszero_get_user_grades($activity, $userid);
+    if ($grades !== []) {
+        tarsuszero_grade_item_update($activity, $grades);
+    } else if ($userid && $nullifnone) {
+        tarsuszero_grade_item_update($activity, (object) ['userid' => $userid, 'rawgrade' => null]);
+    } else {
+        tarsuszero_grade_item_update($activity);
+    }
 }
 
 /**

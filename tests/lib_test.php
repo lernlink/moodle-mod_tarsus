@@ -78,7 +78,8 @@ final class lib_test extends \advanced_testcase {
      */
     public function test_supports(): void {
         $this->assertTrue(tarsuszero_supports(FEATURE_MOD_INTRO));
-        $this->assertFalse(tarsuszero_supports(FEATURE_GRADE_HAS_GRADE));
+        $this->assertTrue(tarsuszero_supports(FEATURE_GRADE_HAS_GRADE));
+        $this->assertTrue(tarsuszero_supports(FEATURE_COMPLETION_HAS_RULES));
         $this->assertNull(tarsuszero_supports('some_unknown_feature'));
     }
 
