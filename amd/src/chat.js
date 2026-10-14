@@ -336,19 +336,20 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {number} Pixels
      */
     function footerOffset() {
+        // Boost marks the body while the footer is actually shown (it
+        // slides away on narrow screens while scrolling down).
         var footer = document.querySelector('.stickyfooter');
-        return footer ? footer.offsetHeight : 0;
+        return footer && document.body.classList.contains('hasstickyfooter') ? footer.offsetHeight : 0;
     }
 
     /**
-     * Measure the fixed site chrome around the page into CSS variables:
-     * the navbar above (the progress bar sticks under it) and the sticky
-     * footer below (the composer sticks above it).
+     * Measure the fixed navbar into a CSS variable: the progress bar and
+     * the back-to-top button sit right under it. (The sticky footer's
+     * height comes from Boost's own --sticky-footer-total-height.)
      */
     function measureChrome() {
         var navbar = document.querySelector('.navbar.fixed-top');
         state.container.style.setProperty('--tarsus-nav-offset', (navbar ? navbar.offsetHeight : 0) + 'px');
-        state.container.style.setProperty('--tarsus-footer-offset', footerOffset() + 'px');
     }
 
     /**

@@ -2,13 +2,15 @@
    The page scrolls, the progress bar stays pinned under the site navbar
    and the composer at the bottom of the viewport — above the site's own
    fixed footer when there is one (Moodle 5.3's Previous/Next activity
-   links). chat.js measures both into --tarsus-nav-offset and
-   --tarsus-footer-offset. The floor keeps the composer at the
+   links): Boost publishes that footer's height as
+   --sticky-footer-total-height on <body> once the footer is shown, so
+   the offset follows it live; chat.js measures the navbar into
+   --tarsus-nav-offset. The floor keeps the composer at the
    bottom even before the first cards arrive; overflow-anchor is off so
    the script alone decides where the viewport stays when older pages
    slot in above. */
 .tarsus-chat-box .tarsus-chat-flow {
-    min-height: calc(100vh - var(--tarsus-nav-offset, 60px) - var(--tarsus-footer-offset, 0px) - 12rem);
+    min-height: calc(100vh - var(--tarsus-nav-offset, 60px) - var(--sticky-footer-total-height, 0px) - 12rem);
     overflow-anchor: none;
 }
 
@@ -47,7 +49,7 @@
 
 .tarsus-chat-box .tarsus-chat-form {
     position: sticky;
-    bottom: var(--tarsus-footer-offset, 0px);
+    bottom: var(--sticky-footer-total-height, 0px);
     z-index: 5;
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
 }
