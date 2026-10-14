@@ -264,14 +264,10 @@
     margin-bottom: 0.75rem;
 }
 
+/* Badges on question and learning cards: plain text, regular weight. */
 .tarsus-practice-card__badge {
     background: #f1f0ec;
     color: #1d2125;
-    font-weight: 500;
-}
-
-/* The taxonomy badge on a learning stack: plain text, regular weight. */
-.tarsus-chat-box .tarsus-learn-badge {
     font-weight: 400;
 }
 
