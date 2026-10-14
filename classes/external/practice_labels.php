@@ -258,6 +258,21 @@ final class practice_labels {
     }
 
     /**
+     * The icon key (pix name) that marks a taxonomy level on a card.
+     *
+     * @param string $level The brain's level code (WISSEN, VERSTEHEN, ANWENDEN).
+     * @return string The pix identifier, '' when unknown.
+     */
+    public static function taxonomy_icon(string $level): string {
+        return match (strtoupper($level)) {
+            'WISSEN' => 'taxonomy_knowledge',
+            'VERSTEHEN' => 'taxonomy_understanding',
+            'ANWENDEN' => 'taxonomy_application',
+            default => '',
+        };
+    }
+
+    /**
      * Shape a learn item (objectives or stack) for the wire.
      *
      * @param array    $item   The client's learn item.
@@ -295,9 +310,12 @@ final class practice_labels {
         $slides = [];
         foreach (($item['slides'] ?? []) as $slide) {
             $isquestion = (($slide['kind'] ?? 'text') === 'question') && is_array($slide['question'] ?? null);
+            $level = (string) ($isquestion ? ($slide['question']['taxonomylevel'] ?? '') : ($slide['taxonomylevel'] ?? ''));
             $out = [
                 'id' => (string) ($slide['id'] ?? ''),
                 'kind' => $isquestion ? 'question' : 'text',
+                'taxonomy' => self::taxonomy($level),
+                'taxonomyicon' => self::taxonomy_icon($level),
                 'title' => (string) ($slide['title'] ?? ''),
                 'text' => $render((string) ($slide['text'] ?? '')),
                 'image' => (string) ($slide['image'] ?? ''),
@@ -343,6 +361,8 @@ final class practice_labels {
             new external_single_structure([
                 'id' => new external_value(PARAM_RAW, 'The slide id.'),
                 'kind' => new external_value(PARAM_ALPHA, 'text, or question for the unit\'s check question.'),
+                'taxonomy' => new external_value(PARAM_RAW, 'Display label of the slide\'s taxonomy level, may be empty.'),
+                'taxonomyicon' => new external_value(PARAM_ALPHANUMEXT, 'Pix identifier of the level\'s icon, may be empty.'),
                 'title' => new external_value(PARAM_TEXT, 'The slide title, may be empty.'),
                 'text' => new external_value(PARAM_RAW, 'Rendered slide HTML.'),
                 'image' => new external_value(PARAM_RAW, 'Illustration as an image data URI, may be empty.'),

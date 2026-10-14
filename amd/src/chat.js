@@ -69,6 +69,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_SLIDE: '[data-region="slide"]',
         LEARN_NAV: '.tarsus-learn-nav',
         LEARN_RING: '[data-region="ring"]',
+        LEARN_BADGE: '[data-region="slide-badge"]',
         JUMP_TOP: '[data-action="jump-top"]',
         ENLARGE: '[data-action="enlarge"]'
     };
@@ -780,12 +781,21 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         state.stacks[item.id] = item.slides || [];
         var slides = (item.slides || []).map(function(slide, index) {
             var isquestion = slide.kind === 'question' && slide.question;
+            var question = isquestion ? practiceCardContext(slide.question) : null;
+            if (question) {
+                // The card badge already names the level: keep only the
+                // difficulty bars inside the question.
+                question.taxonomy = '';
+                question.hasmeta = question.hasbars;
+            }
             return {
                 index: index,
                 number: index + 1,
                 first: index === 0,
                 isquestion: Boolean(isquestion),
-                question: isquestion ? practiceCardContext(slide.question) : null,
+                question: question,
+                taxonomy: slide.taxonomy || '',
+                taxonomyicon: slide.taxonomyicon || '',
                 title: slide.title,
                 text: slide.text,
                 image: slide.image,
@@ -872,6 +882,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         slides[current].classList.add('d-none');
         slides[target].classList.remove('d-none');
+        card.querySelectorAll(SELECTORS.LEARN_BADGE).forEach(function(badge) {
+            badge.classList.toggle('d-none', parseInt(badge.getAttribute('data-index'), 10) !== target);
+        });
         var ring = card.querySelector(SELECTORS.LEARN_RING);
         if (ring) {
             ring.querySelector('.tarsus-learn-ring__fill').style.strokeDashoffset = ringOffset(target + 1, slides.length);

@@ -137,5 +137,8 @@ function mod_tarsuszero_get_fontawesome_icon_map(): array {
         'mod_tarsuszero:mode_ask' => 'fa-regular fa-hand',
         'mod_tarsuszero:send' => 'fa-regular fa-paper-plane',
         'mod_tarsuszero:jump_top' => 'fa-solid fa-arrow-up',
+        'mod_tarsuszero:taxonomy_knowledge' => 'fa-solid fa-book-open',
+        'mod_tarsuszero:taxonomy_understanding' => 'fa-solid fa-brain',
+        'mod_tarsuszero:taxonomy_application' => 'fa-solid fa-gears',
     ];
 }

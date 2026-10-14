@@ -23,8 +23,9 @@
     * stackid - string, the stack id.
     * total - int, the number of slides.
     * ringoffset - number, the ring's stroke offset for the first slide (see chat.js).
-    * slides - array of {index, number, first, isquestion, title, text, image, imageposition,
-      question (practice_card context, question slides only)}.
+    * slides - array of {index, number, first, isquestion, taxonomy, taxonomyicon, title, text, image,
+      imageposition, question (practice_card context, question slides only)}; the slide's taxonomy
+      level shows as the card badge, falling back to the mode name.
 }}
 <div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
     <div class="tarsus-learn-card__inner">
@@ -34,7 +35,12 @@
                 <circle class="tarsus-learn-ring__track" cx="12" cy="12" r="9"></circle>
                 <circle class="tarsus-learn-ring__fill" cx="12" cy="12" r="9" style="stroke-dashoffset: {{ringoffset}}"></circle>
             </svg>
-            <span class="badge badge-light tarsus-practice-card__badge">{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}mode_build, mod_tarsuszero{{/str}}</span>
+            {{#slides}}
+            <span class="badge badge-light tarsus-practice-card__badge tarsus-learn-badge{{^first}} d-none{{/first}}" data-region="slide-badge" data-index="{{index}}">
+                {{#taxonomy}}{{#taxonomyicon}}{{#pix}}{{taxonomyicon}}, mod_tarsuszero{{/pix}}{{/taxonomyicon}}{{taxonomy}}{{/taxonomy}}
+                {{^taxonomy}}{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}mode_build, mod_tarsuszero{{/str}}{{/taxonomy}}
+            </span>
+            {{/slides}}
         </div>
         {{#slides}}
         <div class="tarsus-learn-slide{{^first}} d-none{{/first}}" data-region="slide" data-index="{{index}}">
