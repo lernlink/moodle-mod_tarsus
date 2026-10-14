@@ -264,8 +264,11 @@
     margin-bottom: 0.75rem;
 }
 
-/* Badges on question and learning cards: plain text, regular weight. */
-.tarsus-practice-card__badge {
+/* Badges on question and learning cards: plain text, regular weight.
+   Plugin CSS is compiled before the theme's, so a bare class would lose
+   to Bootstrap's own .badge (weight 700) at equal specificity — hence
+   the heavier selector. */
+.tarsus-chat-box .badge.tarsus-practice-card__badge {
     background: #f1f0ec;
     color: #1d2125;
     font-weight: 400;
