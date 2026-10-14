@@ -142,7 +142,7 @@ final class practice_test extends \advanced_testcase {
         $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(6, $result['items']);
+        $this->assertCount(7, $result['items']);
 
         [, , $answered, $open] = $result['items'];
         $this->assertTrue($answered['answered']);

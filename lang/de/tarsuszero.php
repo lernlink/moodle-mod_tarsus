@@ -93,6 +93,7 @@ $string['learn_image_enlarge'] = 'Bild vergrößern';
 $string['learn_image_close'] = 'Schließen';
 $string['learn_next'] = 'Weiter';
 $string['learn_complete_title'] = 'Super! Du hast die Lerneinheit geschafft.';
+$string['learn_motivation_title'] = 'Super! Du bist einen Schritt weiter.';
 $string['learn_objectives'] = 'Lernziele';
 $string['learn_nowidget'] = 'Der Assistent konnte gerade keine Lerneinheit aus den einbezogenen Materialien erstellen. Bitte versuche es erneut.';
 $string['chat_modedisabled'] = 'Dieser Modus ist in dieser Aktivität ausgeschaltet.';

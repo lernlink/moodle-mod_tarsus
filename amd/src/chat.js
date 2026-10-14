@@ -447,7 +447,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     robotavatarurl: state.robotAvatar,
                     robotname: state.robotName
                 });
-            } else if (item.kind === 'objectives' || item.kind === 'stack' || item.kind === 'complete') {
+            } else if (['objectives', 'stack', 'complete', 'motivation'].indexOf(item.kind) !== -1) {
                 var learn = learnCard(item);
                 build = buildCard(learn.template, learn.context);
             } else {
@@ -519,7 +519,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         items.forEach(function(item) {
             if (item.kind === 'practice') {
                 state.practiceStarted = true;
-            } else if (item.kind === 'objectives' || item.kind === 'stack') {
+            } else if (item.kind === 'objectives' || item.kind === 'stack' || item.kind === 'motivation') {
                 state.learnStarted = true;
             } else if (item.kind === 'complete') {
                 state.learnStarted = true;
@@ -757,7 +757,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      */
     function learnCard(item) {
         if (item.kind === 'complete') {
-            return {template: 'mod_tarsuszero/learn_complete_card', context: {text: item.text}};
+            return {template: 'mod_tarsuszero/learn_complete_card', context: {title: item.title, text: item.text}};
+        }
+        if (item.kind === 'motivation') {
+            return {template: 'mod_tarsuszero/learn_motivation_card', context: {title: item.title, text: item.text}};
         }
         if (item.kind === 'message') {
             return {template: 'mod_tarsuszero/chat_welcome_card', context: {message: item.text}};
@@ -765,7 +768,13 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (item.kind === 'objectives') {
             return {
                 template: 'mod_tarsuszero/learn_objectives_card',
-                context: {title: item.title, message: item.message, objectives: item.objectives || []}
+                context: {
+                    title: item.title,
+                    message: item.message,
+                    objectives: (item.objectives || []).map(function(objective, index) {
+                        return Object.assign({number: index + 1}, objective);
+                    })
+                }
             };
         }
         state.stacks[item.id] = item.slides || [];

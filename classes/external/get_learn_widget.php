@@ -147,7 +147,7 @@ class get_learn_widget extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: objectives, stack, complete or message.'),
+                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: objectives, stack, motivation, complete or message.'),
                     'id' => new external_value(PARAM_RAW, 'The widget or stack id.'),
                     'text' => new external_value(PARAM_RAW, 'Rendered HTML (complete, message).', VALUE_OPTIONAL),
                     'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),

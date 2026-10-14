@@ -17,23 +17,23 @@
 {{!
     @template mod_tarsuszero/learn_objectives_card
 
-    The learning objectives the brain sets out at the start of Build knowledge.
+    The learning objectives the brain sets out at the start of Build knowledge:
+    the artwork, a large title, the introduction and a striped numbered list.
 
     Context variables required for this template:
     * title - string, the programme title.
     * message - string, rendered introduction HTML (server-cleaned).
-    * objectives - array of {objective, taxonomy, done}.
+    * objectives - array of {number, objective, taxonomy, done}.
 }}
-<div class="tarsus-card tarsus-learn-card tarsus-learn-card--objectives" data-region="learn-objectives">
-    <div class="tarsus-learn-card__inner">
-        <div class="tarsus-learn-card__meta">
-            <span class="badge badge-light tarsus-practice-card__badge">{{#pix}}mode_build, mod_tarsuszero{{/pix}}{{#str}}learn_objectives, mod_tarsuszero{{/str}}</span>
-        </div>
-        {{#title}}<h5 class="tarsus-learn-slide__title">{{title}}</h5>{{/title}}
-        <div class="tarsus-learn-slide__text">{{{message}}}</div>
+<div class="tarsus-card tarsus-card--welcome tarsus-learn-card--objectives" data-region="learn-objectives">
+    <div class="tarsus-card__inner">
+        <div class="tarsus-welcome-art text-center">{{#pix}}objectives, mod_tarsuszero{{/pix}}</div>
+        {{#title}}<h3 class="tarsus-card__title text-center">{{title}}</h3>{{/title}}
+        <div class="tarsus-card__welcome-text text-center">{{{message}}}</div>
         <ol class="tarsus-learn-objectives">
             {{#objectives}}
             <li class="tarsus-learn-objectives__item{{#done}} tarsus-learn-objectives__item--done{{/done}}">
+                <span class="tarsus-learn-objectives__number">{{number}}</span>
                 <span class="tarsus-learn-objectives__text">{{objective}}</span>
                 {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
             </li>

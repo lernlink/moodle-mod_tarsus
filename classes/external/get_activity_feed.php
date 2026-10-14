@@ -119,7 +119,7 @@ class get_activity_feed extends external_api {
                     ];
                     continue;
                 }
-                if ($kind === 'objectives' || $kind === 'stack' || $kind === 'complete') {
+                if (in_array($kind, ['objectives', 'stack', 'complete', 'motivation'], true)) {
                     $items[] = practice_labels::learn_item($item, $render);
                     continue;
                 }
@@ -167,7 +167,7 @@ class get_activity_feed extends external_api {
             'items' => new external_multiple_structure(
                 new external_single_structure([
                     'kind' => new external_value(PARAM_ALPHA,
-                        'Item kind: message, exchange, practice, objectives, stack or complete.'),
+                        'Item kind: message, exchange, practice, objectives, stack, motivation or complete.'),
                     'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),
                     'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
                     'objectives' => practice_labels::objectives_structure(),

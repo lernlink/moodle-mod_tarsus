@@ -266,10 +266,11 @@ final class practice_labels {
      */
     public static function learn_item(array $item, callable $render): array {
         $kind = (string) ($item['kind'] ?? '');
-        if ($kind === 'complete' || $kind === 'message') {
+        if ($kind === 'complete' || $kind === 'motivation' || $kind === 'message') {
             return [
                 'kind' => $kind,
                 'id' => (string) ($item['id'] ?? ''),
+                'title' => (string) ($item['title'] ?? ''),
                 'text' => $render((string) ($item['text'] ?? '')),
             ];
         }
