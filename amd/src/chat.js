@@ -69,7 +69,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_SLIDE: '[data-region="slide"]',
         LEARN_NAV: '.tarsus-learn-nav',
         LEARN_RING: '[data-region="ring"]',
-        JUMP_TOP: '[data-action="jump-top"]'
+        JUMP_TOP: '[data-action="jump-top"]',
+        ENLARGE: '[data-action="enlarge"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -807,6 +808,44 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Open a slide illustration in a lightbox: a native <dialog> on the
+     * body, closed by a click anywhere, the close button or Escape.
+     *
+     * @param {string} src The image source (a data URI)
+     * @return {Promise} Resolves once the dialog is open
+     */
+    function openLightbox(src) {
+        var dialog = document.querySelector('.tarsus-lightbox');
+        var ready = dialog ? Promise.resolve(dialog) : Str.get_string('learn_image_close', 'mod_tarsuszero')
+            .then(function(closelabel) {
+                dialog = document.createElement('dialog');
+                dialog.className = 'tarsus-lightbox';
+                var close = document.createElement('button');
+                close.type = 'button';
+                close.className = 'tarsus-lightbox__close';
+                close.setAttribute('aria-label', closelabel);
+                close.textContent = '\u00d7';
+                var image = document.createElement('img');
+                image.className = 'tarsus-lightbox__image';
+                image.alt = '';
+                dialog.appendChild(close);
+                dialog.appendChild(image);
+                dialog.addEventListener('click', function() {
+                    dialog.close();
+                });
+                document.body.appendChild(dialog);
+                return dialog;
+            });
+        return ready.then(function(box) {
+            box.querySelector('.tarsus-lightbox__image').src = src;
+            if (!box.open) {
+                box.showModal();
+            }
+            return null;
+        });
+    }
+
+    /**
      * Show the previous or next slide of a learning unit.
      *
      * @param {Element} card The learn card
@@ -1366,6 +1405,18 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 if (learncard) {
                     turnSlide(learncard, parseInt(nav.getAttribute('data-dir'), 10));
                 }
+                return;
+            }
+            var picture = e.target.closest(SELECTORS.ENLARGE);
+            if (picture && state.container.contains(picture)) {
+                openLightbox(picture.getAttribute('src')).catch(Notification.exception);
+            }
+        });
+        // Keyboard users reach the illustration by Tab; Enter or Space opens it.
+        state.container.addEventListener('keydown', function(e) {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.matches(SELECTORS.ENLARGE)) {
+                e.preventDefault();
+                openLightbox(e.target.getAttribute('src')).catch(Notification.exception);
             }
         });
 

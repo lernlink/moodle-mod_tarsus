@@ -47,7 +47,9 @@
             {{^isquestion}}
             {{#title}}<h5 class="tarsus-learn-slide__title">{{title}}</h5>{{/title}}
             <div class="tarsus-learn-slide__body tarsus-learn-slide__body--{{imageposition}}">
-                {{#image}}<img class="tarsus-learn-slide__image" src="{{image}}" alt="">{{/image}}
+                {{#image}}<img class="tarsus-learn-slide__image" src="{{image}}" alt="" tabindex="0" role="button"
+                     data-action="enlarge" title="{{#str}}learn_image_enlarge, mod_tarsuszero{{/str}}"
+                     aria-label="{{#str}}learn_image_enlarge, mod_tarsuszero{{/str}}">{{/image}}
                 <div class="tarsus-learn-slide__text">{{{text}}}</div>
             </div>
             {{/isquestion}}
