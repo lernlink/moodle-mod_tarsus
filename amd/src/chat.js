@@ -72,11 +72,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_BADGE: '[data-region="slide-badge"]',
         JUMP_TOP: '[data-action="jump-top"]',
         ENLARGE: '[data-action="enlarge"]',
-        AUDIO_BUTTON: '[data-action="audio"]',
         AUDIO_TOGGLE: '[data-action="audio-toggle"]',
         AUDIO_PLAYER: '[data-region="audio-player"]',
-        AUDIO: '[data-region="audio"]',
-        AUDIO_FILL: '[data-region="audio-fill"]'
+        AUDIO: '[data-region="audio"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -870,41 +868,91 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * Have the brain read a learning unit aloud, then show the player.
+     * Set the narration control's state and its labels.
      *
-     * The narration is fetched once per card and kept in the page; a
-     * second click on the same card just plays it again.
+     * @param {Element} card The learn card
+     * @param {string} stateName idle, loading, ready or playing
+     */
+    function setAudioState(card, stateName) {
+        var player = card.querySelector(SELECTORS.AUDIO_PLAYER);
+        if (!player) {
+            return;
+        }
+        player.setAttribute('data-state', stateName);
+        player.querySelector('[data-region="audio-speaker"]').classList.toggle('d-none', stateName !== 'idle');
+        player.querySelector('[data-region="audio-play"]').classList.toggle('d-none',
+            stateName === 'idle' || stateName === 'playing');
+        player.querySelector('[data-region="audio-pause"]').classList.toggle('d-none', stateName !== 'playing');
+        var key = stateName === 'playing' ? 'learn_audio_pause' : (stateName === 'idle' ? 'learn_audio' : 'learn_audio_play');
+        var toggle = player.querySelector(SELECTORS.AUDIO_TOGGLE);
+        Str.get_string(key, 'mod_tarsuszero').then(function(text) {
+            toggle.setAttribute('title', text);
+            toggle.setAttribute('aria-label', text);
+            return null;
+        }).catch(Notification.exception);
+    }
+
+    /**
+     * Draw the fake waveform: bars of pseudo-random height, seeded by the
+     * stack id so the same unit always looks the same.
+     *
+     * @param {Element} card The learn card
+     */
+    function drawWave(card) {
+        var wave = card.querySelector('[data-region="audio-wave"]');
+        if (!wave || wave.childElementCount) {
+            return;
+        }
+        var seed = 0;
+        String(card.getAttribute('data-stack-id') || '').split('').forEach(function(ch) {
+            seed = (seed * 31 + ch.charCodeAt(0)) % 2147483647;
+        });
+        for (var i = 0; i < 36; i++) {
+            seed = (seed * 48271) % 2147483647;
+            var bar = document.createElement('span');
+            bar.className = 'tarsus-learn-player__bar';
+            bar.style.height = (25 + (seed % 75)) + '%';
+            wave.appendChild(bar);
+        }
+        wave.classList.remove('d-none');
+    }
+
+    /**
+     * Colour the waveform up to the playback position.
+     *
+     * @param {Element} card The learn card
+     * @param {number} ratio 0..1
+     */
+    function paintWave(card, ratio) {
+        var bars = card.querySelectorAll('.tarsus-learn-player__bar');
+        var played = Math.round(ratio * bars.length);
+        bars.forEach(function(bar, index) {
+            bar.classList.toggle('tarsus-learn-player__bar--played', index < played);
+        });
+    }
+
+    /**
+     * Have the brain read a learning unit aloud, then offer playback.
+     *
+     * The narration is fetched once per card and kept in the page; later
+     * clicks only play and pause it.
      *
      * @param {Element} card The learn card
      */
     function fetchStackAudio(card) {
-        var button = card.querySelector(SELECTORS.AUDIO_BUTTON);
-        var player = card.querySelector(SELECTORS.AUDIO_PLAYER);
         var audio = card.querySelector(SELECTORS.AUDIO);
-        if (!button || !player || !audio || button.disabled) {
+        var player = card.querySelector(SELECTORS.AUDIO_PLAYER);
+        if (!audio || !player || player.getAttribute('data-state') === 'loading') {
             return;
         }
-        if (audio.getAttribute('src')) {
-            toggleStackAudio(card);
-            return;
-        }
-        var spinner = button.querySelector('.tarsus-learn-audio__spinner');
-        var icon = button.querySelector('.tarsus-learn-audio__icon');
-        button.disabled = true;
-        spinner.classList.remove('d-none');
-        icon.classList.add('d-none');
-        var done = function() {
-            button.disabled = false;
-            spinner.classList.add('d-none');
-            icon.classList.remove('d-none');
-        };
+        setAudioState(card, 'loading');
 
         Ajax.call([{
             methodname: 'mod_tarsuszero_get_stack_audio',
             args: {cmid: state.cmid, stackid: card.getAttribute('data-stack-id')}
         }])[0].then(function(result) {
-            done();
             if (result.status !== 'success' || !result.audio) {
+                setAudioState(card, 'idle');
                 var alertBox = state.container.querySelector(SELECTORS.ALERT);
                 if (alertBox) {
                     alertBox.classList.remove('d-none');
@@ -913,9 +961,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 return null;
             }
             audio.src = result.audio;
-            button.classList.add('d-none');
-            player.classList.remove('d-none');
             wireStackAudio(card);
+            drawWave(card);
+            setAudioState(card, 'ready');
             // The click is seconds old by now, so browsers may refuse to
             // start playback on their own (NotAllowedError): then the
             // player simply waits for the play button — no error.
@@ -923,56 +971,47 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 return null;
             });
         }).catch(function(ex) {
-            done();
+            setAudioState(card, 'idle');
             Notification.exception(ex);
         });
     }
 
     /**
-     * Keep the play/pause button and the progress line in step with the audio.
+     * Keep the control and the waveform in step with the audio.
      *
      * @param {Element} card The learn card
      */
     function wireStackAudio(card) {
         var audio = card.querySelector(SELECTORS.AUDIO);
-        var toggle = card.querySelector(SELECTORS.AUDIO_TOGGLE);
-        var fill = card.querySelector(SELECTORS.AUDIO_FILL);
-        var play = toggle.querySelector('[data-region="audio-play"]');
-        var pause = toggle.querySelector('[data-region="audio-pause"]');
-        var showPlaying = function(playing) {
-            play.classList.toggle('d-none', playing);
-            pause.classList.toggle('d-none', !playing);
-            Str.get_string(playing ? 'learn_audio_pause' : 'learn_audio_play', 'mod_tarsuszero').then(function(text) {
-                toggle.setAttribute('title', text);
-                toggle.setAttribute('aria-label', text);
-                return null;
-            }).catch(Notification.exception);
-        };
         audio.addEventListener('play', function() {
-            showPlaying(true);
+            setAudioState(card, 'playing');
         });
         audio.addEventListener('pause', function() {
-            showPlaying(false);
+            setAudioState(card, 'ready');
         });
         audio.addEventListener('ended', function() {
-            showPlaying(false);
-            fill.style.width = '0';
+            setAudioState(card, 'ready');
+            paintWave(card, 0);
         });
         audio.addEventListener('timeupdate', function() {
             if (audio.duration > 0) {
-                fill.style.width = Math.min(100, (audio.currentTime / audio.duration) * 100) + '%';
+                paintWave(card, Math.min(1, audio.currentTime / audio.duration));
             }
         });
     }
 
     /**
-     * Play or pause a learning unit's narration.
+     * The narration control: fetch on first use, then play or pause.
      *
      * @param {Element} card The learn card
      */
     function toggleStackAudio(card) {
         var audio = card.querySelector(SELECTORS.AUDIO);
-        if (!audio || !audio.getAttribute('src')) {
+        if (!audio) {
+            return;
+        }
+        if (!audio.getAttribute('src')) {
+            fetchStackAudio(card);
             return;
         }
         if (audio.paused) {
@@ -1625,14 +1664,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             var picture = e.target.closest(SELECTORS.ENLARGE);
             if (picture && state.container.contains(picture)) {
                 openLightbox(picture.getAttribute('src')).catch(Notification.exception);
-                return;
-            }
-            var speaker = e.target.closest(SELECTORS.AUDIO_BUTTON);
-            if (speaker && state.container.contains(speaker)) {
-                var speakercard = speaker.closest(SELECTORS.LEARN_CARD);
-                if (speakercard) {
-                    fetchStackAudio(speakercard);
-                }
                 return;
             }
             var toggle = e.target.closest(SELECTORS.AUDIO_TOGGLE);

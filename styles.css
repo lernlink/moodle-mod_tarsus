@@ -840,61 +840,81 @@
     }
 }
 
-/* The narration controls in a learning stack's band: a speaker button
-   that turns into a play/pause button with a thin progress line once the
-   brain has read the unit. */
-.tarsus-chat-box .tarsus-learn-audio {
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.85);
-    border: 0;
-}
-
-.tarsus-chat-box .tarsus-learn-audio .icon {
-    margin: 0;
-}
-
+/* The narration control in a learning stack's band, one square button
+   with four states: idle (speaker on a translucent pad), loading (a pale
+   play glyph with a turning arc around the pad), ready (a solid play
+   button) and playing (pause). Next to it a fake waveform, coloured up
+   to the playback position. */
 .tarsus-chat-box .tarsus-learn-player {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    flex: 1 1 auto;
     min-width: 0;
-    max-width: 24rem;
 }
 
 .tarsus-chat-box .tarsus-learn-player__toggle {
+    position: relative;
     width: 2rem;
     height: 2rem;
     padding: 0;
+    border: 0;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.45);
+    color: #23282d;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tarsus-chat-box .tarsus-learn-player__toggle .icon {
     margin: 0;
 }
 
-.tarsus-chat-box .tarsus-learn-player__track {
-    flex: 1 1 auto;
-    height: 6px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.7);
-    overflow: hidden;
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle {
+    color: rgba(35, 40, 45, 0.35);
+    cursor: progress;
 }
 
-.tarsus-chat-box .tarsus-learn-player__fill {
-    display: block;
-    height: 100%;
-    width: 0;
-    border-radius: 999px;
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    border-top-color: #2f6fb1;
+    border-right-color: #2f6fb1;
+    animation: tarsus-turn 1s linear infinite;
+}
+
+.tarsus-chat-box .tarsus-learn-player[data-state="ready"] .tarsus-learn-player__toggle,
+.tarsus-chat-box .tarsus-learn-player[data-state="playing"] .tarsus-learn-player__toggle {
     background: #2f6fb1;
+    color: #fff;
+}
+
+.tarsus-chat-box .tarsus-learn-player__wave {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 1.4rem;
+    width: 12rem;
+    max-width: 40vw;
+}
+
+.tarsus-chat-box .tarsus-learn-player__bar {
+    flex: 1 1 0;
+    min-width: 1px;
+    border-radius: 1px;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.tarsus-chat-box .tarsus-learn-player__bar--played {
+    background: #2f6fb1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
+        animation: none;
+    }
 }

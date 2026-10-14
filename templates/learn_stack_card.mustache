@@ -34,18 +34,14 @@
             <circle class="tarsus-learn-ring__track" cx="12" cy="12" r="9"></circle>
             <circle class="tarsus-learn-ring__fill" cx="12" cy="12" r="9" style="stroke-dashoffset: {{ringoffset}}"></circle>
         </svg>
-        <button type="button" class="tarsus-learn-audio btn btn-light btn-sm" data-action="audio"
-                title="{{#str}}learn_audio, mod_tarsuszero{{/str}}" aria-label="{{#str}}learn_audio, mod_tarsuszero{{/str}}">
-            <span class="tarsus-learn-audio__icon">{{#pix}}audio, mod_tarsuszero{{/pix}}</span>
-            <span class="tarsus-learn-audio__spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-        </button>
-        <span class="tarsus-learn-player d-none" data-region="audio-player">
-            <button type="button" class="tarsus-learn-player__toggle btn btn-primary btn-sm" data-action="audio-toggle"
-                    title="{{#str}}learn_audio_play, mod_tarsuszero{{/str}}" aria-label="{{#str}}learn_audio_play, mod_tarsuszero{{/str}}">
-                <span data-region="audio-play">{{#pix}}audio_play, mod_tarsuszero{{/pix}}</span>
+        <span class="tarsus-learn-player" data-region="audio-player" data-state="idle">
+            <button type="button" class="tarsus-learn-player__toggle" data-action="audio-toggle"
+                    title="{{#str}}learn_audio, mod_tarsuszero{{/str}}" aria-label="{{#str}}learn_audio, mod_tarsuszero{{/str}}">
+                <span data-region="audio-speaker">{{#pix}}audio, mod_tarsuszero{{/pix}}</span>
+                <span data-region="audio-play" class="d-none">{{#pix}}audio_play, mod_tarsuszero{{/pix}}</span>
                 <span data-region="audio-pause" class="d-none">{{#pix}}audio_pause, mod_tarsuszero{{/pix}}</span>
             </button>
-            <span class="tarsus-learn-player__track"><span class="tarsus-learn-player__fill" data-region="audio-fill"></span></span>
+            <span class="tarsus-learn-player__wave d-none" data-region="audio-wave" aria-hidden="true"></span>
             <audio data-region="audio" preload="auto"></audio>
         </span>
         {{#slides}}
