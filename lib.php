@@ -90,6 +90,7 @@ function tarsuszero_delete_instance(int $id): bool {
         return false;
     }
 
+    $DB->delete_records('tarsuszero_inclusions', ['tarsuszeroid' => $id]);
     $DB->delete_records('tarsuszero', ['id' => $id]);
 
     return true;
