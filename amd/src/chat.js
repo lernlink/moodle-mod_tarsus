@@ -71,7 +71,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_RING: '[data-region="ring"]',
         LEARN_BADGE: '[data-region="slide-badge"]',
         JUMP_TOP: '[data-action="jump-top"]',
-        ENLARGE: '[data-action="enlarge"]'
+        ENLARGE: '[data-action="enlarge"]',
+        AUDIO_BUTTON: '[data-action="audio"]',
+        AUDIO_TOGGLE: '[data-action="audio-toggle"]',
+        AUDIO_PLAYER: '[data-region="audio-player"]',
+        AUDIO: '[data-region="audio"]',
+        AUDIO_FILL: '[data-region="audio-fill"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -865,6 +870,114 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Have the brain read a learning unit aloud, then show the player.
+     *
+     * The narration is fetched once per card and kept in the page; a
+     * second click on the same card just plays it again.
+     *
+     * @param {Element} card The learn card
+     */
+    function fetchStackAudio(card) {
+        var button = card.querySelector(SELECTORS.AUDIO_BUTTON);
+        var player = card.querySelector(SELECTORS.AUDIO_PLAYER);
+        var audio = card.querySelector(SELECTORS.AUDIO);
+        if (!button || !player || !audio || button.disabled) {
+            return;
+        }
+        if (audio.getAttribute('src')) {
+            toggleStackAudio(card);
+            return;
+        }
+        var spinner = button.querySelector('.tarsus-learn-audio__spinner');
+        var icon = button.querySelector('.tarsus-learn-audio__icon');
+        button.disabled = true;
+        spinner.classList.remove('d-none');
+        icon.classList.add('d-none');
+        var done = function() {
+            button.disabled = false;
+            spinner.classList.add('d-none');
+            icon.classList.remove('d-none');
+        };
+
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_get_stack_audio',
+            args: {cmid: state.cmid, stackid: card.getAttribute('data-stack-id')}
+        }])[0].then(function(result) {
+            done();
+            if (result.status !== 'success' || !result.audio) {
+                var alertBox = state.container.querySelector(SELECTORS.ALERT);
+                if (alertBox) {
+                    alertBox.classList.remove('d-none');
+                    alertBox.textContent = result.error || 'Unknown error occurred.';
+                }
+                return null;
+            }
+            audio.src = result.audio;
+            button.classList.add('d-none');
+            player.classList.remove('d-none');
+            wireStackAudio(card);
+            return audio.play();
+        }).catch(function(ex) {
+            done();
+            Notification.exception(ex);
+        });
+    }
+
+    /**
+     * Keep the play/pause button and the progress line in step with the audio.
+     *
+     * @param {Element} card The learn card
+     */
+    function wireStackAudio(card) {
+        var audio = card.querySelector(SELECTORS.AUDIO);
+        var toggle = card.querySelector(SELECTORS.AUDIO_TOGGLE);
+        var fill = card.querySelector(SELECTORS.AUDIO_FILL);
+        var play = toggle.querySelector('[data-region="audio-play"]');
+        var pause = toggle.querySelector('[data-region="audio-pause"]');
+        var showPlaying = function(playing) {
+            play.classList.toggle('d-none', playing);
+            pause.classList.toggle('d-none', !playing);
+            Str.get_string(playing ? 'learn_audio_pause' : 'learn_audio_play', 'mod_tarsuszero').then(function(text) {
+                toggle.setAttribute('title', text);
+                toggle.setAttribute('aria-label', text);
+                return null;
+            }).catch(Notification.exception);
+        };
+        audio.addEventListener('play', function() {
+            showPlaying(true);
+        });
+        audio.addEventListener('pause', function() {
+            showPlaying(false);
+        });
+        audio.addEventListener('ended', function() {
+            showPlaying(false);
+            fill.style.width = '0';
+        });
+        audio.addEventListener('timeupdate', function() {
+            if (audio.duration > 0) {
+                fill.style.width = Math.min(100, (audio.currentTime / audio.duration) * 100) + '%';
+            }
+        });
+    }
+
+    /**
+     * Play or pause a learning unit's narration.
+     *
+     * @param {Element} card The learn card
+     */
+    function toggleStackAudio(card) {
+        var audio = card.querySelector(SELECTORS.AUDIO);
+        if (!audio || !audio.getAttribute('src')) {
+            return;
+        }
+        if (audio.paused) {
+            audio.play().catch(Notification.exception);
+        } else {
+            audio.pause();
+        }
+    }
+
+    /**
      * Show the previous or next slide of a learning unit.
      *
      * @param {Element} card The learn card
@@ -1507,6 +1620,22 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             var picture = e.target.closest(SELECTORS.ENLARGE);
             if (picture && state.container.contains(picture)) {
                 openLightbox(picture.getAttribute('src')).catch(Notification.exception);
+                return;
+            }
+            var speaker = e.target.closest(SELECTORS.AUDIO_BUTTON);
+            if (speaker && state.container.contains(speaker)) {
+                var speakercard = speaker.closest(SELECTORS.LEARN_CARD);
+                if (speakercard) {
+                    fetchStackAudio(speakercard);
+                }
+                return;
+            }
+            var toggle = e.target.closest(SELECTORS.AUDIO_TOGGLE);
+            if (toggle && state.container.contains(toggle)) {
+                var togglecard = toggle.closest(SELECTORS.LEARN_CARD);
+                if (togglecard) {
+                    toggleStackAudio(togglecard);
+                }
             }
         });
         // Keyboard users reach the illustration by Tab; Enter or Space opens it.

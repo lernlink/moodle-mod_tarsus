@@ -839,3 +839,62 @@
         animation: none;
     }
 }
+
+/* The narration controls in a learning stack's band: a speaker button
+   that turns into a play/pause button with a thin progress line once the
+   brain has read the unit. */
+.tarsus-chat-box .tarsus-learn-audio {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.85);
+    border: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-audio .icon {
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-player {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 24rem;
+}
+
+.tarsus-chat-box .tarsus-learn-player__toggle {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.tarsus-chat-box .tarsus-learn-player__toggle .icon {
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-player__track {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+}
+
+.tarsus-chat-box .tarsus-learn-player__fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: #2f6fb1;
+}

@@ -57,6 +57,14 @@ $functions = [
         'ajax'        => true,
         'loginrequired' => true,
     ],
+    'mod_tarsuszero_get_stack_audio' => [
+        'classname'   => 'mod_tarsuszero\external\get_stack_audio',
+        'methodname'  => 'execute',
+        'description' => 'Have the brain read a learning unit (stack) aloud.',
+        'type'        => 'write',
+        'ajax'        => true,
+        'loginrequired' => true,
+    ],
     'mod_tarsuszero_submit_practice_answer' => [
         'classname'   => 'mod_tarsuszero\external\submit_practice_answer',
         'methodname'  => 'execute',

@@ -354,6 +354,25 @@ final class practice_test extends \advanced_testcase {
     }
 
     /**
+     * The brain reads a learning unit aloud; the audio comes as a data URI
+     * and Build knowledge must be on.
+     */
+    public function test_get_stack_audio_returns_data_uri(): void {
+        global $DB;
+        [$tz] = $this->make_ready_activity();
+
+        $result = \mod_tarsuszero\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1');
+        $result = \core_external\external_api::clean_returnvalue(
+            \mod_tarsuszero\external\get_stack_audio::execute_returns(), $result);
+        $this->assertEquals('success', $result['status']);
+        $this->assertStringStartsWith('data:audio/wav;base64,', $result['audio']);
+        $this->assertSame('Daniel', $result['voice']);
+
+        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
+        $this->assertEquals('disabled', \mod_tarsuszero\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1')['status']);
+    }
+
+    /**
      * A switched-off Build knowledge mode refuses before any API call.
      */
     public function test_learn_refused_when_mode_is_off(): void {
