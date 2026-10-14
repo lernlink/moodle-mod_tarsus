@@ -878,11 +878,16 @@
     cursor: progress;
 }
 
-/* A round loading wheel turning around the square pad. */
+/* A round loading wheel turning inside the pad, the pale play glyph in
+   its middle; the whole control stays 24px like the progress ring. */
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle {
+    font-size: 0.5rem;
+}
+
 .tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
     content: "";
     position: absolute;
-    inset: -5px;
+    inset: 2px;
     border-radius: 50%;
     border: 2px solid rgba(0, 0, 0, 0.1);
     border-top-color: #2f6fb1;
