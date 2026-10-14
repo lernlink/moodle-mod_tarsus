@@ -543,12 +543,43 @@
     padding: 0.5rem 1rem;
 }
 
+/* One design for everything in the band: 24px chips with the same
+   translucent pad and 6px corners — the progress ring, the narration
+   button, the difficulty bars and the badges. Dark ink for text and
+   glyphs, one accent (#2f6fb1) for progress and playback. */
+.tarsus-chat-box .tarsus-card__band .badge,
+.tarsus-chat-box .tarsus-card__band .tarsus-difficulty,
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring {
+    height: 24px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.45);
+}
+
 .tarsus-chat-box .tarsus-card__band .badge {
-    background: rgba(255, 255, 255, 0.85);
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: #23282d;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-difficulty {
+    padding: 0 0.4rem 5px;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring {
+    width: 24px;
+    padding: 3px;
 }
 
 .tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__track {
     stroke: rgba(0, 0, 0, 0.12);
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__fill {
+    stroke: #2f6fb1;
 }
 
 /* A ring that fills as the learner turns the slides, like the one on
