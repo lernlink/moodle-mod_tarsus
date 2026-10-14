@@ -101,7 +101,9 @@
    border-image cannot follow rounded corners. */
 .tarsus-chat-box .tarsus-card--welcome {
     border: 0;
-    padding: 3px;
+    /* Same frame thickness all round as the sides of the practice and
+       learning cards. */
+    padding: 8px;
     background: linear-gradient(135deg, #b39ddb 0%, #d8a7e8 35%, #f8b5c1 70%, #ffd9a0 100%);
     box-shadow: 0 10px 28px rgba(35, 23, 90, 0.12);
 }
