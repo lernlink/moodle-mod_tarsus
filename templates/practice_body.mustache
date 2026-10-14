@@ -21,10 +21,12 @@
     Check button, score bar and feedback. Shared by the Test knowledge card
     and by the check question inside a learning stack.
 
-    Context variables required for this template: see mod_tarsuszero/practice_card.
+    Context variables required for this template: see mod_tarsuszero/practice_card, plus
+    * inlinemeta - bool, render the difficulty/taxonomy row inside the body (a question embedded
+      in a learning slide); the standalone card shows it in its frame band instead.
 }}
     <div class="tarsus-practice-card__inner">
-    {{#hasmeta}}
+    {{#inlinemeta}}{{#hasmeta}}
     <div class="tarsus-practice-card__meta">
         {{#hasbars}}
         <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
@@ -33,7 +35,7 @@
         {{/hasbars}}
         {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
     </div>
-    {{/hasmeta}}
+    {{/hasmeta}}{{/inlinemeta}}
     <div class="tarsus-practice-card__question">{{{question}}}</div>
     {{#haschoices}}
     <div class="tarsus-practice-card__choices" data-region="choices" role="radiogroup">

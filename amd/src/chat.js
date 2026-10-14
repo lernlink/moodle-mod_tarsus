@@ -784,9 +784,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             var question = isquestion ? practiceCardContext(slide.question) : null;
             if (question) {
                 // The card badge already names the level: keep only the
-                // difficulty bars inside the question.
+                // difficulty bars inside the question, in the slide itself.
                 question.taxonomy = '';
                 question.hasmeta = question.hasbars;
+                question.inlinemeta = true;
             }
             return {
                 index: index,

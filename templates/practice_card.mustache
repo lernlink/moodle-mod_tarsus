@@ -38,5 +38,13 @@
 }}
 <div class="tarsus-card tarsus-practice-card" data-region="practice-card"
      data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
+    <div class="tarsus-card__band">
+        {{#hasbars}}
+        <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}
+        {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
+    </div>
     {{> mod_tarsuszero/practice_body }}
 </div>

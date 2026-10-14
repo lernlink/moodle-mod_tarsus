@@ -245,7 +245,7 @@
    differently from chat cards at a glance. */
 .tarsus-chat-box .tarsus-practice-card {
     border: 0;
-    padding: 3px;
+    padding: 0 8px 8px;
     background: linear-gradient(135deg, #9cc6dc 0%, #aedfd8 35%, #d8f0ec 70%, #a3c3e4 100%);
     box-shadow: 0 10px 28px rgba(24, 74, 90, 0.1);
 }
@@ -511,7 +511,7 @@
    practice at a glance. */
 .tarsus-chat-box .tarsus-learn-card {
     border: 0;
-    padding: 3px;
+    padding: 0 8px 8px;
     background: linear-gradient(135deg, #b8a8e6 0%, #cdb9ec 35%, #ead9f4 70%, #a9b4ea 100%);
     box-shadow: 0 10px 28px rgba(70, 50, 120, 0.1);
 }
@@ -522,11 +522,23 @@
     padding: 1.25rem 1.5rem;
 }
 
-.tarsus-learn-card__meta {
+/* The frame band: the card's gradient frame is wide at the top and holds
+   the meta elements (progress ring, difficulty, taxonomy badge, more to
+   come) outside the white body, which saves a row inside it. */
+.tarsus-chat-box .tarsus-card__band {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    margin-bottom: 0.75rem;
+    min-height: 2.5rem;
+    padding: 0.3rem 0.45rem;
+}
+
+.tarsus-chat-box .tarsus-card__band .badge {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__track {
+    stroke: rgba(0, 0, 0, 0.12);
 }
 
 /* A ring that fills as the learner turns the slides, like the one on
