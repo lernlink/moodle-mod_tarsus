@@ -775,3 +775,64 @@
     line-height: 1;
     cursor: pointer;
 }
+
+/* The processing indicator: a slim card under the feed with the current
+   step, its turning icon and a bar that keeps running — the brain reports
+   no real progress, so the bar only says "still working". */
+.tarsus-chat-box .tarsus-processing {
+    padding: 0.9rem 1.25rem 0.85rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.tarsus-processing__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+}
+
+.tarsus-processing__icon .icon {
+    margin: 0;
+    animation: tarsus-turn 3s linear infinite;
+}
+
+.tarsus-processing__bar {
+    height: 8px;
+    border-radius: 999px;
+    background: #e3eef6;
+    overflow: hidden;
+}
+
+.tarsus-processing__fill {
+    height: 100%;
+    width: 60%;
+    border-radius: 999px;
+    background: #4a98cf;
+    animation: tarsus-run 1.6s ease-in-out infinite;
+}
+
+@keyframes tarsus-turn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes tarsus-run {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(170%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-processing__icon .icon,
+    .tarsus-processing__fill {
+        animation: none;
+    }
+}

@@ -184,3 +184,45 @@ $string['transport_error'] = 'Could not contact the Brain. Please check your net
 
 // Privacy.
 $string['privacy:metadata'] = 'The Tarsus activity stores no personal data itself; indexation and usage data are handled by the local_tarsus plugin.';
+
+// The processing indicator's steps (what the brain does while a request runs).
+$string['proc_ask_classify'] = 'Your question is sorted by topic and intent';
+$string['proc_ask_search'] = 'Semantic search through the indexed course knowledge';
+$string['proc_ask_media'] = 'Matching text, image, audio and video passages';
+$string['proc_ask_select'] = 'The most relevant passages are selected';
+$string['proc_ask_cube'] = 'Your position in the learning cube is read';
+$string['proc_ask_dqr'] = 'The depth of explanation is tuned to your DQR level';
+$string['proc_ask_compose'] = 'The answer is formulated from the sources found';
+$string['proc_ask_verify'] = 'The answer is cross-checked against the original passages';
+$string['proc_ask_polish'] = 'Final polish of the answer';
+$string['proc_practice_cube_create'] = 'Your learning cube for this course is set up';
+$string['proc_practice_baseline'] = 'Your starting level for the topic is estimated';
+$string['proc_practice_evaluate'] = 'Your latest answers are evaluated';
+$string['proc_practice_compare'] = 'Expected and actual hit rate compared';
+$string['proc_practice_surprise'] = 'Surprising answers count more than expected ones';
+$string['proc_practice_reestimate'] = 'Your topic score is re-estimated';
+$string['proc_practice_align'] = 'Aligning topic, taxonomy level and kind of knowledge';
+$string['proc_practice_cells'] = 'Looking for active cells with a low score';
+$string['proc_practice_history'] = 'Checking the trend: growth, fluctuation, forgetting';
+$string['proc_practice_action'] = 'The next best learning action is chosen';
+$string['proc_practice_taxonomy'] = 'Taxonomy level: knowledge, understanding or application';
+$string['proc_practice_difficulty'] = 'The difficulty is set';
+$string['proc_practice_format'] = 'A fitting task format is chosen';
+$string['proc_practice_generate'] = 'The task is generated from your course contents';
+$string['proc_practice_operators'] = 'The question is phrased according to the operators';
+$string['proc_practice_options'] = 'Answer options and explanations are worked out';
+$string['proc_practice_solution'] = 'Model solution and marking scheme are fixed';
+$string['proc_practice_polish'] = 'Final polish of your task';
+$string['proc_learn_path_create'] = 'Your learning path for this course is set up';
+$string['proc_learn_progress'] = 'Your learning progress is read';
+$string['proc_learn_objectives'] = 'Reached and open learning objectives are compared';
+$string['proc_learn_cells'] = 'Open cells in the learning cube are determined';
+$string['proc_learn_next'] = 'Next objective: knowledge, understanding or application';
+$string['proc_learn_passages'] = 'Fitting passages from your course are gathered';
+$string['proc_learn_dqr'] = 'The explanations are tuned to your DQR level';
+$string['proc_learn_split'] = 'The learning unit is split into single cards';
+$string['proc_learn_examples'] = 'Examples and pictures are selected';
+$string['proc_learn_link'] = 'Links to what you already learned are made';
+$string['proc_learn_check'] = 'The learning cards are checked for clarity';
+$string['proc_learn_path_update'] = 'Your learning path is carried forward';
+$string['proc_learn_polish'] = 'Final polish of your learning unit';

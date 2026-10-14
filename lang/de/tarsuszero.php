@@ -183,3 +183,45 @@ $string['transport_error'] = 'Konnte das Brain nicht kontaktieren. Bitte überpr
 
 // Datenschutz.
 $string['privacy:metadata'] = 'Die Tarsus-Aktivität speichert selbst keine personenbezogenen Daten; Indexierungs- und Nutzungsdaten werden vom Plugin local_tarsus verarbeitet.';
+
+// Die Schritte der Verarbeitungsanzeige (was das Brain während einer Anfrage tut).
+$string['proc_ask_classify'] = 'Ihre Frage wird nach Thema und Absicht eingeordnet';
+$string['proc_ask_search'] = 'Semantische Suche im indexierten Kurswissen';
+$string['proc_ask_media'] = 'Text-, Bild-, Audio- und Videostellen im Abgleich';
+$string['proc_ask_select'] = 'Die relevantesten Passagen werden ausgewählt';
+$string['proc_ask_cube'] = 'Ihr Stand im Lernwürfel wird gelesen';
+$string['proc_ask_dqr'] = 'Die Erklärtiefe wird auf Ihr DQR-Niveau abgestimmt';
+$string['proc_ask_compose'] = 'Die Antwort wird aus den gefundenen Quellen formuliert';
+$string['proc_ask_verify'] = 'Gegenprüfung der Antwort an den Originalstellen';
+$string['proc_ask_polish'] = 'Letzter Feinschliff der Antwort';
+$string['proc_practice_cube_create'] = 'Ihr Lernwürfel für diesen Kurs wird angelegt';
+$string['proc_practice_baseline'] = 'Ihr Ausgangsniveau für das Thema wird geschätzt';
+$string['proc_practice_evaluate'] = 'Ihre letzten Antworten werden ausgewertet';
+$string['proc_practice_compare'] = 'Erwartete und tatsächliche Trefferquote im Vergleich';
+$string['proc_practice_surprise'] = 'Überraschende Antworten zählen mehr als erwartbare';
+$string['proc_practice_reestimate'] = 'Ihr Themenwert wird neu geschätzt';
+$string['proc_practice_align'] = 'Abgleich von Thema, Taxonomiestufe und Wissensart';
+$string['proc_practice_cells'] = 'Aktive Zellen mit niedrigem Stand werden gesucht';
+$string['proc_practice_history'] = 'Verlauf wird geprüft: Wachstum, Schwankung, Vergessen';
+$string['proc_practice_action'] = 'Die nächste beste Lernaktion wird gewählt';
+$string['proc_practice_taxonomy'] = 'Taxonomiestufe: Wissen, Verstehen oder Anwenden';
+$string['proc_practice_difficulty'] = 'Der Schwierigkeitsgrad wird gesetzt';
+$string['proc_practice_format'] = 'Passendes Aufgabenformat wird ausgewählt';
+$string['proc_practice_generate'] = 'Die Aufgabe wird aus Ihren Kursinhalten erzeugt';
+$string['proc_practice_operators'] = 'Die Fragestellung wird nach den Operatoren formuliert';
+$string['proc_practice_options'] = 'Antwortoptionen und Erklärungen werden ausgearbeitet';
+$string['proc_practice_solution'] = 'Musterlösung und Bewertungsmaßstab werden festgelegt';
+$string['proc_practice_polish'] = 'Letzter Feinschliff Ihrer Aufgabe';
+$string['proc_learn_path_create'] = 'Ihr Lernpfad für diesen Kurs wird angelegt';
+$string['proc_learn_progress'] = 'Ihr Lernfortschritt wird gelesen';
+$string['proc_learn_objectives'] = 'Erreichte und offene Lernziele werden abgeglichen';
+$string['proc_learn_cells'] = 'Offene Zellen im Lernwürfel werden bestimmt';
+$string['proc_learn_next'] = 'Nächstes Lernziel: Wissen, Verstehen oder Anwenden';
+$string['proc_learn_passages'] = 'Passende Passagen aus Ihrem Kurs werden gesammelt';
+$string['proc_learn_dqr'] = 'Die Erklärungen werden auf Ihr DQR-Niveau abgestimmt';
+$string['proc_learn_split'] = 'Die Lerneinheit wird in einzelne Karten aufgeteilt';
+$string['proc_learn_examples'] = 'Beispiele und Bilder werden ausgewählt';
+$string['proc_learn_link'] = 'Anschluss an bereits Gelerntes wird hergestellt';
+$string['proc_learn_check'] = 'Die Lernkarten werden auf Verständlichkeit geprüft';
+$string['proc_learn_path_update'] = 'Ihr Lernpfad wird fortgeschrieben';
+$string['proc_learn_polish'] = 'Letzter Feinschliff Ihrer Lerneinheit';

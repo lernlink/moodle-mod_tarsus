@@ -25,8 +25,8 @@
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events'],
-        function(Ajax, Templates, Notification, Str, FilterEvents) {
+define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events', 'mod_tarsuszero/processing'],
+        function(Ajax, Templates, Notification, Str, FilterEvents, Processing) {
 
     /**
      * DOM selectors.
@@ -933,7 +933,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (alertBox) {
             alertBox.classList.add('d-none');
         }
+        var processing = startProcessing('build', !state.learnStarted);
         var unlock = function() {
+            processing.stop();
             setNextBusy(false);
         };
 
@@ -1025,7 +1027,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             alertBox.classList.add('d-none');
         }
 
+        var processing = startProcessing('test', !state.practiceStarted);
         var unlock = function() {
+            processing.stop();
             setNextBusy(false);
         };
 
@@ -1266,6 +1270,38 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Show the processing indicator under the feed for a request in flight.
+     *
+     * @param {string} mode 'ask', 'test' or 'build'
+     * @param {boolean} firstRun Whether this is the learner's first step in the mode
+     * @return {Object} {stop} — stop() removes the indicator; safe to call before it rendered
+     */
+    function startProcessing(mode, firstRun) {
+        var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+        var handle = null;
+        var stopped = false;
+        if (flow) {
+            Processing.start(flow, mode, firstRun).then(function(result) {
+                handle = result;
+                if (stopped) {
+                    handle.stop();
+                } else {
+                    scrollToEnd();
+                }
+                return null;
+            }).catch(Notification.exception);
+        }
+        return {
+            stop: function() {
+                stopped = true;
+                if (handle) {
+                    handle.stop();
+                }
+            }
+        };
+    }
+
+    /**
      * Scroll the page so a card's top sits just under the pinned chrome.
      *
      * A step may bring several cards at once (two questions, the
@@ -1349,7 +1385,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         input.value = '';
 
+        var processing = null;
         var unlock = function() {
+            if (processing) {
+                processing.stop();
+            }
             input.disabled = false;
             submit.disabled = false;
             if (spinner) {
@@ -1360,6 +1400,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
 
         // The question appears at once, its answer slot thinking.
         attachExchange(query, '', true).then(function(card) {
+            processing = startProcessing('ask', false);
             return Ajax.call([{
                 methodname: 'mod_tarsuszero_send_chat_message',
                 args: {cmid: state.cmid, query: query}
