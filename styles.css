@@ -854,11 +854,13 @@
 
 .tarsus-chat-box .tarsus-learn-player__toggle {
     position: relative;
-    width: 2rem;
-    height: 2rem;
+    /* No larger than the progress ring beside it (24px). */
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: 0;
-    border-radius: 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -876,15 +878,15 @@
     cursor: progress;
 }
 
+/* A round loading wheel turning around the square pad. */
 .tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
     content: "";
     position: absolute;
-    inset: -3px;
-    border-radius: 10px;
-    border: 2px solid transparent;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.1);
     border-top-color: #2f6fb1;
-    border-right-color: #2f6fb1;
-    animation: tarsus-turn 1s linear infinite;
+    animation: tarsus-turn 0.9s linear infinite;
 }
 
 .tarsus-chat-box .tarsus-learn-player[data-state="ready"] .tarsus-learn-player__toggle,
@@ -897,7 +899,7 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    height: 1.4rem;
+    height: 20px;
     width: 12rem;
     max-width: 40vw;
 }
