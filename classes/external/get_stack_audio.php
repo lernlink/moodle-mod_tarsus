@@ -94,7 +94,7 @@ class get_stack_audio extends external_api {
         $callparams = conversation::params($cm, $allowed) + [
             'stackid' => $params['stackid'],
         ];
-        $callparams['voice'] = self::voice((string) $callparams['userlanguage']);
+        $callparams['voice'] = \local_tarsus\voices::choose((string) $callparams['userlanguage']);
 
         try {
             $response = $pipeline->execute(function() use ($client, $callparams) {
@@ -119,19 +119,6 @@ class get_stack_audio extends external_api {
         } catch (transport_exception $e) {
             return self::result('error', get_string('transport_error', 'mod_tarsuszero'));
         }
-    }
-
-    /**
-     * The voice alias for a language, from the site settings (German and
-     * English have their own; anything else reads with the English voice).
-     *
-     * @param string $language The learner's language code.
-     * @return string The assistant alias.
-     */
-    private static function voice(string $language): string {
-        $setting = $language === 'de' ? 'voice_de' : 'voice_en';
-        $voice = trim((string) get_config('local_tarsus', $setting));
-        return $voice !== '' ? $voice : ($language === 'de' ? 'Sara' : 'Daniel');
     }
 
     /**

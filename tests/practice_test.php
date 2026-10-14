@@ -361,6 +361,8 @@ final class practice_test extends \advanced_testcase {
         global $DB;
         [$tz] = $this->make_ready_activity();
 
+        set_config('voice_mode', \local_tarsus\voices::MODE_FIXED, 'local_tarsus');
+        set_config('voice', 'Daniel', 'local_tarsus');
         $result = \mod_tarsuszero\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1');
         $result = \core_external\external_api::clean_returnvalue(
             \mod_tarsuszero\external\get_stack_audio::execute_returns(), $result);
