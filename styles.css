@@ -536,7 +536,9 @@
     align-items: center;
     gap: 0.6rem;
     min-height: 2.5rem;
-    padding: 0.3rem 0.45rem;
+    /* Same side padding as the white body, so the band's first element
+       lines up with the text below it. */
+    padding: 0.3rem 1.5rem;
 }
 
 .tarsus-chat-box .tarsus-card__band .badge {
