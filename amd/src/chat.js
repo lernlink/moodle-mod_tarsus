@@ -101,8 +101,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         mode: 'ask',
         practiceStarted: false,
         learnStarted: false,
-        // Every learning objective done: the brain has nothing more to
-        // build, so Next locks in Build knowledge.
+        // The brain sent its farewell (success card): nothing more to
+        // build, so Next locks in Build knowledge. The learnProgress figure
+        // alone does not count — it reaches 100 before the course ends.
         learnComplete: false,
         feedOffset: 0,
         feedHasMore: false,
@@ -684,9 +685,6 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return;
         }
         state.progress = progress;
-        if (progress.learnprogress >= 100) {
-            state.learnComplete = true;
-        }
         renderBadge();
         renderProgressBar();
     }

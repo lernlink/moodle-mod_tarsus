@@ -108,8 +108,10 @@ class get_learn_widget extends external_api {
                 (int) $coursecontext->id, (int) $USER->id, 'learn_next', (int) ($response['credits'] ?? 6));
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
-            $done = (float) ($response['progress']['learnprogress'] ?? 0) >= 100
-                || in_array('complete', array_column($items, 'kind'), true);
+            // Only the brain's own farewell ends the course: learnProgress
+            // reaches 100 while objectives are still open (verified live),
+            // so the figure alone must not lock the Next button.
+            $done = in_array('complete', array_column($items, 'kind'), true);
 
             return self::result('success', '', [
                 'items' => array_map(static fn(array $item): array => practice_labels::learn_item($item, $render), $items),
@@ -158,7 +160,7 @@ class get_learn_widget extends external_api {
                 'The learn items, as many as the brain sent.'
             ),
             'progress' => practice_labels::progress_structure(),
-            'complete' => new external_value(PARAM_BOOL, 'Whether every learning objective is done: nothing more to generate.'),
+            'complete' => new external_value(PARAM_BOOL, 'Whether the brain sent its farewell: nothing more to generate.'),
         ]);
     }
 }

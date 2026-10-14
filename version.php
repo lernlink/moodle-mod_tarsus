@@ -25,10 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026101403;
+$plugin->version   = 2026101404;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.26.4 (Taxonomy level badge on learning slides)';
+$plugin->release   = '0.26.5 (Next locks only on the brain\'s farewell)';
 $plugin->dependencies = [
     'local_tarsus' => 2026101403,
 ];
