@@ -255,7 +255,8 @@
 .tarsus-chat-box .tarsus-practice-card .tarsus-practice-card__inner {
     background: #fff;
     border-radius: 13px;
-    padding: 1.25rem 1.5rem;
+    /* Bootstrap's card body inset. */
+    padding: 1rem;
 }
 
 .tarsus-practice-card__meta {
@@ -525,7 +526,8 @@
 .tarsus-chat-box .tarsus-learn-card .tarsus-learn-card__inner {
     background: #fff;
     border-radius: 13px;
-    padding: 1.25rem 1.5rem;
+    /* Bootstrap's card body inset. */
+    padding: 1rem;
 }
 
 /* The frame band: the card's gradient frame is wide at the top and holds
@@ -534,11 +536,11 @@
 .tarsus-chat-box .tarsus-card__band {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    /* Bootstrap's spacing scale: the same side inset as the body, so the
+       band's elements line up with the text; half a step above and below. */
+    gap: 0.5rem;
     min-height: 2.5rem;
-    /* No side padding: the band's first element lines up with the left
-       edge of the white body below it. */
-    padding: 0.3rem 0;
+    padding: 0.5rem 1rem;
 }
 
 .tarsus-chat-box .tarsus-card__band .badge {
