@@ -50,7 +50,9 @@
 .tarsus-chat-box .tarsus-chat-form {
     position: sticky;
     bottom: var(--sticky-footer-total-height, 0px);
-    z-index: 5;
+    /* Below Boost's sticky footer (z-index 3): on the way out of the
+       viewport the composer slides under the Previous/Next bar, not over it. */
+    z-index: 2;
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
 }
 
