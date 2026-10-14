@@ -916,7 +916,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             button.classList.add('d-none');
             player.classList.remove('d-none');
             wireStackAudio(card);
-            return audio.play();
+            // The click is seconds old by now, so browsers may refuse to
+            // start playback on their own (NotAllowedError): then the
+            // player simply waits for the play button — no error.
+            return audio.play().catch(function() {
+                return null;
+            });
         }).catch(function(ex) {
             done();
             Notification.exception(ex);
