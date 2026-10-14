@@ -12,23 +12,21 @@
     overflow-anchor: none;
 }
 
-/* The back-to-top button rides a zero-height sticky strip under the
-   navbar, so it takes no room in the flow and stays visible while the
-   reader is deep in the feed. */
+/* The back-to-top button floats at the viewport's right edge, on the
+   same vertical line as Boost's help button (.btn-footer-popover:
+   position fixed, right 2rem), just under the navbar — clear of the
+   cards. The dock element only hosts it; it takes no room. */
 .tarsus-chat-box .tarsus-top-dock {
-    position: sticky;
-    top: calc(var(--tarsus-nav-offset, 60px) + 0.75rem);
     height: 0;
-    z-index: 6;
-    display: flex;
-    justify-content: flex-end;
-    pointer-events: none;
 }
 
 .tarsus-chat-box .tarsus-jump-top {
-    pointer-events: auto;
-    width: 2.5rem;
-    height: 2.5rem;
+    position: fixed;
+    top: calc(var(--tarsus-nav-offset, 60px) + 1rem);
+    right: 2rem;
+    z-index: 6;
+    width: 2.25rem;
+    height: 2.25rem;
     padding: 0;
     border-radius: 50%;
     border: 1px solid rgba(0, 0, 0, 0.1);
