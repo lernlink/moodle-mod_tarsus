@@ -119,7 +119,7 @@
 }
 
 .tarsus-chat-box .tarsus-welcome-art img {
-    width: 260px;
+    width: 130px;
     max-width: 80%;
     height: auto;
     /* Boost caps every pix image at 30x24 via .icon; lift both caps or the

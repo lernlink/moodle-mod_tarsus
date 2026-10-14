@@ -437,7 +437,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         return Promise.all(items.map(function(item) {
             var build;
             if (item.kind === 'message') {
-                build = buildCard('mod_tarsuszero/chat_welcome_card', {message: item.text});
+                build = buildCard('mod_tarsuszero/chat_welcome_card', {title: item.title, message: item.text});
             } else if (item.kind === 'exchange') {
                 build = buildCard('mod_tarsuszero/chat_card', {
                     question: item.query,
@@ -763,7 +763,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return {template: 'mod_tarsuszero/learn_motivation_card', context: {title: item.title, text: item.text}};
         }
         if (item.kind === 'message') {
-            return {template: 'mod_tarsuszero/chat_welcome_card', context: {message: item.text}};
+            return {template: 'mod_tarsuszero/chat_welcome_card', context: {title: item.title, message: item.text}};
         }
         if (item.kind === 'objectives') {
             return {
@@ -1243,12 +1243,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     /**
      * Attach an informational card (e.g. the assistant's welcome).
      *
-     * @param {string} messageHtml Server-cleaned message HTML
+     * @param {Object} message {title, text}: the widget's title and server-cleaned HTML
      * @param {Element|null} before Insert before this element
      * @return {Promise} Resolves to the card element
      */
-    function attachWelcome(messageHtml, before) {
-        return attachCard('mod_tarsuszero/chat_welcome_card', {message: messageHtml}, before || null);
+    function attachWelcome(message, before) {
+        return attachCard('mod_tarsuszero/chat_welcome_card', {title: message.title, message: message.text}, before || null);
     }
 
     /**

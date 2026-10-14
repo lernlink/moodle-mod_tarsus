@@ -108,7 +108,11 @@ class get_activity_feed extends external_api {
             foreach (($response['items'] ?? []) as $item) {
                 $kind = (string) ($item['kind'] ?? '');
                 if ($kind === 'message') {
-                    $items[] = ['kind' => 'message', 'text' => $render((string) $item['text'])];
+                    $items[] = [
+                        'kind' => 'message',
+                        'title' => (string) ($item['title'] ?? ''),
+                        'text' => $render((string) $item['text']),
+                    ];
                     continue;
                 }
                 if ($kind === 'exchange') {

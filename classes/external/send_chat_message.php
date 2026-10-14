@@ -134,7 +134,8 @@ class send_chat_message extends external_api {
             // Informational widgets (welcome and whatever Tarsus adds) are
             // relayed exactly as often as Tarsus sends them — when they
             // appear is its decision, not ours.
-            $messages = array_values(array_filter(array_map('strval', $response['messages'] ?? [])));
+            $messages = array_values(array_filter((array) ($response['messages'] ?? []),
+                static fn($message): bool => is_array($message) && trim((string) ($message['text'] ?? '')) !== ''));
 
             // Record local context-level usage.
             $usage = new usage_meter();
@@ -152,7 +153,10 @@ class send_chat_message extends external_api {
                 // explicitly); render it through Moodle's own converter so
                 // the output is real HTML and has passed the XSS cleaner.
                 'answer'   => $render($answer),
-                'messages' => array_map($render, $messages),
+                'messages' => array_map(static fn(array $message): array => [
+                    'title' => (string) ($message['title'] ?? ''),
+                    'text' => $render((string) $message['text']),
+                ], $messages),
                 'sources'  => [],
                 'error'    => '',
             ];
@@ -187,7 +191,10 @@ class send_chat_message extends external_api {
             'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, disabled, blocked, error).'),
             'answer'  => new external_value(PARAM_RAW, 'The grounded answer.'),
             'messages' => new external_multiple_structure(
-                new external_value(PARAM_RAW, 'Rendered informational message from the assistant (e.g. welcome).'),
+                new external_single_structure([
+                    'title' => new external_value(PARAM_TEXT, 'The widget\'s title (the welcome carries the activity name).'),
+                    'text' => new external_value(PARAM_RAW, 'Rendered informational message from the assistant (e.g. welcome).'),
+                ]),
                 'Informational widgets sent alongside the answer, shown before it.',
                 VALUE_OPTIONAL
             ),

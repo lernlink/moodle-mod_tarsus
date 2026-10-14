@@ -23,11 +23,13 @@
     brain's message below it.
 
     Context variables required for this template:
+    * title - string, the widget's title (the activity name on the welcome), may be empty.
     * message - string, server-cleaned HTML of the message (output unescaped).
 }}
 <div class="tarsus-card tarsus-card--welcome" data-region="tarsus-chat-card">
     <div class="tarsus-card__inner text-center">
         <div class="tarsus-welcome-art">{{#pix}}welcome, mod_tarsuszero{{/pix}}</div>
+        {{#title}}<h3 class="tarsus-card__title">{{title}}</h3>{{/title}}
         <div class="tarsus-card__welcome-text">{{{message}}}</div>
     </div>
 </div>

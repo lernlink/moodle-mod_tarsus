@@ -140,7 +140,8 @@ final class chat_test extends \advanced_testcase {
 
         // Informational widgets are relayed as sent, rendered like answers.
         $this->assertCount(1, $result['messages']);
-        $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]);
+        $this->assertStringContainsString('<strong>Mock welcome</strong>', $result['messages'][0]['text']);
+        $this->assertSame('Mock activity', $result['messages'][0]['title']);
 
         // The feed is read back from the brain, oldest first, all modes
         // interleaved and rendered like fresh answers: the welcome message,
