@@ -47,6 +47,10 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
+// Same centred, width-limited layout as core activities (Page, Lesson):
+// in Boost 5.3 the course index then floats as a panel instead of filling
+// the whole left side.
+$PAGE->add_body_class('limitedwidth');
 
 echo $OUTPUT->header();
 // No extra heading here: the page header already carries the activity name,
