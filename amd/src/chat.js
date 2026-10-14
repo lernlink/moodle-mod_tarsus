@@ -309,7 +309,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Promise} Resolves to the card element.
      */
     function attachPracticeCard(widget) {
-        return attachCard('mod_tarsuszero/practice_card', practiceCardContext(widget), null);
+        return attachCard('mod_tarsuszero/practice_card', practiceCardContext(widget), null, true);
     }
 
     /**
@@ -953,12 +953,17 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             if (result.complete) {
                 state.learnComplete = true;
             }
+            var firstcard = null;
             return result.items.reduce(function(previous, item) {
                 return previous.then(function() {
                     var card = learnCard(item);
-                    return attachCard(card.template, card.context, null);
+                    return attachCard(card.template, card.context, null, true).then(function(element) {
+                        firstcard = firstcard || element;
+                        return element;
+                    });
                 });
             }, Promise.resolve()).then(function() {
+                scrollToCard(firstcard);
                 state.learnStarted = true;
                 return updateNextLabel();
             });
@@ -1041,11 +1046,16 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             updateXp(result.progress);
 
             // As many cards as the brain generated for this step.
+            var firstcard = null;
             return result.widgets.reduce(function(previous, widget) {
                 return previous.then(function() {
-                    return attachPracticeCard(widget);
+                    return attachPracticeCard(widget).then(function(element) {
+                        firstcard = firstcard || element;
+                        return element;
+                    });
                 });
             }, Promise.resolve()).then(function() {
+                scrollToCard(firstcard);
                 state.practiceStarted = true;
                 return updateNextLabel();
             });
@@ -1222,9 +1232,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @param {string} template Template name
      * @param {Object} context Template context
      * @param {Element|null} before Insert before this element (append when null)
+     * @param {boolean} [noscroll] Append without scrolling (the caller positions the view)
      * @return {Promise} Resolves to the attached card element (or null)
      */
-    function attachCard(template, context, before) {
+    function attachCard(template, context, before, noscroll) {
         var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
         if (!flow) {
             return Promise.resolve(null);
@@ -1242,7 +1253,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 });
             } else {
                 flow.appendChild(card);
-                scrollToEnd();
+                if (!noscroll) {
+                    scrollToEnd();
+                }
             }
             if (js) {
                 Templates.runTemplateJS(js);
@@ -1250,6 +1263,27 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             notifyFilters(card);
             return card;
         });
+    }
+
+    /**
+     * Scroll the page so a card's top sits just under the pinned chrome.
+     *
+     * A step may bring several cards at once (two questions, the
+     * objectives and a stack): the reader starts at the first of them and
+     * reads down, instead of landing at the end and missing the top one.
+     *
+     * @param {Element|null} card The card to show
+     */
+    function scrollToCard(card) {
+        if (!card) {
+            return;
+        }
+        var offset = parseInt(getComputedStyle(state.container).getPropertyValue('--tarsus-nav-offset'), 10) || 0;
+        var progress = state.container.querySelector(SELECTORS.PROGRESS);
+        if (progress && !progress.classList.contains('d-none')) {
+            offset += progress.offsetHeight;
+        }
+        scrollPage(Math.max(0, card.getBoundingClientRect().top + window.pageYOffset - offset - 16));
     }
 
     /**
