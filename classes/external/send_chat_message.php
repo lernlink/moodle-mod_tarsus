@@ -55,23 +55,28 @@ class send_chat_message extends external_api {
         return new external_function_parameters([
             'cmid'  => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
             'query' => new external_value(PARAM_RAW, 'The query that is sent to the brain.'),
+            'replytowidget' => new external_value(PARAM_ALPHANUMEXT,
+                'The id of the widget (e.g. a slide of a learning unit) the question is about; empty for none.',
+                VALUE_DEFAULT, ''),
         ]);
     }
 
     /**
      * Send student question to Tarsus using guardrails and pseudonymization.
      *
-     * @param int    $cmid  The course module.
-     * @param string $query The query text.
+     * @param int    $cmid          The course module.
+     * @param string $query         The query text.
+     * @param string $replytowidget The widget the question is about ("Ask about this"); empty for none.
      * @return array Resulting answer, status and optional sources.
      * @throws moodle_exception
      */
-    public static function execute(int $cmid, string $query): array {
+    public static function execute(int $cmid, string $query, string $replytowidget = ''): array {
         global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid'  => $cmid,
             'query' => $query,
+            'replytowidget' => $replytowidget,
         ]);
 
         $querytext = trim($params['query']);
@@ -119,6 +124,10 @@ class send_chat_message extends external_api {
         $coursecontext = \context_course::instance($cm->course);
 
         $chatparams = conversation::params($cm, $allowed) + ['query' => $querytext];
+        if (trim($params['replytowidget']) !== '') {
+            // The learner asked about one slide: the brain grounds the answer there.
+            $chatparams['replytowidget'] = trim($params['replytowidget']);
+        }
 
         try {
             // Outbound API request through the guardrail pipeline. The brain

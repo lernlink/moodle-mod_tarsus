@@ -267,6 +267,7 @@ function mod_tarsuszero_get_fontawesome_icon_map(): array {
         'mod_tarsuszero:send' => 'fa-regular fa-paper-plane',
         'mod_tarsuszero:jump_top' => 'fa-solid fa-arrow-up',
         'mod_tarsuszero:audio' => 'fa-solid fa-volume-high',
+        'mod_tarsuszero:reply' => 'fa-solid fa-reply',
         'mod_tarsuszero:audio_play' => 'fa-solid fa-play',
         'mod_tarsuszero:audio_pause' => 'fa-solid fa-pause',
         'mod_tarsuszero:taxonomy_knowledge' => 'fa-solid fa-book-open',

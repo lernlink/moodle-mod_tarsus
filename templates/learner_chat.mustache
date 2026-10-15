@@ -69,6 +69,14 @@
         <input type="hidden" name="id" value="{{cmid}}">
         <!-- Alert details -->
         <div class="tarsus-chat-alert alert alert-danger d-none mb-2" role="alert"></div>
+        <!-- "Ask about this": the slide the next question refers to -->
+        <div class="tarsus-reply-chip d-none mb-2" data-region="reply-chip">
+            {{#pix}}reply, mod_tarsuszero{{/pix}}<span class="tarsus-reply-chip__title" data-region="reply-title"></span>
+            <button type="button" class="tarsus-reply-chip__clear" data-action="reply-clear"
+                    title="{{#str}}chat_reply_clear, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_reply_clear, mod_tarsuszero{{/str}}">
+                {{#pix}}t/close, core{{/pix}}
+            </button>
+        </div>
         <input type="text" class="tarsus-chat-input form-control mb-2" placeholder="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsuszero{{/str}}" autocomplete="off" required>
         <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
             <div class="d-flex align-items-center" style="gap: 0.75rem;">

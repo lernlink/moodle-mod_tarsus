@@ -28,9 +28,15 @@
     * useravatarurl - string, the learner's profile picture URL.
     * robotavatarurl - string, the assistant's avatar URL.
     * robotname - string, the assistant's display name.
+    * reply - string, optional: the title of the slide the question is about ("Ask about this").
 }}
 <div class="tarsus-card" data-region="tarsus-chat-card">
     <div class="tarsus-card__inner">
+        {{#reply}}
+        <div class="tarsus-card__reply" aria-label="{{#str}}chat_reply_about, mod_tarsuszero, {{reply}}{{/str}}">
+            {{#pix}}reply, mod_tarsuszero{{/pix}}<span>{{reply}}</span>
+        </div>
+        {{/reply}}
         <div class="tarsus-card__question d-flex align-items-start">
             <img class="tarsus-card__avatar" src="{{useravatarurl}}" alt="">
             <div class="tarsus-card__question-text">{{question}}</div>

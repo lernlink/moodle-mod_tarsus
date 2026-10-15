@@ -161,6 +161,33 @@ final class chat_test extends \advanced_testcase {
     }
 
     /**
+     * "Ask about this": the slide's widget id travels to the brain as the
+     * anchor of the question, and only when the learner pinned one.
+     */
+    public function test_ask_about_a_slide_travels_with_the_request(): void {
+        $course = $this->getDataGenerator()->create_course();
+        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        set_config('mockmode', '1', 'local_tarsus');
+        $this->setAdminUser();
+        $this->make_included_page($course, $tz);
+        $this->setUser($student);
+
+        $result = send_chat_message::execute((int) $tz->cmid, 'Explain this in simpler words.',
+            'f02dcbf7-282d-461b-925b-a71d6a20347d');
+        $this->assertEquals('success', $result['status']);
+        $this->assertStringContainsString('[reply: f02dcbf7-282d-461b-925b-a71d6a20347d]', $result['answer']);
+
+        $plain = send_chat_message::execute((int) $tz->cmid, 'Explain this in simpler words.');
+        $this->assertStringNotContainsString('[reply:', $plain['answer']);
+
+        // A widget id is a UUID-like token; anything else is refused.
+        $this->expectException(\invalid_parameter_exception::class);
+        send_chat_message::execute((int) $tz->cmid, 'Explain this.', 'not a widget id');
+    }
+
+    /**
      * The teacher's didactic settings for the activity reach the brain.
      */
     public function test_didactic_settings_travel_with_the_request(): void {

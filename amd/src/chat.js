@@ -74,7 +74,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         ENLARGE: '[data-action="enlarge"]',
         AUDIO_TOGGLE: '[data-action="audio-toggle"]',
         AUDIO_PLAYER: '[data-region="audio-player"]',
-        AUDIO: '[data-region="audio"]'
+        AUDIO: '[data-region="audio"]',
+        ASK_ABOUT: '[data-action="ask-about"]',
+        REPLY_CHIP: '[data-region="reply-chip"]',
+        REPLY_TITLE: '[data-region="reply-title"]',
+        REPLY_CLEAR: '[data-action="reply-clear"]'
     };
 
     /** @var {number} The feed page size, matching the external function. */
@@ -102,6 +106,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         robotAvatar: '',
         robotName: '',
         mode: 'ask',
+        // The modes the teacher switched on (ask, test, build).
+        modes: [],
+        // "Ask about this": {id, title} of the slide the next question is
+        // about, or null.
+        replyTo: null,
         practiceStarted: false,
         learnStarted: false,
         // The brain sent its farewell (success card): nothing more to
@@ -791,6 +800,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 question.inlinemeta = true;
             }
             return {
+                id: slide.id || '',
                 index: index,
                 number: index + 1,
                 first: index === 0,
@@ -808,6 +818,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             template: 'mod_tarsuszero/learn_stack_card',
             context: {
                 stackid: item.id,
+                askenabled: state.modes.indexOf('ask') !== -1,
                 total: slides.length,
                 single: slides.length < 2,
                 ringoffset: ringOffset(1, slides.length),
@@ -1382,6 +1393,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (practice) {
             practice.classList.toggle('d-none', !test);
         }
+        var chip = state.container.querySelector(SELECTORS.REPLY_CHIP);
+        if (chip) {
+            chip.classList.toggle('d-none', !ask || !state.replyTo);
+        }
         renderBadge();
         renderProgressBar();
         updateNextLabel();
@@ -1496,17 +1511,65 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @param {string} question The learner's question
      * @param {string} answerHtml Server-cleaned answer HTML ('' while pending)
      * @param {boolean} pending Whether the answer is still being generated
+     * @param {string} [reply] Title of the slide the question is about ('' for none)
      * @return {Promise} Resolves to the card element
      */
-    function attachExchange(question, answerHtml, pending) {
+    function attachExchange(question, answerHtml, pending, reply) {
         return attachCard('mod_tarsuszero/chat_card', {
             question: question,
             answer: answerHtml || '',
             pending: !!pending,
+            reply: reply || '',
             useravatarurl: state.userAvatar,
             robotavatarurl: state.robotAvatar,
             robotname: state.robotName
         }, null);
+    }
+
+    /**
+     * "Ask about this": remember which slide the next question is about
+     * and show it as a chip above the composer. Null drops the reference.
+     *
+     * @param {Object|null} reply {id: widget id, title: slide title}
+     */
+    function setReply(reply) {
+        state.replyTo = reply && reply.id ? reply : null;
+        var chip = state.container.querySelector(SELECTORS.REPLY_CHIP);
+        if (!chip) {
+            return;
+        }
+        var title = chip.querySelector(SELECTORS.REPLY_TITLE);
+        if (title) {
+            title.textContent = state.replyTo ? state.replyTo.title : '';
+        }
+        chip.classList.toggle('d-none', !state.replyTo || state.mode !== 'ask');
+    }
+
+    /**
+     * The learner wants to ask about the slide showing in a learning unit:
+     * pin it, switch to the chat and put the cursor in the box.
+     *
+     * @param {Element} card The stack card
+     */
+    function askAbout(card) {
+        var slide = card.querySelector(SELECTORS.LEARN_SLIDE + ':not(.d-none)');
+        if (!slide || !slide.getAttribute('data-slide-id')) {
+            return;
+        }
+        var title = slide.getAttribute('data-slide-title') || '';
+        var ready = title !== '' ? Promise.resolve(title) : Str.get_string('learn_slide_of', 'mod_tarsuszero', {
+            current: parseInt(slide.getAttribute('data-index'), 10) + 1,
+            total: parseInt(card.getAttribute('data-total'), 10) || 1
+        });
+        ready.then(function(label) {
+            setMode('ask');
+            setReply({id: slide.getAttribute('data-slide-id'), title: label});
+            var input = state.container.querySelector(SELECTORS.INPUT);
+            if (input) {
+                input.focus();
+            }
+            return null;
+        }).catch(Notification.exception);
     }
 
     /**
@@ -1541,6 +1604,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             alertBox.textContent = '';
         }
         input.value = '';
+        var reply = state.replyTo;
 
         var processing = null;
         var unlock = function() {
@@ -1556,11 +1620,11 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         };
 
         // The question appears at once, its answer slot thinking.
-        attachExchange(query, '', true).then(function(card) {
+        attachExchange(query, '', true, reply ? reply.title : '').then(function(card) {
             processing = startProcessing('ask', false);
             return Ajax.call([{
                 methodname: 'mod_tarsuszero_send_chat_message',
-                args: {cmid: state.cmid, query: query}
+                args: {cmid: state.cmid, query: query, replytowidget: reply ? reply.id : ''}
             }])[0].then(function(result) {
                 unlock();
 
@@ -1589,6 +1653,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                         slot.innerHTML = result.answer;
                         notifyFilters(slot);
                     }
+                    // The reference is for one question.
+                    setReply(null);
                     scrollToEnd();
                     return null;
                 });
@@ -1640,6 +1706,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         // The teacher's switches decide which modes exist; open with the
         // first one (Ask a question when it is on).
         var modes = (state.container.getAttribute('data-modes') || '').split(',').filter(Boolean);
+        state.modes = modes;
         var initial = modes.indexOf('ask') !== -1 ? 'ask' : (modes[0] || 'ask');
         setMode(initial);
 
@@ -1672,6 +1739,19 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 if (togglecard) {
                     toggleStackAudio(togglecard);
                 }
+                return;
+            }
+            var ask = e.target.closest(SELECTORS.ASK_ABOUT);
+            if (ask && state.container.contains(ask)) {
+                var askcard = ask.closest(SELECTORS.LEARN_CARD);
+                if (askcard) {
+                    askAbout(askcard);
+                }
+                return;
+            }
+            var clear = e.target.closest(SELECTORS.REPLY_CLEAR);
+            if (clear && state.container.contains(clear)) {
+                setReply(null);
             }
         });
         // Keyboard users reach the illustration by Tab; Enter or Space opens it.

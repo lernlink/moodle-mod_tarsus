@@ -582,6 +582,99 @@
     stroke: #2f6fb1;
 }
 
+/* "Ask about this" (Dazu fragen): the band's last chip, pushed to the
+   right edge; the same 24px pad as the narration button, with a label. */
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 24px;
+    margin-left: auto;
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.45);
+    color: #23282d;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:hover,
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:focus-visible {
+    background: #2f6fb1;
+    color: #fff;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask .icon {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+/* The reference chip above the composer: the slide the next question is
+   about, with a cross to drop it. */
+.tarsus-chat-box .tarsus-reply-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    height: 28px;
+    padding: 0 0.25rem 0 0.6rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: #eceae6;
+    color: #23282d;
+}
+
+.tarsus-chat-box .tarsus-reply-chip.d-none {
+    display: none;
+}
+
+.tarsus-chat-box .tarsus-reply-chip__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tarsus-chat-box .tarsus-reply-chip__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #50555c;
+}
+
+.tarsus-chat-box .tarsus-reply-chip__clear:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #23282d;
+}
+
+.tarsus-chat-box .tarsus-reply-chip .icon {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+/* On an exchange card: which slide the question was about. */
+.tarsus-chat-box .tarsus-card__reply {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: #50555c;
+}
+
+.tarsus-chat-box .tarsus-card__reply .icon {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
 /* A ring that fills as the learner turns the slides, like the one on
    the Tarsus card: the track is a faint circle, the fill a dashed stroke
    whose offset chat.js shortens with every slide (circumference of
