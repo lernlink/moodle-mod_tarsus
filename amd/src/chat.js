@@ -462,17 +462,32 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     robotname: state.robotName
                 });
             } else if (['objectives', 'stack', 'complete', 'motivation'].indexOf(item.kind) !== -1) {
-                var learn = learnCard(item);
-                build = buildCard(learn.template, learn.context);
+                // A stack yields its slide card and one card per check
+                // question; a question already on the page (the newer
+                // half of a straddling stack) is not built twice.
+                var flow = state.container.querySelector(SELECTORS.CHAT_FLOW);
+                build = Promise.all(learnCards(item).filter(function(card) {
+                    var id = card.context.widgetid;
+                    return !(id && flow && flow.querySelector('[data-widget-id="' + id + '"]'));
+                }).map(function(card) {
+                    return buildCard(card.template, card.context);
+                }));
             } else {
                 build = buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
             }
-            return build.then(function(entry) {
-                entry.item = item;
-                entry.replaces = item.replaces || null;
-                return entry;
+            return build.then(function(entries) {
+                return (Array.isArray(entries) ? entries : [entries]).map(function(entry, index) {
+                    entry.item = item;
+                    // Only the stack card itself replaces the earlier half.
+                    entry.replaces = index === 0 && entry.card.matches(SELECTORS.LEARN_CARD) ? (item.replaces || null) : null;
+                    return entry;
+                });
             });
-        }));
+        })).then(function(groups) {
+            return groups.reduce(function(all, group) {
+                return all.concat(group);
+            }, []);
+        });
     }
 
     /**
@@ -485,15 +500,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (item.kind === 'practice' && item.answered) {
             finalizePracticeCard(entry.card, storedVerdict(item));
         }
-        if (item.kind === 'stack') {
-            // Check questions already answered freeze with their verdict.
+        if (item.kind === 'stack' && entry.card.matches(SELECTORS.PRACTICE_CARD)) {
+            // A check question already answered freezes with its verdict.
+            var id = entry.card.getAttribute('data-widget-id');
             (item.slides || []).forEach(function(slide) {
-                if (slide.kind !== 'question' || !slide.question || !slide.question.answered) {
-                    return;
-                }
-                var card = entry.card.querySelector('[data-widget-id="' + slide.question.id + '"]');
-                if (card) {
-                    finalizePracticeCard(card, storedVerdict(slide.question));
+                if (slide.kind === 'question' && slide.question && slide.question.answered && slide.question.id === id) {
+                    finalizePracticeCard(entry.card, storedVerdict(slide.question));
                 }
             });
         }
@@ -764,20 +776,20 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * The template context of one learn item (objectives or stack).
      *
      * @param {Object} item The learn item from the external function
-     * @return {Object} {template, context}
+     * @return {Array} [{template, context}], the stack's slide card first, then one card per check question
      */
-    function learnCard(item) {
+    function learnCards(item) {
         if (item.kind === 'complete') {
-            return {template: 'mod_tarsuszero/learn_complete_card', context: {title: item.title, text: item.text}};
+            return [{template: 'mod_tarsuszero/learn_complete_card', context: {title: item.title, text: item.text}}];
         }
         if (item.kind === 'motivation') {
-            return {template: 'mod_tarsuszero/learn_motivation_card', context: {title: item.title, text: item.text}};
+            return [{template: 'mod_tarsuszero/learn_motivation_card', context: {title: item.title, text: item.text}}];
         }
         if (item.kind === 'message') {
-            return {template: 'mod_tarsuszero/chat_welcome_card', context: {title: item.title, message: item.text}};
+            return [{template: 'mod_tarsuszero/chat_welcome_card', context: {title: item.title, message: item.text}}];
         }
         if (item.kind === 'objectives') {
-            return {
+            return [{
                 template: 'mod_tarsuszero/learn_objectives_card',
                 context: {
                     title: item.title,
@@ -786,35 +798,37 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                         return Object.assign({number: index + 1}, objective);
                     })
                 }
-            };
+            }];
         }
         state.stacks[item.id] = item.slides || [];
-        var slides = (item.slides || []).map(function(slide, index) {
-            var isquestion = slide.kind === 'question' && slide.question;
-            var question = isquestion ? practiceCardContext(slide.question) : null;
-            if (question) {
-                // The card badge already names the level: keep only the
-                // difficulty bars inside the question, in the slide itself.
-                question.taxonomy = '';
-                question.hasmeta = question.hasbars;
-                question.inlinemeta = true;
+        // The unit's check questions leave the stack: each becomes its own
+        // card after the slides, with the difficulty and level on its band,
+        // and the ring counts the text slides only.
+        var slides = [];
+        var questions = [];
+        (item.slides || []).forEach(function(slide) {
+            if (slide.kind === 'question' && slide.question) {
+                var question = practiceCardContext(slide.question);
+                question.state = 'learn';
+                question.learn = true;
+                questions.push({template: 'mod_tarsuszero/practice_card', context: question});
+                return;
             }
-            return {
+            var index = slides.length;
+            slides.push({
                 id: slide.id || '',
                 index: index,
                 number: index + 1,
                 first: index === 0,
-                isquestion: Boolean(isquestion),
-                question: question,
                 taxonomy: slide.taxonomy || '',
                 taxonomyicon: slide.taxonomyicon || '',
                 title: slide.title,
                 text: slide.text,
                 image: slide.image,
                 imageposition: slide.imageposition === 'left' ? 'left' : 'right'
-            };
+            });
         });
-        return {
+        var cards = slides.length ? [{
             template: 'mod_tarsuszero/learn_stack_card',
             context: {
                 stackid: item.id,
@@ -824,7 +838,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 ringoffset: ringOffset(1, slides.length),
                 slides: slides
             }
-        };
+        }] : [];
+        return cards.concat(questions);
     }
 
     /**
@@ -1125,13 +1140,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
             var firstcard = null;
             return result.items.reduce(function(previous, item) {
-                return previous.then(function() {
-                    var card = learnCard(item);
-                    return attachCard(card.template, card.context, null, true).then(function(element) {
-                        firstcard = firstcard || element;
-                        return element;
+                return learnCards(item).reduce(function(chain, card) {
+                    return chain.then(function() {
+                        return attachCard(card.template, card.context, null, true).then(function(element) {
+                            firstcard = firstcard || element;
+                            return element;
+                        });
                     });
-                });
+                }, previous);
             }, Promise.resolve()).then(function() {
                 scrollToCard(firstcard);
                 state.learnStarted = true;

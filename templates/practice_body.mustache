@@ -17,25 +17,13 @@
 {{!
     @template mod_tarsuszero/practice_body
 
-    The inside of a question card: meta badges, question, answer inputs,
-    Check button, score bar and feedback. Shared by the Test knowledge card
-    and by the check question inside a learning stack.
+    The inside of a question card: question, answer inputs, Check button,
+    score bar and feedback. Shared by the Test knowledge card and by a
+    learning unit's check question (the meta sits on the card's band).
 
-    Context variables required for this template: see mod_tarsuszero/practice_card, plus
-    * inlinemeta - bool, render the difficulty/taxonomy row inside the body (a question embedded
-      in a learning slide); the standalone card shows it in its frame band instead.
+    Context variables required for this template: see mod_tarsuszero/practice_card.
 }}
     <div class="tarsus-practice-card__inner">
-    {{#inlinemeta}}{{#hasmeta}}
-    <div class="tarsus-practice-card__meta">
-        {{#hasbars}}
-        <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
-            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
-        </span>
-        {{/hasbars}}
-        {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
-    </div>
-    {{/hasmeta}}{{/inlinemeta}}
     <div class="tarsus-practice-card__question">{{{question}}}</div>
     {{#haschoices}}
     <div class="tarsus-practice-card__choices" data-region="choices" role="radiogroup">

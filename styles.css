@@ -847,16 +847,11 @@
 
 /* A learning unit's check question sits inside the stack card: no frame
    of its own, the slide already has one. */
-.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide {
-    padding: 0;
-    background: none;
-    box-shadow: none;
-    margin: 0;
-}
-
-.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide .tarsus-practice-card__inner {
-    padding: 0;
-    border-radius: 0;
+/* A learning unit's check question: a question card in the unit's
+   violet frame, so it reads as part of Build knowledge. */
+.tarsus-chat-box .tarsus-practice-card--learn {
+    background: linear-gradient(135deg, #b8a8e6 0%, #cdb9ec 35%, #ead9f4 70%, #a9b4ea 100%);
+    box-shadow: 0 10px 28px rgba(70, 50, 120, 0.1);
 }
 
 /* Slide illustrations open in a native <dialog> lightbox: the image fills

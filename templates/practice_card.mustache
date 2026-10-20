@@ -35,8 +35,12 @@
     * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
     * difficultyclass - string, modifier class colouring the filled bars by grade.
     * hasbars - bool, whether the difficulty bars render.
+    * state - string, optional: 'learn' for a learning unit's check question (evaluated for learning
+      units), 'practice' otherwise.
+    * learn - bool, optional: frame the card like a learning unit.
 }}
-<div class="tarsus-card tarsus-practice-card" data-region="practice-card"
+<div class="tarsus-card tarsus-practice-card{{#learn}} tarsus-practice-card--learn{{/learn}}" data-region="practice-card"
+     data-state="{{#state}}{{state}}{{/state}}{{^state}}practice{{/state}}"
      data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
     <div class="tarsus-card__band">
         {{#hasbars}}
