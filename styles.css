@@ -184,7 +184,9 @@
     gap: 2px;
     padding: 3px;
     border-radius: 0.65rem;
-    background: #eceae6;
+    /* The pad under the mode buttons: the cool light grey of the Tarsus
+       interface (sampled from its mode switch), the active button white. */
+    background: #efeff0;
 }
 
 .tarsus-mode-switch__btn {
