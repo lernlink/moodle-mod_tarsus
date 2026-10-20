@@ -1667,54 +1667,43 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             input.focus();
         };
 
-        // The question appears at once, its answer slot thinking.
-        attachExchange(query, '', true, reply ? reply.title : '').then(function(card) {
-            processing = startProcessing('ask', false);
-            return Ajax.call([{
-                methodname: 'mod_tarsuszero_send_chat_message',
-                args: {cmid: state.cmid, query: query, replytowidget: reply ? reply.id : ''}
-            }])[0].then(function(result) {
-                unlock();
+        // The processing bar runs at the end of the feed while the brain
+        // answers; the finished exchange card then takes its place.
+        processing = startProcessing('ask', false);
+        Ajax.call([{
+            methodname: 'mod_tarsuszero_send_chat_message',
+            args: {cmid: state.cmid, query: query, replytowidget: reply ? reply.id : ''}
+        }])[0].then(function(result) {
+            unlock();
 
-                if (result.status !== 'success') {
-                    if (card) {
-                        card.remove();
-                    }
-                    input.value = query;
-                    if (alertBox) {
-                        alertBox.classList.remove('d-none');
-                        alertBox.textContent = result.error || 'Unknown error occurred.';
-                    }
-                    return null;
-                }
-
-                // Informational cards (e.g. the welcome) slot in above the
-                // exchange, in the order Tarsus sent them.
-                return (result.messages || []).reduce(function(previous, message) {
-                    return previous.then(function() {
-                        return attachWelcome(message, card);
-                    });
-                }, Promise.resolve()).then(function() {
-                    var slot = card ? card.querySelector(SELECTORS.CARD_ANSWER) : null;
-                    if (slot) {
-                        // Server-cleaned HTML from the external function.
-                        slot.innerHTML = result.answer;
-                        notifyFilters(slot);
-                    }
-                    // The reference is for one question.
-                    setReply(null);
-                    scrollToEnd();
-                    return null;
-                });
-            }).catch(function(ex) {
-                unlock();
-                if (card) {
-                    card.remove();
-                }
+            if (result.status !== 'success') {
                 input.value = query;
-                Notification.exception(ex);
+                if (alertBox) {
+                    alertBox.classList.remove('d-none');
+                    alertBox.textContent = result.error || 'Unknown error occurred.';
+                }
+                return null;
+            }
+
+            // Informational cards (e.g. the welcome) come first, in the
+            // order Tarsus sent them, then the exchange.
+            return (result.messages || []).reduce(function(previous, message) {
+                return previous.then(function() {
+                    return attachWelcome(message, null);
+                });
+            }, Promise.resolve()).then(function() {
+                return attachExchange(query, result.answer, false, reply ? reply.title : '');
+            }).then(function() {
+                // The reference is for one question.
+                setReply(null);
+                scrollToEnd();
+                return null;
             });
-        }).catch(Notification.exception);
+        }).catch(function(ex) {
+            unlock();
+            input.value = query;
+            Notification.exception(ex);
+        });
     }
 
     /**
