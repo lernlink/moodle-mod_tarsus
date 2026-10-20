@@ -705,7 +705,11 @@
 .tarsus-learn-ring__track,
 .tarsus-learn-ring__fill {
     fill: none;
-    stroke-width: 3;
+    /* As thick as one difficulty bar (4px): the band's ring is a 24px
+       chip with a 3px pad, so its 24-unit viewBox renders at 18px and a
+       4px stroke is 5.33 units. The r=9 centreline, and so the 56.55
+       circumference the offset is computed on, stays. */
+    stroke-width: 5.33;
 }
 
 .tarsus-learn-ring__track {
