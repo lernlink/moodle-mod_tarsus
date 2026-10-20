@@ -286,10 +286,8 @@
 .tarsus-difficulty__bar {
     width: 4px;
     border-radius: 1px;
-    /* One material for the glyph, like the ring's track: ink at 22% for
-       the empty bars, solid ink for the filled ones. The grade's name is
-       in the title and aria-label; no traffic-light colours, so the band
-       keeps its one accent for progress and playback. */
+    /* The empty bars are ink at 22%, like the ring's track, so the scale
+       stays visible on the band's translucent pad. */
     background: rgba(35, 40, 45, 0.22);
 }
 
@@ -307,6 +305,22 @@
 
 .tarsus-difficulty__bar--filled {
     background: #23282d;
+}
+
+/* The filled bars take the grade's colour, drawn from the cards' own
+   palette rather than pure traffic lights: the success green of the
+   verdicts, the amber of the score bar, the rose of a wrong answer, each
+   deepened a step so it holds on the pastel pad and on white. */
+.tarsus-difficulty--1 .tarsus-difficulty__bar--filled {
+    background: #3e9e6f;
+}
+
+.tarsus-difficulty--2 .tarsus-difficulty__bar--filled {
+    background: #d98a2b;
+}
+
+.tarsus-difficulty--3 .tarsus-difficulty__bar--filled {
+    background: #c8405e;
 }
 
 .tarsus-practice-card__question {
