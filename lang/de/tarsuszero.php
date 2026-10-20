@@ -98,6 +98,7 @@ $string['learn_audio_pause'] = 'Pause';
 $string['learn_audio_unavailable'] = 'Das Brain konnte diese Lerneinheit gerade nicht vorlesen.';
 $string['learn_ask_about'] = 'Dazu fragen';
 $string['learn_ask_about_hint'] = 'Eine Frage zu dieser Folie stellen';
+$string['practice_ask_about_hint'] = 'Eine Frage zu dieser Aufgabe oder deiner Antwort stellen';
 $string['chat_reply_about'] = 'Frage zu: {$a}';
 $string['chat_reply_clear'] = 'Bezug entfernen';
 $string['learn_complete_title'] = 'Super! Du hast die Lerneinheit geschafft.';

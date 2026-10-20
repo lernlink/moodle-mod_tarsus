@@ -310,7 +310,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             bars: bars,
             hasbars: bars.length > 0,
             difficultyclass: level > 0 ? 'tarsus-difficulty--' + level : '',
-            hasmeta: Boolean(widget.taxonomy || bars.length)
+            hasmeta: Boolean(widget.taxonomy || bars.length),
+            askenabled: state.modes.indexOf('ask') !== -1
         };
     }
 
@@ -1562,30 +1563,61 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * The learner wants to ask about the slide showing in a learning unit:
-     * pin it, switch to the chat and put the cursor in the box.
+     * The learner wants to ask about a card: the slide showing in a
+     * learning unit, or a question (Test knowledge or a unit's check
+     * question, answered or not — the brain knows the answer it graded).
+     * Pin it, switch to the chat and put the cursor in the box.
      *
-     * @param {Element} card The stack card
+     * @param {Element} card The stack card or the question card
      */
     function askAbout(card) {
-        var slide = card.querySelector(SELECTORS.LEARN_SLIDE + ':not(.d-none)');
-        if (!slide || !slide.getAttribute('data-slide-id')) {
+        var id = '';
+        var ready;
+        if (card.matches(SELECTORS.PRACTICE_CARD)) {
+            id = card.getAttribute('data-widget-id') || '';
+            var question = card.querySelector('.tarsus-practice-card__question');
+            ready = Promise.resolve(shorten(question ? question.textContent : '', 90));
+        } else {
+            var slide = card.querySelector(SELECTORS.LEARN_SLIDE + ':not(.d-none)');
+            if (!slide) {
+                return;
+            }
+            id = slide.getAttribute('data-slide-id') || '';
+            var title = slide.getAttribute('data-slide-title') || '';
+            ready = title !== '' ? Promise.resolve(title) : Str.get_string('learn_slide_of', 'mod_tarsuszero', {
+                current: parseInt(slide.getAttribute('data-index'), 10) + 1,
+                total: parseInt(card.getAttribute('data-total'), 10) || 1
+            });
+        }
+        if (id === '') {
             return;
         }
-        var title = slide.getAttribute('data-slide-title') || '';
-        var ready = title !== '' ? Promise.resolve(title) : Str.get_string('learn_slide_of', 'mod_tarsuszero', {
-            current: parseInt(slide.getAttribute('data-index'), 10) + 1,
-            total: parseInt(card.getAttribute('data-total'), 10) || 1
-        });
         ready.then(function(label) {
             setMode('ask');
-            setReply({id: slide.getAttribute('data-slide-id'), title: label});
+            setReply({id: id, title: label});
             var input = state.container.querySelector(SELECTORS.INPUT);
             if (input) {
                 input.focus();
             }
             return null;
         }).catch(Notification.exception);
+    }
+
+    /**
+     * The first words of a text, for a chip label.
+     *
+     * @param {string} text The text
+     * @param {number} max Characters to keep at most
+     * @return {string}
+     */
+    function shorten(text, max) {
+        var clean = (text || '').replace(/\s+/g, ' ').trim();
+        if (clean.length <= max) {
+            return clean;
+        }
+        var cut = clean.slice(0, max);
+        var space = cut.lastIndexOf(' ');
+        return (space > max / 2 ? cut.slice(0, space) : cut) + '\u2026';
     }
 
     /**
@@ -1759,7 +1791,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
             var ask = e.target.closest(SELECTORS.ASK_ABOUT);
             if (ask && state.container.contains(ask)) {
-                var askcard = ask.closest(SELECTORS.LEARN_CARD);
+                var askcard = ask.closest(SELECTORS.PRACTICE_CARD + ', ' + SELECTORS.LEARN_CARD);
                 if (askcard) {
                     askAbout(askcard);
                 }

@@ -38,6 +38,7 @@
     * state - string, optional: 'learn' for a learning unit's check question (evaluated for learning
       units), 'practice' otherwise.
     * learn - bool, optional: frame the card like a learning unit.
+    * askenabled - bool, whether the chat mode is on (shows "Ask about this").
 }}
 <div class="tarsus-card tarsus-practice-card{{#learn}} tarsus-practice-card--learn{{/learn}}" data-region="practice-card"
      data-state="{{#state}}{{state}}{{/state}}{{^state}}practice{{/state}}"
@@ -49,6 +50,12 @@
         </span>
         {{/hasbars}}
         {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
+        {{#askenabled}}
+        <button type="button" class="tarsus-learn-ask" data-action="ask-about"
+                title="{{#str}}practice_ask_about_hint, mod_tarsuszero{{/str}}">
+            {{#pix}}reply, mod_tarsuszero{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsuszero{{/str}}</span>
+        </button>
+        {{/askenabled}}
     </div>
     {{> mod_tarsuszero/practice_body }}
 </div>

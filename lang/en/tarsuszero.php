@@ -96,6 +96,7 @@ $string['learn_audio_pause'] = 'Pause';
 $string['learn_audio_unavailable'] = 'The brain could not read this unit aloud right now.';
 $string['learn_ask_about'] = 'Ask about this';
 $string['learn_ask_about_hint'] = 'Ask a question about this slide';
+$string['practice_ask_about_hint'] = 'Ask a question about this question or your answer';
 $string['chat_reply_about'] = 'Asking about: {$a}';
 $string['chat_reply_clear'] = 'Remove the reference';
 $string['learn_complete_title'] = 'Well done! You have completed the learning unit.';
