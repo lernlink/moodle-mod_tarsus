@@ -22,10 +22,11 @@
     Context variables required for this template:
     * stackid - string, the stack id.
     * askenabled - bool, whether the chat mode is on (shows "Ask about this").
-    * total - int, the number of text slides (check questions are separate cards).
+    * total - int, the number of slides, the check question included.
     * ringoffset - number, the ring's stroke offset for the first slide (see chat.js).
-    * slides - array of {id, index, number, first, taxonomy, taxonomyicon, title, text, image,
-      imageposition}; the slide's taxonomy
+    * slides - array of {id, index, number, first, isquestion, taxonomy, taxonomyicon, title, text, image,
+      imageposition, question (practice_card context, question slides only; its difficulty shows on the
+      band after the ring while the slide is on)}; the slide's taxonomy
       level shows as the card badge (text only), falling back to the mode name.
 }}
 <div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
@@ -35,6 +36,12 @@
             <circle class="tarsus-learn-ring__track" cx="12" cy="12" r="9"></circle>
             <circle class="tarsus-learn-ring__fill" cx="12" cy="12" r="9" style="stroke-dashoffset: {{ringoffset}}"></circle>
         </svg>
+        {{#slides}}{{#isquestion}}{{#question}}{{#hasbars}}
+        <span class="tarsus-difficulty {{difficultyclass}}{{^first}} d-none{{/first}}" data-region="slide-badge" data-index="{{index}}"
+              title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}{{/question}}{{/isquestion}}{{/slides}}
         <span class="tarsus-learn-player" data-region="audio-player" data-state="idle">
             <button type="button" class="tarsus-learn-player__toggle" data-action="audio-toggle"
                     title="{{#str}}learn_audio, mod_tarsuszero{{/str}}" aria-label="{{#str}}learn_audio, mod_tarsuszero{{/str}}">
@@ -62,6 +69,13 @@
         {{#slides}}
         <div class="tarsus-learn-slide{{^first}} d-none{{/first}}" data-region="slide" data-index="{{index}}"
              data-slide-id="{{id}}" data-slide-title="{{title}}">
+            {{#isquestion}}{{#question}}
+            <div class="tarsus-practice-card tarsus-practice-card--inslide" data-region="practice-card" data-state="learn"
+                 data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
+                {{> mod_tarsuszero/practice_body }}
+            </div>
+            {{/question}}{{/isquestion}}
+            {{^isquestion}}
             {{#title}}<h5 class="tarsus-learn-slide__title">{{title}}</h5>{{/title}}
             <div class="tarsus-learn-slide__body tarsus-learn-slide__body--{{imageposition}}">
                 {{#image}}<img class="tarsus-learn-slide__image" src="{{image}}" alt="" tabindex="0" role="button"
@@ -69,6 +83,7 @@
                      aria-label="{{#str}}learn_image_enlarge, mod_tarsuszero{{/str}}">{{/image}}
                 <div class="tarsus-learn-slide__text">{{{text}}}</div>
             </div>
+            {{/isquestion}}
         </div>
         {{/slides}}
         <div class="tarsus-learn-card__nav">

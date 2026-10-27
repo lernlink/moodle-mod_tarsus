@@ -501,12 +501,15 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (item.kind === 'practice' && item.answered) {
             finalizePracticeCard(entry.card, storedVerdict(item));
         }
-        if (item.kind === 'stack' && entry.card.matches(SELECTORS.PRACTICE_CARD)) {
-            // A check question already answered freezes with its verdict.
-            var id = entry.card.getAttribute('data-widget-id');
+        if (item.kind === 'stack') {
+            // Check questions already answered freeze with their verdict.
             (item.slides || []).forEach(function(slide) {
-                if (slide.kind === 'question' && slide.question && slide.question.answered && slide.question.id === id) {
-                    finalizePracticeCard(entry.card, storedVerdict(slide.question));
+                if (slide.kind !== 'question' || !slide.question || !slide.question.answered) {
+                    return;
+                }
+                var card = entry.card.querySelector('[data-widget-id="' + slide.question.id + '"]');
+                if (card) {
+                    finalizePracticeCard(card, storedVerdict(slide.question));
                 }
             });
         }
@@ -777,7 +780,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * The template context of one learn item (objectives or stack).
      *
      * @param {Object} item The learn item from the external function
-     * @return {Array} [{template, context}], the stack's slide card first, then one card per check question
+     * @return {Array} [{template, context}], one card per learn item
      */
     function learnCards(item) {
         if (item.kind === 'complete') {
@@ -802,34 +805,31 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }];
         }
         state.stacks[item.id] = item.slides || [];
-        // The unit's check questions leave the stack: each becomes its own
-        // card after the slides, with the difficulty and level on its band,
-        // and the ring counts the text slides only.
-        var slides = [];
-        var questions = [];
-        (item.slides || []).forEach(function(slide) {
-            if (slide.kind === 'question' && slide.question) {
-                var question = practiceCardContext(slide.question);
-                question.state = 'learn';
-                question.learn = true;
-                questions.push({template: 'mod_tarsuszero/practice_card', context: question});
-                return;
+        // The unit's check question is a slide of the stack like the text
+        // ones; its difficulty and level show on the band while it is on.
+        var slides = (item.slides || []).map(function(slide, index) {
+            var isquestion = slide.kind === 'question' && slide.question;
+            var question = isquestion ? practiceCardContext(slide.question) : null;
+            if (question) {
+                // The meta sits on the band, not in the slide.
+                question.hasmeta = false;
             }
-            var index = slides.length;
-            slides.push({
+            return {
                 id: slide.id || '',
                 index: index,
                 number: index + 1,
                 first: index === 0,
-                taxonomy: slide.taxonomy || '',
+                isquestion: Boolean(isquestion),
+                question: question,
+                taxonomy: slide.taxonomy || (question ? question.taxonomy : '') || '',
                 taxonomyicon: slide.taxonomyicon || '',
                 title: slide.title,
                 text: slide.text,
                 image: slide.image,
                 imageposition: slide.imageposition === 'left' ? 'left' : 'right'
-            });
+            };
         });
-        var cards = slides.length ? [{
+        return [{
             template: 'mod_tarsuszero/learn_stack_card',
             context: {
                 stackid: item.id,
@@ -839,8 +839,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 ringoffset: ringOffset(1, slides.length),
                 slides: slides
             }
-        }] : [];
-        return cards.concat(questions);
+        }];
     }
 
     /**
