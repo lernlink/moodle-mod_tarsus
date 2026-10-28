@@ -1,0 +1,120 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsus/learner_chat
+
+    Learner RAG Q&A grounded chat panel.
+
+    Context variables required for this template:
+    * cmid - int, the course module id.
+    * containerid - string, a unique CSS class or ID for JS targeting.
+    * useravatarurl - string, the learner's profile picture URL.
+    * robotavatarurl - string, the assistant's avatar URL.
+    * robotname - string, the assistant's display name.
+    * askenabled, testenabled, buildenabled - bool, which modes the teacher switched on.
+    * modes - string, the enabled modes in switcher order (CSV); the first opens by default.
+}}
+<div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
+     data-user-avatar="{{useravatarurl}}"
+     data-robot-avatar="{{robotavatarurl}}"
+     data-robot-name="{{robotname}}"
+     data-modes="{{modes}}">
+    <!-- Progress: a fill bar pinned to the top of the viewport while the feed scrolls, hidden until the brain reports figures -->
+    <!-- Back to top: pinned under the navbar on the right once the reader has
+         scrolled into the feed, so the teacher's index table and the activity
+         menu are one click away instead of a long scroll through history -->
+    <div class="tarsus-top-dock">
+        <button type="button" class="tarsus-jump-top btn btn-light shadow-sm d-none" data-action="jump-top"
+                title="{{#str}}jump_top, mod_tarsus{{/str}}" aria-label="{{#str}}jump_top, mod_tarsus{{/str}}">
+            {{#pix}}jump_top, mod_tarsus{{/pix}}
+        </button>
+    </div>
+    <div class="tarsus-progress d-none" data-region="progress" role="progressbar"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         aria-label="{{#str}}practice_progress, mod_tarsus{{/str}}" title="">
+        <div class="tarsus-progress__fill" data-region="progress-fill"></div>
+    </div>
+    <!-- Chat log flow: cards run down the page itself, no framed window -->
+    <div class="tarsus-chat-flow py-3 flex-grow-1">
+        <!-- Older-page loading indicator, shown while the feed lazy-loads on scroll-up -->
+        <div class="tarsus-feed-older text-center py-2 text-muted d-none" data-region="feed-older">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        </div>
+        <!-- Loading state helper or spinner -->
+        <div class="text-center py-5 text-muted">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="ml-2">{{#str}}loading_history, mod_tarsus{{/str}}</span>
+        </div>
+    </div>
+
+    <!-- Composer, pinned to the bottom of the viewport: the question input
+         above, the mode switcher and the send button in one row beneath, as
+         in the Tarsus interface. The other modes work without the input, so
+         it hides outside 'ask'. -->
+    <form class="tarsus-chat-form card p-2 bg-light" method="post" action="view.php">
+        <input type="hidden" name="id" value="{{cmid}}">
+        <!-- Alert details -->
+        <div class="tarsus-chat-alert alert alert-danger d-none mb-2" role="alert"></div>
+        <!-- "Ask about this": the slide the next question refers to -->
+        <div class="tarsus-reply-chip d-none mb-2" data-region="reply-chip">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span class="tarsus-reply-chip__title" data-region="reply-title"></span>
+            <button type="button" class="tarsus-reply-chip__clear" data-action="reply-clear"
+                    title="{{#str}}chat_reply_clear, mod_tarsus{{/str}}" aria-label="{{#str}}chat_reply_clear, mod_tarsus{{/str}}">
+                {{#pix}}close, mod_tarsus{{/pix}}
+            </button>
+        </div>
+        <input type="text" class="tarsus-chat-input form-control mb-2" placeholder="{{#str}}chat_placeholder, mod_tarsus{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsus{{/str}}" autocomplete="off" required>
+        <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
+            <div class="d-flex align-items-center" style="gap: 0.75rem;">
+            <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsus{{/str}}">
+                {{#buildenabled}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
+                    {{#pix}}mode_build, mod_tarsus{{/pix}}{{#str}}mode_build, mod_tarsus{{/str}}
+                </button>
+                {{/buildenabled}}
+                {{#testenabled}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
+                    {{#pix}}mode_test, mod_tarsus{{/pix}}{{#str}}mode_test, mod_tarsus{{/str}}
+                </button>
+                {{/testenabled}}
+                {{#askenabled}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="ask" aria-pressed="false">
+                    {{#pix}}mode_ask, mod_tarsus{{/pix}}{{#str}}mode_ask, mod_tarsus{{/str}}
+                </button>
+                {{/askenabled}}
+            </div>
+            <!-- Experience figures: appear once the practice mode reports them -->
+            <span class="tarsus-xp-badge d-none" data-region="xp-badge"><span data-region="xp-earned">0</span>&nbsp;/&nbsp;<span data-region="xp-total">0</span>&nbsp;<span data-region="xp-unit">{{#str}}xp, mod_tarsus{{/str}}</span></span>
+            </div>
+            <button class="tarsus-practice-next btn btn-primary d-flex align-items-center flex-shrink-0 d-none" type="button">
+                <span data-region="practice-label">{{#str}}practice_start, mod_tarsus{{/str}}</span>
+                <span class="tarsus-practice-next__icon">{{#pix}}send, mod_tarsus{{/pix}}</span>
+                <span class="tarsus-practice-next__spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+            <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit">
+                <span class="tarsus-chat-spinner spinner-border spinner-border-sm mr-2 d-none" role="status" aria-hidden="true"></span>
+                {{#str}}send, mod_tarsus{{/str}}{{#pix}}send, mod_tarsus{{/pix}}
+            </button>
+        </div>
+    </form>
+</div>
+
+{{#js}}
+require(['mod_tarsus/chat'], function(Chat) {
+    Chat.init("{{cmid}}", "#{{containerid}}");
+});
+{{/js}}

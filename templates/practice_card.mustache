@@ -1,0 +1,61 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsus/practice_card
+
+    One practice question card in the Test knowledge mode.
+
+    Context variables required for this template:
+    * widgetid - string, the question widget id.
+    * widgettype - string, the question widget type.
+    * question - string, the rendered question HTML (server-cleaned).
+    * haschoices - bool, whether the question offers answer choices.
+    * choices - array of {value, label} answer choices.
+    * hasvariables - bool, whether the question asks for named quantities (rule of three).
+    * variables - array of {name} quantities to answer, one input each.
+    * hastable - bool, whether the question is a costing table (spreadsheet calculation).
+    * table - array of {position, rate, amount, askrate, askamount} rows; asked cells become inputs.
+    * columnsjson - string, JSON list of the table's three column names (sent back with the answer).
+    * taxonomy - string, display label of the taxonomy level (may be empty).
+    * difficulty - string, display label of the difficulty grade (may be empty).
+    * bars - array of {filled} flags, one per difficulty bar (empty when unknown).
+    * difficultyclass - string, modifier class colouring the filled bars by grade.
+    * hasbars - bool, whether the difficulty bars render.
+    * state - string, optional: 'learn' for a learning unit's check question (evaluated for learning
+      units), 'practice' otherwise.
+    * learn - bool, optional: frame the card like a learning unit.
+    * askenabled - bool, whether the chat mode is on (shows "Ask about this").
+}}
+<div class="tarsus-card tarsus-practice-card{{#learn}} tarsus-practice-card--learn{{/learn}}" data-region="practice-card"
+     data-state="{{#state}}{{state}}{{/state}}{{^state}}practice{{/state}}"
+     data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
+    <div class="tarsus-card__band">
+        {{#hasbars}}
+        <span class="tarsus-difficulty {{difficultyclass}}" title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}
+        {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
+        {{#askenabled}}
+        <button type="button" class="tarsus-learn-ask" data-action="ask-about"
+                title="{{#str}}learn_ask_about, mod_tarsus{{/str}}">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsus{{/str}}</span>
+        </button>
+        {{/askenabled}}
+    </div>
+    {{> mod_tarsus/practice_body }}
+</div>

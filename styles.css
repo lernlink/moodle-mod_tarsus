@@ -1,0 +1,1194 @@
+/* Colour tokens. The screens paint their own surfaces (cards, pads,
+   chips, tracks) rather than inheriting Boost's, so they carry their own
+   light palette here and a dark one below, keyed off the data-bs-theme
+   attribute Boost 5.3 sets on <html> for its colour modes. Older sites
+   never set the attribute and keep the light values. The lightbox dialog
+   lives on <body>, outside the chat box, so it is scoped as well. */
+.tarsus-chat-box,
+.tarsus-lightbox {
+    --tz-fg: #1d2125;
+    --tz-ink: #23282d;
+    --tz-muted: #50555c;
+    --tz-faint: #6a7076;
+    --tz-card: #fff;
+    --tz-line: rgba(0, 0, 0, 0.08);
+    --tz-line-soft: rgba(0, 0, 0, 0.06);
+    --tz-line-strong: rgba(0, 0, 0, 0.18);
+    --tz-line-table: rgba(0, 0, 0, 0.125);
+    --tz-pad: #efeff0;
+    --tz-pad-active: #fff;
+    --tz-pad-active-line: rgba(0, 0, 0, 0.1);
+    --tz-pad-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    --tz-chip: rgba(255, 255, 255, 0.45);
+    --tz-chip-ink: #23282d;
+    --tz-reply-pad: rgba(35, 40, 45, 0.07);
+    --tz-reply-hover: rgba(0, 0, 0, 0.08);
+    --tz-soft: #f4f4f2;
+    --tz-badge: #f1f0ec;
+    --tz-row-alt: #f3f5f9;
+    --tz-number-bg: #e3e8f2;
+    --tz-number-fg: #2c3e5a;
+    --tz-track: #e6e9ef;
+    --tz-track-ink: rgba(35, 40, 45, 0.22);
+    --tz-ring-track: rgba(0, 0, 0, 0.08);
+    --tz-band-ring-track: rgba(0, 0, 0, 0.12);
+    --tz-wave: rgba(0, 0, 0, 0.18);
+    --tz-loading-ring: rgba(0, 0, 0, 0.1);
+    --tz-loading-glyph: rgba(35, 40, 45, 0.35);
+    --tz-accent: #2f6fb1;
+    --tz-accent-stroke: #2f6fb1;
+    --tz-focus: #0f6cbf;
+    --tz-success-soft: #e9f7ec;
+    --tz-danger-soft: #fdeef0;
+    --tz-warning-soft: #fff4e0;
+    --tz-danger: #d9534f;
+    --tz-level-1: #3e9e6f;
+    --tz-level-2: #d98a2b;
+    --tz-level-3: #c8405e;
+    --tz-processing-track: #e3eef6;
+    --tz-card-shadow: 0 4px 16px rgba(35, 23, 90, 0.06);
+    --tz-frame-welcome: linear-gradient(135deg, #b39ddb 0%, #d8a7e8 35%, #f8b5c1 70%, #ffd9a0 100%);
+    --tz-frame-practice: linear-gradient(135deg, #9cc6dc 0%, #aedfd8 35%, #d8f0ec 70%, #a3c3e4 100%);
+    --tz-frame-learn: linear-gradient(135deg, #b8a8e6 0%, #cdb9ec 35%, #ead9f4 70%, #a9b4ea 100%);
+    --tz-frame-complete: linear-gradient(135deg, #a8e0b8 0%, #c4ecc9 35%, #e2f6df 70%, #a9dcc2 100%);
+    --tz-frame-motivation: linear-gradient(135deg, #a9d8ee 0%, #c3e6f4 35%, #e3f3fa 70%, #a5cfe9 100%);
+    --tz-frame-objectives: linear-gradient(135deg, #d9e88a 0%, #e8f2a8 35%, #f4f9d4 70%, #cfe27f 100%);
+}
+
+/* Dark mode: Boost's raised surface (#343a40) for card bodies and its
+   greys for text; hairlines and pads become translucent white; the
+   pastel frames turn into the same hues at a third of the lightness, so
+   the three card kinds still tell apart at a glance; the accent strokes
+   are lifted a step to hold on the dark surface while the filled accent
+   (buttons, hover) keeps its inverse text. */
+[data-bs-theme="dark"] .tarsus-chat-box,
+[data-bs-theme="dark"] .tarsus-lightbox {
+    --tz-fg: #dee2e6;
+    --tz-ink: #e9ecef;
+    --tz-muted: #afb5bc;
+    --tz-faint: #9aa1a8;
+    --tz-card: #343a40;
+    --tz-line: rgba(255, 255, 255, 0.12);
+    --tz-line-soft: rgba(255, 255, 255, 0.08);
+    --tz-line-strong: rgba(255, 255, 255, 0.22);
+    --tz-line-table: rgba(255, 255, 255, 0.15);
+    --tz-pad: #1d2125;
+    --tz-pad-active: #495057;
+    --tz-pad-active-line: rgba(255, 255, 255, 0.1);
+    --tz-pad-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --tz-chip: rgba(255, 255, 255, 0.14);
+    --tz-chip-ink: #f1f3f5;
+    --tz-reply-pad: rgba(255, 255, 255, 0.1);
+    --tz-reply-hover: rgba(255, 255, 255, 0.14);
+    --tz-soft: #292e33;
+    --tz-badge: #495057;
+    --tz-row-alt: rgba(255, 255, 255, 0.05);
+    --tz-number-bg: #3b4a63;
+    --tz-number-fg: #d6e2f5;
+    --tz-track: #495057;
+    --tz-track-ink: rgba(255, 255, 255, 0.25);
+    --tz-ring-track: rgba(255, 255, 255, 0.18);
+    --tz-band-ring-track: rgba(255, 255, 255, 0.18);
+    --tz-wave: rgba(255, 255, 255, 0.25);
+    --tz-loading-ring: rgba(255, 255, 255, 0.15);
+    --tz-loading-glyph: rgba(255, 255, 255, 0.4);
+    --tz-accent-stroke: #5b9be0;
+    --tz-focus: #6fa7d9;
+    --tz-success-soft: #243d2e;
+    --tz-danger-soft: #45272d;
+    --tz-warning-soft: #44361f;
+    --tz-danger: #e5736f;
+    --tz-level-1: #5cbf8c;
+    --tz-level-2: #e7a04a;
+    --tz-level-3: #e0607c;
+    --tz-processing-track: #292e33;
+    --tz-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --tz-frame-welcome: linear-gradient(135deg, #3e2f58 0%, #53335e 35%, #66373f 70%, #625035 100%);
+    --tz-frame-practice: linear-gradient(135deg, #2f4a58 0%, #325d57 35%, #3a6d64 70%, #31465c 100%);
+    --tz-frame-learn: linear-gradient(135deg, #3e325e 0%, #483664 35%, #5b3b6e 70%, #333a5f 100%);
+    --tz-frame-complete: linear-gradient(135deg, #325c3e 0%, #37663d 35%, #43703c 70%, #315b46 100%);
+    --tz-frame-motivation: linear-gradient(135deg, #345260 0%, #385a68 35%, #3d6272 70%, #324d5e 100%);
+    --tz-frame-objectives: linear-gradient(135deg, #50562e 0%, #5b6134 35%, #676e3b 70%, #4b522c 100%);
+}
+
+/* The feed runs down the page itself: no framed, inner-scrolling window.
+   The page scrolls, the progress bar stays pinned under the site navbar
+   and the composer at the bottom of the viewport — above the site's own
+   fixed footer when there is one (Moodle 5.3's Previous/Next activity
+   links): Boost publishes that footer's height as
+   --sticky-footer-total-height on <body> once the footer is shown, so
+   the offset follows it live; chat.js measures the navbar into
+   --tarsus-nav-offset. The floor keeps the composer at the
+   bottom even before the first cards arrive; overflow-anchor is off so
+   the script alone decides where the viewport stays when older pages
+   slot in above. */
+.tarsus-chat-box .tarsus-chat-flow {
+    min-height: calc(100vh - var(--tarsus-nav-offset, 60px) - var(--sticky-footer-total-height, 0px) - 12rem);
+    overflow-anchor: none;
+}
+
+/* The back-to-top button floats at the viewport's right edge, on the
+   same vertical line as Boost's help button (.btn-footer-popover:
+   position fixed, right 2rem), just under the navbar — clear of the
+   cards. The dock element only hosts it; it takes no room. */
+.tarsus-chat-box .tarsus-top-dock {
+    height: 0;
+}
+
+.tarsus-chat-box .tarsus-jump-top {
+    position: fixed;
+    top: calc(var(--tarsus-nav-offset, 60px) + 1rem);
+    right: 2rem;
+    z-index: 6;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--tz-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tarsus-chat-box .tarsus-jump-top .icon {
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-progress {
+    position: sticky;
+    top: var(--tarsus-nav-offset, 60px);
+    z-index: 5;
+}
+
+.tarsus-chat-box .tarsus-chat-form {
+    position: sticky;
+    bottom: var(--sticky-footer-total-height, 0px);
+    /* Below Boost's sticky footer (z-index 3): on the way out of the
+       viewport the composer slides under the Previous/Next bar, not over it. */
+    z-index: 2;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Conversation cards: centred, comfortably wide, stacked with air. */
+.tarsus-chat-box .tarsus-card {
+    max-width: 46rem;
+    margin: 0 auto 1.25rem;
+    border: 1px solid var(--tz-line);
+    border-radius: 16px;
+    background: var(--tz-card);
+    box-shadow: var(--tz-card-shadow);
+}
+
+.tarsus-chat-box .tarsus-card__inner {
+    padding: 1.25rem 1.5rem;
+}
+
+.tarsus-chat-box .tarsus-card__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    margin-right: 0.85rem;
+}
+
+.tarsus-chat-box .tarsus-card__question-text {
+    white-space: pre-wrap;
+    font-weight: 500;
+    align-self: center;
+}
+
+.tarsus-chat-box .tarsus-card__divider {
+    border: 0;
+    border-top: 2px solid var(--tz-line-strong);
+    border-radius: 1px;
+    margin: 1rem 0;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body {
+    min-width: 0;
+}
+
+/* The welcome card: a modern gradient border with a light shadow. The
+   gradient is the element background showing through a padding ring, since
+   border-image cannot follow rounded corners. */
+.tarsus-chat-box .tarsus-card--welcome {
+    border: 0;
+    /* Same frame thickness all round as the sides of the practice and
+       learning cards. */
+    padding: 8px;
+    background: var(--tz-frame-welcome);
+    box-shadow: 0 10px 28px rgba(35, 23, 90, 0.12);
+}
+
+.tarsus-chat-box .tarsus-card--welcome .tarsus-card__inner {
+    background: var(--tz-card);
+    border-radius: 13px;
+    padding: 2rem 1.75rem 1.75rem;
+}
+
+/* The artwork comes from pix/welcome.svg via the pix helper, which renders
+   a generic .icon image: size it like a hero illustration instead. */
+.tarsus-chat-box .tarsus-welcome-art {
+    margin-bottom: 1rem;
+}
+
+.tarsus-chat-box .tarsus-welcome-art img {
+    width: 130px;
+    max-width: 80%;
+    height: auto;
+    /* Boost caps every pix image at 30x24 via .icon; lift both caps or the
+       artwork is squashed into an icon-sized box. With them gone, height
+       follows the image's own proportions, whatever file is dropped in. */
+    max-height: none;
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-card__welcome-text {
+    font-size: 1.05rem;
+}
+
+.tarsus-chat-box .tarsus-card__welcome-text > :last-child {
+    margin-bottom: 0;
+}
+
+/* Rendered Markdown inside a chat bubble: keep the brain's structure without
+   the outer margins that make the bubble look padded unevenly. */
+.tarsus-chat-box .tarsus-card__answer-body > :first-child {
+    margin-top: 0;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body > :last-child {
+    margin-bottom: 0;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body ul,
+.tarsus-chat-box .tarsus-card__answer-body ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body table {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    border-collapse: collapse;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body th,
+.tarsus-chat-box .tarsus-card__answer-body td {
+    border: 1px solid var(--tz-line-table);
+    padding: 0.25rem 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-card__answer-body code {
+    word-break: break-word;
+}
+
+/* Interaction mode switcher: a segmented pill toggle inside the composer. */
+.tarsus-chat-box .tarsus-chat-input {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding-left: 0.25rem;
+}
+
+.tarsus-mode-switch__group {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 0.65rem;
+    /* The pad under the mode buttons: the cool light grey of the Tarsus
+       interface (sampled from its mode switch), the active button white. */
+    background: var(--tz-pad);
+}
+
+.tarsus-mode-switch__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 0.5rem;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--tz-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tarsus-mode-switch__btn:hover {
+    color: var(--tz-fg);
+}
+
+.tarsus-mode-switch__btn:focus-visible {
+    outline: 2px solid var(--tz-focus);
+    outline-offset: 2px;
+}
+
+.tarsus-chat-box .tarsus-chat-submit,
+.tarsus-chat-box .tarsus-practice-next {
+    gap: 0.4rem;
+}
+
+/* The theme's .icon class carries its own right margin; the flex gap
+   already spaces the glyphs, so it would double up. */
+.tarsus-mode-switch__btn .icon,
+.tarsus-chat-box .tarsus-chat-submit .icon,
+.tarsus-chat-box .tarsus-practice-next .icon {
+    margin-right: 0;
+}
+
+.tarsus-mode-switch__btn--active {
+    background: var(--tz-pad-active);
+    border-color: var(--tz-pad-active-line);
+    color: var(--tz-fg);
+    font-weight: 600;
+    box-shadow: var(--tz-pad-active-shadow);
+}
+
+/* Experience figures beside the mode switcher: plain grey text, matching
+   an inactive mode button in size and colour. */
+.tarsus-chat-box .tarsus-xp-badge {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--tz-muted);
+    white-space: nowrap;
+}
+
+/* Practice question cards (Test knowledge mode): the welcome card's
+   gradient-border technique in a soft blue-green, so they read
+   differently from chat cards at a glance. */
+.tarsus-chat-box .tarsus-practice-card {
+    border: 0;
+    padding: 0 8px 8px;
+    background: var(--tz-frame-practice);
+    box-shadow: 0 10px 28px rgba(24, 74, 90, 0.1);
+}
+
+.tarsus-chat-box .tarsus-practice-card .tarsus-practice-card__inner {
+    background: var(--tz-card);
+    border-radius: 13px;
+    /* Bootstrap's card body inset. */
+    padding: 1rem;
+}
+
+.tarsus-practice-card__meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Badges on question and learning cards: plain text, regular weight.
+   Plugin CSS is compiled before the theme's, so a bare class would lose
+   to Bootstrap's own .badge (weight 700) at equal specificity — hence
+   the heavier selector. */
+.tarsus-chat-box .badge.tarsus-practice-card__badge {
+    background: var(--tz-badge);
+    color: var(--tz-fg);
+    font-weight: 400;
+}
+
+/* Difficulty as three ascending bars, filled up to the grade. */
+.tarsus-difficulty {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    align-self: center;
+}
+
+.tarsus-difficulty__bar {
+    width: 4px;
+    border-radius: 1px;
+    /* The empty bars are ink at 22%, like the ring's track, so the scale
+       stays visible on the band's translucent pad. */
+    background: var(--tz-track-ink);
+}
+
+.tarsus-difficulty__bar:nth-child(1) {
+    height: 6px;
+}
+
+.tarsus-difficulty__bar:nth-child(2) {
+    height: 10px;
+}
+
+.tarsus-difficulty__bar:nth-child(3) {
+    height: 14px;
+}
+
+.tarsus-difficulty__bar--filled {
+    background: var(--tz-ink);
+}
+
+/* The filled bars take the grade's colour, drawn from the cards' own
+   palette rather than pure traffic lights: the success green of the
+   verdicts, the amber of the score bar, the rose of a wrong answer, each
+   deepened a step so it holds on the pastel pad and on white. */
+.tarsus-difficulty--1 .tarsus-difficulty__bar--filled {
+    background: var(--tz-level-1);
+}
+
+.tarsus-difficulty--2 .tarsus-difficulty__bar--filled {
+    background: var(--tz-level-2);
+}
+
+.tarsus-difficulty--3 .tarsus-difficulty__bar--filled {
+    background: var(--tz-level-3);
+}
+
+.tarsus-practice-card__question {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.tarsus-practice-card__choices {
+    display: flex;
+    flex-direction: column;
+}
+
+.tarsus-practice-choice {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.5rem;
+    border-bottom: 1px solid var(--tz-line-soft);
+    cursor: pointer;
+}
+
+.tarsus-practice-card--answered .tarsus-practice-choice {
+    cursor: default;
+    color: var(--tz-faint);
+}
+
+.tarsus-practice-choice--correct {
+    background: var(--tz-success-soft);
+    color: var(--tz-fg);
+}
+
+.tarsus-practice-choice--incorrect {
+    background: var(--tz-danger-soft);
+    color: var(--tz-fg);
+}
+
+.tarsus-practice-card__actions {
+    margin-top: 0.75rem;
+}
+
+.tarsus-practice-card__feedback {
+    margin-top: 1rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 0.75rem;
+    background: var(--tz-soft);
+}
+
+.tarsus-practice-card__feedback--correct {
+    background: var(--tz-success-soft);
+}
+
+.tarsus-practice-card__feedback--incorrect {
+    background: var(--tz-danger-soft);
+}
+
+.tarsus-practice-card__feedback--partial {
+    background: var(--tz-warning-soft);
+}
+
+/* Partial credit: a slim score bar above the feedback. */
+.tarsus-practice-card__score {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.tarsus-practice-card__score-track {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--tz-track);
+    overflow: hidden;
+}
+
+.tarsus-practice-card__score-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0932b 0%, #f6c453 100%);
+    transition: width 0.5s ease;
+}
+
+.tarsus-practice-card__score-value {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    color: var(--tz-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-practice-card__score-fill {
+        transition: none;
+    }
+}
+
+.tarsus-practice-card__feedback p:last-child {
+    margin-bottom: 0;
+}
+
+/* Rule-of-three questions: one input per asked quantity. */
+.tarsus-practice-card__variables {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.tarsus-practice-variable {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.tarsus-practice-variable__name {
+    min-width: 5rem;
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--tz-fg);
+}
+
+.tarsus-practice-variable--incorrect .tarsus-practice-variable__input {
+    border-color: var(--tz-danger);
+    background: var(--tz-danger-soft);
+}
+
+/* Spreadsheet calculation questions: the costing table with asked cells
+   as inputs; after evaluation the wrong cells are marked, the feedback
+   text carries the solution. */
+.tarsus-practice-card__table-wrap {
+    overflow-x: auto;
+    margin-bottom: 0.25rem;
+}
+
+.tarsus-practice-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tarsus-practice-table th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--tz-faint);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--tz-line);
+}
+
+.tarsus-practice-table td {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--tz-line-soft);
+    vertical-align: middle;
+}
+
+.tarsus-practice-table__position {
+    white-space: nowrap;
+}
+
+.tarsus-practice-table__cell {
+    min-width: 7rem;
+}
+
+.tarsus-practice-table__input {
+    max-width: 10rem;
+}
+
+.tarsus-practice-table__cell--incorrect .tarsus-practice-table__input {
+    border-color: var(--tz-danger);
+    background: var(--tz-danger-soft);
+}
+
+/* Practice progress: a slim fill bar across the top of the chat. */
+.tarsus-chat-box .tarsus-progress {
+    height: 6px;
+    margin-bottom: 0.6rem;
+    border-radius: 999px;
+    background: var(--tz-track);
+    overflow: hidden;
+}
+
+.tarsus-chat-box .tarsus-progress__fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.35);
+    transition: width 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-chat-box .tarsus-progress__fill {
+        transition: none;
+    }
+}
+
+/* Build knowledge cards: the welcome card's gradient-border technique in
+   a soft violet, so learning units read differently from chat and
+   practice at a glance. */
+.tarsus-chat-box .tarsus-learn-card {
+    border: 0;
+    padding: 0 8px 8px;
+    background: var(--tz-frame-learn);
+    box-shadow: 0 10px 28px rgba(70, 50, 120, 0.1);
+}
+
+.tarsus-chat-box .tarsus-learn-card .tarsus-learn-card__inner {
+    background: var(--tz-card);
+    border-radius: 13px;
+    /* Bootstrap's card body inset. */
+    padding: 1rem;
+}
+
+/* The frame band: the card's gradient frame is wide at the top and holds
+   the meta elements (progress ring, difficulty, taxonomy badge, more to
+   come) outside the white body, which saves a row inside it. */
+.tarsus-chat-box .tarsus-card__band {
+    display: flex;
+    align-items: center;
+    /* Bootstrap's spacing scale: the same side inset as the body, so the
+       band's elements line up with the text; half a step above and below. */
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* One design for everything in the band: 24px chips with the same
+   translucent pad and 6px corners — the progress ring, the narration
+   button, the difficulty bars and the badges. Dark ink for text and
+   glyphs, one accent (#2f6fb1) for progress and playback. */
+.tarsus-chat-box .tarsus-card__band .badge,
+.tarsus-chat-box .tarsus-card__band .tarsus-difficulty,
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring {
+    height: 24px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    background: var(--tz-chip);
+}
+
+.tarsus-chat-box .tarsus-card__band .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--tz-chip-ink);
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-difficulty {
+    padding: 0 0.4rem 5px;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring {
+    width: 24px;
+    padding: 3px;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__track {
+    stroke: var(--tz-band-ring-track);
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__fill {
+    stroke: var(--tz-accent-stroke);
+}
+
+/* "Ask about this" (Dazu fragen): the band's last chip, pushed to the
+   right edge; the same 24px pad as the narration button, with a label. */
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 24px;
+    margin-left: auto;
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1;
+    white-space: nowrap;
+    background: var(--tz-chip);
+    color: var(--tz-chip-ink);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:hover,
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:focus-visible {
+    background: var(--tz-accent);
+    color: #fff;
+}
+
+.tarsus-chat-box .tarsus-card__band .tarsus-learn-ask .icon {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+/* The reference chip above the composer: the slide the next question is
+   about, with a cross to drop it. The same chip as "Ask about this" on
+   the card band — 24px pad, 6px corners, small label — only the pad is
+   a translucent dark on the composer's light grey, where translucent
+   white would vanish. As wide as its text; a long title wraps. */
+.tarsus-chat-box .tarsus-reply-chip {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    min-height: 24px;
+    padding: 0.2rem 0.25rem 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1.25;
+    background: var(--tz-reply-pad);
+    color: var(--tz-ink);
+}
+
+.tarsus-chat-box .tarsus-reply-chip.d-none {
+    display: none;
+}
+
+.tarsus-chat-box .tarsus-reply-chip__title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tarsus-chat-box .tarsus-reply-chip__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    line-height: 1;
+    background: transparent;
+    color: var(--tz-muted);
+}
+
+.tarsus-chat-box .tarsus-reply-chip__clear:hover,
+.tarsus-chat-box .tarsus-reply-chip__clear:focus-visible {
+    background: var(--tz-reply-hover);
+    color: var(--tz-ink);
+}
+
+.tarsus-chat-box .tarsus-reply-chip .icon {
+    margin: 0;
+    font-size: 0.75rem;
+    width: auto;
+    height: auto;
+}
+
+/* On an exchange card: which slide the question was about. */
+.tarsus-chat-box .tarsus-card__reply {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--tz-muted);
+}
+
+.tarsus-chat-box .tarsus-card__reply .icon {
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+/* A ring that fills as the learner turns the slides, like the one on
+   the Tarsus card: the track is a faint circle, the fill a dashed stroke
+   whose offset chat.js shortens with every slide (circumference of
+   r=9 is 56.55). */
+.tarsus-learn-ring {
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+}
+
+.tarsus-learn-ring__track,
+.tarsus-learn-ring__fill {
+    fill: none;
+    /* As thick as one difficulty bar (4px): the band's ring is a 24px
+       chip with a 3px pad, so its 24-unit viewBox renders at 18px and a
+       4px stroke is 5.33 units. The r=9 centreline, and so the 56.55
+       circumference the offset is computed on, stays. */
+    stroke-width: 5.33;
+}
+
+.tarsus-learn-ring__track {
+    stroke: var(--tz-ring-track);
+}
+
+.tarsus-learn-ring__fill {
+    stroke: var(--tz-ink);
+    stroke-linecap: round;
+    stroke-dasharray: 56.55;
+    transition: stroke-dashoffset 0.3s ease;
+}
+
+.tarsus-learn-slide__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+}
+
+.tarsus-learn-slide__body {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.tarsus-learn-slide__body--left {
+    flex-direction: row;
+}
+
+.tarsus-learn-slide__body--right {
+    flex-direction: row-reverse;
+}
+
+.tarsus-learn-slide__image {
+    flex: 0 0 38%;
+    max-width: 38%;
+    height: auto;
+    border-radius: 8px;
+    cursor: zoom-in;
+}
+
+.tarsus-learn-slide__image:focus-visible {
+    outline: 3px solid var(--tz-focus);
+    outline-offset: 2px;
+}
+
+.tarsus-learn-slide__text {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.tarsus-learn-slide__text > :last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    .tarsus-learn-slide__body,
+    .tarsus-learn-slide__body--right {
+        flex-direction: column;
+    }
+
+    .tarsus-learn-slide__image {
+        max-width: 100%;
+        flex-basis: auto;
+    }
+}
+
+.tarsus-learn-card__nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* The objectives list reads like a table: every other row tinted, the
+   number in its own soft box. */
+.tarsus-learn-objectives {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    text-align: left;
+}
+
+.tarsus-learn-objectives__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+}
+
+.tarsus-learn-objectives__item:nth-child(odd) {
+    background: var(--tz-row-alt);
+}
+
+.tarsus-learn-objectives__number {
+    flex: 0 0 1.75rem;
+    height: 1.75rem;
+    border-radius: 6px;
+    background: var(--tz-number-bg);
+    color: var(--tz-number-fg);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tarsus-learn-objectives__text {
+    flex: 1 1 auto;
+}
+
+.tarsus-learn-objectives__item--done .tarsus-learn-objectives__text {
+    text-decoration: line-through;
+    color: var(--tz-faint);
+}
+
+.tarsus-learn-objectives__item .badge {
+    flex: 0 0 auto;
+    align-self: center;
+}
+
+/* The expressive cards (welcome, objectives, motivation, success): a large
+   title under the artwork, the message in the usual size. */
+.tarsus-chat-box .tarsus-card__title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 0.75rem;
+}
+
+/* The success card: the welcome card's frame in a soft green. */
+.tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--complete {
+    background: var(--tz-frame-complete);
+    box-shadow: 0 10px 28px rgba(40, 110, 60, 0.1);
+}
+
+/* The motivation card between two objectives: soft blue. */
+.tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--motivation {
+    background: var(--tz-frame-motivation);
+    box-shadow: 0 10px 28px rgba(40, 90, 130, 0.1);
+}
+
+/* The learning objectives card: soft lime, as in Tarsus. */
+.tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--objectives {
+    background: var(--tz-frame-objectives);
+    box-shadow: 0 10px 28px rgba(100, 120, 30, 0.1);
+}
+
+.tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--objectives .tarsus-card__inner {
+    text-align: left;
+}
+
+/* A learning unit's check question sits inside the stack card: no frame
+   of its own, the slide already has one. */
+/* A learning unit's check question is a slide of the stack: no frame of
+   its own, the question body sits straight in the white card. */
+.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-card .tarsus-practice-card--inslide .tarsus-practice-card__inner {
+    padding: 0;
+    border-radius: 0;
+}
+
+/* Slide illustrations open in a native <dialog> lightbox: the image fills
+   the viewport over a dimmed, blurred backdrop; a click anywhere or Esc
+   closes it. The dialog lives on <body>, so no .tarsus-chat-box prefix. */
+.tarsus-lightbox {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+}
+
+.tarsus-lightbox[open] {
+    display: flex;
+}
+
+.tarsus-lightbox::backdrop {
+    background: rgba(20, 24, 30, 0.72);
+    backdrop-filter: blur(4px);
+}
+
+.tarsus-lightbox__image {
+    max-width: min(92vw, 1400px);
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    background: var(--tz-card);
+    padding: 12px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+.tarsus-lightbox__close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.92);
+    color: #23282d;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* The processing indicator: a slim card under the feed with the current
+   step, its turning icon and a bar that keeps running — the brain reports
+   no real progress, so the bar only says "still working". */
+.tarsus-chat-box .tarsus-processing {
+    padding: 0.9rem 1.25rem 0.85rem;
+    background: var(--tz-card);
+    border: 1px solid var(--tz-line-soft);
+    box-shadow: var(--tz-card-shadow);
+}
+
+.tarsus-processing__row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+}
+
+.tarsus-processing__icon .icon {
+    margin: 0;
+    animation: tarsus-turn 3s linear infinite;
+}
+
+.tarsus-processing__bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tz-processing-track);
+    overflow: hidden;
+}
+
+.tarsus-processing__fill {
+    height: 100%;
+    width: 60%;
+    border-radius: 999px;
+    background: #4a98cf;
+    animation: tarsus-run 1.6s ease-in-out infinite;
+}
+
+@keyframes tarsus-turn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes tarsus-run {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(170%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-processing__icon .icon,
+    .tarsus-processing__fill {
+        animation: none;
+    }
+}
+
+/* The narration control in a learning stack's band, one square button
+   with four states: idle (speaker on a translucent pad), loading (a pale
+   play glyph with a turning arc around the pad), ready (a solid play
+   button) and playing (pause). Next to it a fake waveform, coloured up
+   to the playback position. */
+.tarsus-chat-box .tarsus-learn-player {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-player__toggle {
+    position: relative;
+    /* No larger than the progress ring beside it (24px). */
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tz-chip);
+    color: var(--tz-chip-ink);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tarsus-chat-box .tarsus-learn-player__toggle .icon {
+    margin: 0;
+}
+
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle {
+    color: var(--tz-loading-glyph);
+    cursor: progress;
+}
+
+/* A round loading wheel turning inside the pad, the pale play glyph in
+   its middle; the whole control stays 24px like the progress ring. */
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle {
+    font-size: 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    border: 2px solid var(--tz-loading-ring);
+    border-top-color: var(--tz-accent-stroke);
+    animation: tarsus-turn 0.9s linear infinite;
+}
+
+.tarsus-chat-box .tarsus-learn-player[data-state="ready"] .tarsus-learn-player__toggle,
+.tarsus-chat-box .tarsus-learn-player[data-state="playing"] .tarsus-learn-player__toggle {
+    background: var(--tz-accent);
+    color: #fff;
+}
+
+.tarsus-chat-box .tarsus-learn-player__wave {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 20px;
+    width: 12rem;
+    max-width: 40vw;
+}
+
+.tarsus-chat-box .tarsus-learn-player__bar {
+    flex: 1 1 0;
+    min-width: 1px;
+    border-radius: 1px;
+    background: var(--tz-wave);
+}
+
+.tarsus-chat-box .tarsus-learn-player__bar--played {
+    background: var(--tz-accent-stroke);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle::after {
+        animation: none;
+    }
+}

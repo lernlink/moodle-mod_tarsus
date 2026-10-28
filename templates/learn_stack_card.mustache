@@ -1,0 +1,98 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsus/learn_stack_card
+
+    One learning unit (stack of slides) in the Build knowledge mode.
+
+    Context variables required for this template:
+    * stackid - string, the stack id.
+    * askenabled - bool, whether the chat mode is on (shows "Ask about this").
+    * total - int, the number of slides, the check question included.
+    * ringoffset - number, the ring's stroke offset for the first slide (see chat.js).
+    * slides - array of {id, index, number, first, isquestion, taxonomy, taxonomyicon, title, text, image,
+      imageposition, question (practice_card context, question slides only; its difficulty shows on the
+      band after the ring while the slide is on)}; the slide's taxonomy
+      level shows as the card badge (text only), falling back to the mode name.
+}}
+<div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
+    <div class="tarsus-card__band tarsus-learn-card__meta">
+        <svg class="tarsus-learn-ring" data-region="ring" viewBox="0 0 24 24" width="24" height="24" role="img" aria-live="polite"
+             aria-label="{{#str}}learn_slide_of, mod_tarsus, { "current": 1, "total": {{total}} }{{/str}}">
+            <circle class="tarsus-learn-ring__track" cx="12" cy="12" r="9"></circle>
+            <circle class="tarsus-learn-ring__fill" cx="12" cy="12" r="9" style="stroke-dashoffset: {{ringoffset}}"></circle>
+        </svg>
+        {{#slides}}{{#isquestion}}{{#question}}{{#hasbars}}
+        <span class="tarsus-difficulty {{difficultyclass}}{{^first}} d-none{{/first}}" data-region="slide-badge" data-index="{{index}}"
+              title="{{difficulty}}" role="img" aria-label="{{difficulty}}">
+            {{#bars}}<span class="tarsus-difficulty__bar {{#filled}}tarsus-difficulty__bar--filled{{/filled}}"></span>{{/bars}}
+        </span>
+        {{/hasbars}}{{/question}}{{/isquestion}}{{/slides}}
+        <span class="tarsus-learn-player" data-region="audio-player" data-state="idle">
+            <button type="button" class="tarsus-learn-player__toggle" data-action="audio-toggle"
+                    title="{{#str}}learn_audio, mod_tarsus{{/str}}" aria-label="{{#str}}learn_audio, mod_tarsus{{/str}}">
+                <span data-region="audio-speaker">{{#pix}}audio, mod_tarsus{{/pix}}</span>
+                <span data-region="audio-play" class="d-none">{{#pix}}audio_play, mod_tarsus{{/pix}}</span>
+                <span data-region="audio-pause" class="d-none">{{#pix}}audio_pause, mod_tarsus{{/pix}}</span>
+            </button>
+            <span class="tarsus-learn-player__wave d-none" data-region="audio-wave" aria-hidden="true"></span>
+            <audio data-region="audio" preload="auto"></audio>
+        </span>
+        {{#slides}}
+        <span class="badge badge-light tarsus-practice-card__badge tarsus-learn-badge{{^first}} d-none{{/first}}" data-region="slide-badge" data-index="{{index}}">
+            {{#taxonomy}}{{taxonomy}}{{/taxonomy}}
+            {{^taxonomy}}{{#str}}mode_build, mod_tarsus{{/str}}{{/taxonomy}}
+        </span>
+        {{/slides}}
+        {{#askenabled}}
+        <button type="button" class="tarsus-learn-ask" data-action="ask-about"
+                title="{{#str}}learn_ask_about, mod_tarsus{{/str}}">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsus{{/str}}</span>
+        </button>
+        {{/askenabled}}
+    </div>
+    <div class="tarsus-learn-card__inner">
+        {{#slides}}
+        <div class="tarsus-learn-slide{{^first}} d-none{{/first}}" data-region="slide" data-index="{{index}}"
+             data-slide-id="{{id}}" data-slide-title="{{title}}">
+            {{#isquestion}}{{#question}}
+            <div class="tarsus-practice-card tarsus-practice-card--inslide" data-region="practice-card" data-state="learn"
+                 data-widget-id="{{widgetid}}" data-widget-type="{{widgettype}}"{{#hastable}} data-columns="{{columnsjson}}"{{/hastable}}>
+                {{> mod_tarsus/practice_body }}
+            </div>
+            {{/question}}{{/isquestion}}
+            {{^isquestion}}
+            {{#title}}<h5 class="tarsus-learn-slide__title">{{title}}</h5>{{/title}}
+            <div class="tarsus-learn-slide__body tarsus-learn-slide__body--{{imageposition}}">
+                {{#image}}<img class="tarsus-learn-slide__image" src="{{image}}" alt="" tabindex="0" role="button"
+                     data-action="enlarge" title="{{#str}}learn_image_enlarge, mod_tarsus{{/str}}"
+                     aria-label="{{#str}}learn_image_enlarge, mod_tarsus{{/str}}">{{/image}}
+                <div class="tarsus-learn-slide__text">{{{text}}}</div>
+            </div>
+            {{/isquestion}}
+        </div>
+        {{/slides}}
+        <div class="tarsus-learn-card__nav">
+            <button type="button" class="btn btn-outline-secondary btn-sm tarsus-learn-nav" data-dir="-1" disabled>
+                {{#str}}learn_previous, mod_tarsus{{/str}}
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm tarsus-learn-nav" data-dir="1"{{#single}} disabled{{/single}}>
+                {{#str}}learn_next, mod_tarsus{{/str}}
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/tarsus/db" VERSION="2026062605" COMMENT="Schema for mod_tarsus."
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="tarsus" COMMENT="Tarsus activity instances.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The course this instance belongs to."/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The activity name."/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The activity description."/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the intro field."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="conversationstyle" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="Didactic conversation style 1-5 (Geschlossen..Offen)."/>
+        <FIELD NAME="dqr" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="6" SEQUENCE="false" COMMENT="Difficulty level 3-7."/>
+        <FIELD NAME="industry" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="Domain / field of expertise; empty means unset."/>
+        <FIELD NAME="taxonomylevels" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="1,2,3" SEQUENCE="false" COMMENT="Enabled Bloom taxonomy levels for practice questions (CSV of 1..3)."/>
+        <FIELD NAME="questiontypes" TYPE="char" LENGTH="1333" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="JSON map difficulty grade (1..3) to allowed question widget types; empty means plugin defaults."/>
+        <FIELD NAME="operators" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="standard" SEQUENCE="false" COMMENT="Operator taxonomy for practice questions: standard or ihk."/>
+        <FIELD NAME="anticheat" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the learner may not ask the chat about the current practice question."/>
+        <FIELD NAME="learntempo" TYPE="number" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Learning pace 0.1-2 steering XP growth; 1 is recommended."/>
+        <FIELD NAME="askenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Ask a question mode is available to learners."/>
+        <FIELD NAME="testenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Test knowledge mode is available to learners."/>
+        <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is available to learners."/>
+        <FIELD NAME="gifenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether Build knowledge widgets may include GIF animations."/>
+        <FIELD NAME="learningmethod" TYPE="char" LENGTH="40" NOTNULL="true" DEFAULT="micro-learning" SEQUENCE="false" COMMENT="Didactic concept of the Build knowledge mode (learning_method)."/>
+        <FIELD NAME="completionprogress" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Completion rule: the activity completes once the learner's progress reaches this percentage; 0 switches the rule off."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <TABLE NAME="tarsus_inclusions" COMMENT="Tracks which indexed resources a teacher has included in a specific tarsus activity instance.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tarsusid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsus table."/>
+        <FIELD NAME="resourceid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Namespaced resource id from local_tarsus."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="tarsusid" TYPE="foreign" FIELDS="tarsusid" REFTABLE="tarsus" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="tarsusid_resourceid" UNIQUE="true" FIELDS="tarsusid, resourceid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="tarsus_progress" COMMENT="The latest experience, learning-unit and progress figures the brain reported per learner and activity; the source of the gradebook grade and the completion rule.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tarsusid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsus table."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The learner."/>
+        <FIELD NAME="earnedxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="earnedExperiencePoints (Test knowledge)."/>
+        <FIELD NAME="totalxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="totalExperiencePoints."/>
+        <FIELD NAME="earnedunits" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="earnedLearningUnits (Build knowledge)."/>
+        <FIELD NAME="totalunits" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="totalLearningUnits."/>
+        <FIELD NAME="practiceprogress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="practiceProgress in percent."/>
+        <FIELD NAME="learnprogress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="learnProgress in percent."/>
+        <FIELD NAME="progress" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="The brain's overall progress in percent."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="tarsusid" TYPE="foreign" FIELDS="tarsusid" REFTABLE="tarsus" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="tarsusid_userid" UNIQUE="true" FIELDS="tarsusid, userid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

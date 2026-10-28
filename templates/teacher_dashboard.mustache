@@ -1,0 +1,159 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsus/teacher_dashboard
+
+    Teacher reconciliation list: course material with per-bit brain status and
+    per-resource index actions (index, re-index, remove, retry).
+
+    Context variables required for this template:
+    * cmid - int, the course module id (AJAX action target).
+    * canmanage - bool, whether to show the inclusion toggle and index actions.
+    * hasactivities - bool, whether any indexable materials exist.
+    * hasmultiplepages - bool, whether the paging bar should be shown.
+    * pagingbar - string, rendered Moodle paging bar (previous/next arrows).
+    * resources - array of {
+          name, modname, resourceid, title, type, url, hasurl, statuslabel,
+          badgeclass, inflight, canindex, canreindex, canremove, canretry,
+          caninclude, isincluded }.
+
+    Example context (json):
+    {
+        "cmid": 2,
+        "canmanage": true,
+        "hasactivities": true,
+        "hasmultiplepages": false,
+        "pagingbar": "",
+        "resources": [
+            {
+                "name": "Cell biology",
+                "modname": "page",
+                "resourceid": "site:3:mod_page:2:main",
+                "title": "Cell biology",
+                "type": "text",
+                "url": "https://example.org/mod/page/view.php?id=2",
+                "hasurl": true,
+                "statuslabel": "Indexed",
+                "badgeclass": "badge-success",
+                "inflight": false,
+                "canindex": false,
+                "canreindex": true,
+                "canremove": true,
+                "canretry": false,
+                "caninclude": true,
+                "isincluded": true
+            }
+        ]
+    }
+}}
+<div class="mod-tarsus-dashboard" data-region="tarsus-dashboard" data-cmid="{{cmid}}">
+    {{#hasactivities}}
+        {{#canmanage}}
+            <div class="d-flex flex-wrap gap-2 mb-3" data-region="tarsus-bulk">
+                <button type="button" class="btn btn-sm btn-primary" data-bulk="index">
+                    {{#str}}bulk_index, mod_tarsus{{/str}}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bulk="sync">
+                    {{#str}}bulk_sync, mod_tarsus{{/str}}
+                </button>
+                <span class="spinner-border spinner-border-sm text-muted align-self-center" role="status"
+                      data-region="tarsus-bulk-spinner" hidden>
+                    <span class="sr-only">{{#str}}loading, core{{/str}}</span>
+                </span>
+            </div>
+            <p class="text-muted small">{{#str}}bulk_help, mod_tarsus{{/str}}</p>
+        {{/canmanage}}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">{{#str}}col_activity, mod_tarsus{{/str}}</th>
+                    <th scope="col">{{#str}}col_type, mod_tarsus{{/str}}</th>
+                    <th scope="col">{{#str}}col_status, mod_tarsus{{/str}}</th>
+                    {{#canmanage}}
+                        <th scope="col">{{#str}}col_included, mod_tarsus{{/str}}</th>
+                        <th scope="col">{{#str}}col_actions, mod_tarsus{{/str}}</th>
+                    {{/canmanage}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#resources}}
+                    <tr data-region="tarsus-resource" data-resourceid="{{resourceid}}">
+                        <td>
+                            {{#hasurl}}<a href="{{url}}">{{name}}</a>{{/hasurl}}
+                            {{^hasurl}}{{name}}{{/hasurl}}
+                        </td>
+                        <td>{{type}}</td>
+                        <td class="text-nowrap">
+                            <span class="badge {{badgeclass}}" data-region="status-badge">{{statuslabel}}</span>
+                            <span class="spinner-border spinner-border-sm text-muted ml-1" role="status"
+                                  data-region="status-spinner" {{^inflight}}hidden{{/inflight}}>
+                                <span class="sr-only">{{#str}}loading, core{{/str}}</span>
+                            </span>
+                        </td>
+                        {{#canmanage}}
+                            <td>
+                                <div class="form-check form-switch mb-0" data-region="tarsus-include-cell">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                           data-region="tarsus-include-toggle"
+                                           aria-label="{{#str}}col_included, mod_tarsus{{/str}}"
+                                           {{#isincluded}}checked{{/isincluded}}
+                                           {{^caninclude}}disabled{{/caninclude}}>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="min-width:9rem">
+                                    <button type="button" class="btn btn-sm btn-outline-primary w-100"
+                                            data-action="index" {{^canindex}}hidden{{/canindex}}>
+                                        {{#str}}action_index, mod_tarsus{{/str}}
+                                    </button>
+                                    <div class="d-flex gap-1">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill"
+                                                data-action="reindex" {{^canreindex}}hidden{{/canreindex}}>
+                                            {{#str}}action_reindex, mod_tarsus{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning flex-fill"
+                                                data-action="retry" {{^canretry}}hidden{{/canretry}}>
+                                            {{#str}}action_retry, mod_tarsus{{/str}}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
+                                                data-action="remove" {{^canremove}}hidden{{/canremove}}>
+                                            {{#str}}action_remove, mod_tarsus{{/str}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        {{/canmanage}}
+                    </tr>
+                {{/resources}}
+            </tbody>
+        </table>
+        {{#hasmultiplepages}}
+            {{{pagingbar}}}
+        {{/hasmultiplepages}}
+    {{/hasactivities}}
+
+    {{^hasactivities}}
+        <div class="alert alert-info">{{#str}}nomaterials, mod_tarsus{{/str}}</div>
+    {{/hasactivities}}
+</div>
+{{#canmanage}}
+    {{#js}}
+        require(['mod_tarsus/dashboard'], function(Dashboard) {
+            Dashboard.init({{cmid}}, '[data-region="tarsus-dashboard"]');
+        });
+    {{/js}}
+{{/canmanage}}
