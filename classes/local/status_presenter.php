@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\local;
+namespace mod_tarsus\local;
 
 use local_tarsus\index\status;
 
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
  * Single source of truth shared by the teacher dashboard renderable and the
  * AJAX external functions so the template and the live updates never drift.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

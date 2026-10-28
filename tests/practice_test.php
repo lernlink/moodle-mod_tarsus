@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_tarsuszero\external\get_practice_widget;
-use mod_tarsuszero\external\submit_practice_answer;
+use mod_tarsus\external\get_practice_widget;
+use mod_tarsus\external\submit_practice_answer;
 
 /**
  * Tests for the Test knowledge (practice) external functions.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero\external\get_practice_widget
- * @covers     \mod_tarsuszero\external\get_activity_feed
- * @covers     \mod_tarsuszero\external\submit_practice_answer
- * @covers     \mod_tarsuszero\local\conversation
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus\external\get_practice_widget
+ * @covers     \mod_tarsus\external\get_activity_feed
+ * @covers     \mod_tarsus\external\submit_practice_answer
+ * @covers     \mod_tarsus\local\conversation
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -51,7 +51,7 @@ final class practice_test extends \advanced_testcase {
         global $DB;
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -66,8 +66,8 @@ final class practice_test extends \advanced_testcase {
         $resourceid = (new \local_tarsus\indexer())->index_cm($cm)[0];
         (new \local_tarsus\index\repository())->mark_uploaded($resourceid, 'hash-1');
         (new \local_tarsus\index\repository())->mark_indexed($resourceid, 'bit-1', 'hash-1');
-        $DB->insert_record('tarsuszero_inclusions', (object) [
-            'tarsuszeroid' => $tz->id,
+        $DB->insert_record('tarsus_inclusions', (object) [
+            'tarsusid' => $tz->id,
             'resourceid' => $resourceid,
             'timecreated' => time(),
         ]);
@@ -116,11 +116,11 @@ final class practice_test extends \advanced_testcase {
         global $DB;
         [$tz] = $this->make_ready_activity();
 
-        $DB->set_field('tarsuszero', 'taxonomylevels', '2', ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'questiontypes', '{"3":["openQuestionWidget"]}', ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'operators', 'ihk', ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'anticheat', 1, ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'learntempo', 0.5, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'taxonomylevels', '2', ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'questiontypes', '{"3":["openQuestionWidget"]}', ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'operators', 'ihk', ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'anticheat', 1, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'learntempo', 0.5, ['id' => $tz->id]);
 
         $result = get_practice_widget::execute((int) $tz->cmid);
 
@@ -139,7 +139,7 @@ final class practice_test extends \advanced_testcase {
     public function test_practice_state_reopens_the_feed(): void {
         [$tz] = $this->make_ready_activity();
 
-        $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
+        $result = \mod_tarsus\external\get_activity_feed::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
         $this->assertCount(7, $result['items']);
@@ -154,14 +154,14 @@ final class practice_test extends \advanced_testcase {
         $this->assertSame('trueFalseQuestionWidget', $open['type']);
         // The true/false values render with localized labels.
         $this->assertSame('true', $open['choices'][0]['value']);
-        $this->assertSame(get_string('choice_true', 'mod_tarsuszero'), $open['choices'][0]['label']);
+        $this->assertSame(get_string('choice_true', 'mod_tarsus'), $open['choices'][0]['label']);
 
         $this->assertSame(60.0, $result['progress']['practiceprogress']);
         $this->assertSame(9.0, $result['progress']['earnedxp']);
 
         // The fixture fits one page; an older page is empty and final.
         $this->assertFalse($result['hasmore']);
-        $older = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid, 10);
+        $older = \mod_tarsus\external\get_activity_feed::execute((int) $tz->cmid, 10);
         $this->assertEquals('success', $older['status']);
         $this->assertSame([], $older['items']);
         $this->assertFalse($older['hasmore']);
@@ -172,14 +172,14 @@ final class practice_test extends \advanced_testcase {
      */
     public function test_practice_state_without_scope_is_empty(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
         $this->setUser($student);
         set_config('mockmode', '1', 'local_tarsus');
 
-        $result = \mod_tarsuszero\external\get_activity_feed::execute((int) $tz->cmid);
+        $result = \mod_tarsus\external\get_activity_feed::execute((int) $tz->cmid);
         $this->assertEquals('success', $result['status']);
         $this->assertSame([], $result['items']);
     }
@@ -189,7 +189,7 @@ final class practice_test extends \advanced_testcase {
      */
     public function test_practice_without_included_material_is_refused(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -302,21 +302,21 @@ final class practice_test extends \advanced_testcase {
     public function test_get_learn_widget_returns_objectives_and_slides(): void {
         global $DB;
         [$tz] = $this->make_ready_activity();
-        $DB->set_field('tarsuszero', 'gifenabled', 1, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'gifenabled', 1, ['id' => $tz->id]);
 
-        $result = \mod_tarsuszero\external\get_learn_widget::execute((int) $tz->cmid);
+        $result = \mod_tarsus\external\get_learn_widget::execute((int) $tz->cmid);
 
         $this->assertEquals('success', $result['status']);
         $this->assertSame(['objectives', 'stack'], array_column($result['items'], 'kind'));
         $objectives = $result['items'][0];
         $this->assertSame('Mock learning goals', $objectives['title']);
         $this->assertStringContainsString('<strong>mock</strong>', $objectives['message']);
-        $this->assertSame(get_string('taxonomy_understanding', 'mod_tarsuszero'), $objectives['objectives'][1]['taxonomy']);
+        $this->assertSame(get_string('taxonomy_understanding', 'mod_tarsus'), $objectives['objectives'][1]['taxonomy']);
         $stack = $result['items'][1];
         $this->assertSame(['text', 'text', 'question'], array_column($stack['slides'], 'kind'));
-        $this->assertSame(get_string('taxonomy_knowledge', 'mod_tarsuszero'), $stack['slides'][0]['taxonomy']);
+        $this->assertSame(get_string('taxonomy_knowledge', 'mod_tarsus'), $stack['slides'][0]['taxonomy']);
         $this->assertSame('taxonomy_understanding', $stack['slides'][1]['taxonomyicon']);
-        $this->assertSame(get_string('taxonomy_knowledge', 'mod_tarsuszero'), $stack['slides'][2]['taxonomy']);
+        $this->assertSame(get_string('taxonomy_knowledge', 'mod_tarsus'), $stack['slides'][2]['taxonomy']);
         $this->assertStringContainsString('[method: micro-learning, gif: 1]', $stack['slides'][0]['text']);
         $this->assertStringStartsWith('data:image/svg+xml;base64,', $stack['slides'][1]['image']);
         // The unit's check question comes shaped like a practice question.
@@ -339,16 +339,16 @@ final class practice_test extends \advanced_testcase {
         global $DB;
         [$tz] = $this->make_ready_activity();
 
-        $result = \mod_tarsuszero\external\submit_practice_answer::execute(
+        $result = \mod_tarsus\external\submit_practice_answer::execute(
             (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
         $result = \core_external\external_api::clean_returnvalue(
-            \mod_tarsuszero\external\submit_practice_answer::execute_returns(), $result);
+            \mod_tarsus\external\submit_practice_answer::execute_returns(), $result);
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['correct']);
         $this->assertSame(1.0, $result['progress']['earnedunits']);
 
-        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
-        $refused = \mod_tarsuszero\external\submit_practice_answer::execute(
+        $DB->set_field('tarsus', 'buildenabled', 0, ['id' => $tz->id]);
+        $refused = \mod_tarsus\external\submit_practice_answer::execute(
             (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
         $this->assertEquals('disabled', $refused['status']);
     }
@@ -363,15 +363,15 @@ final class practice_test extends \advanced_testcase {
 
         set_config('voice_mode', \local_tarsus\voices::MODE_FIXED, 'local_tarsus');
         set_config('voice', 'Daniel', 'local_tarsus');
-        $result = \mod_tarsuszero\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1');
+        $result = \mod_tarsus\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1');
         $result = \core_external\external_api::clean_returnvalue(
-            \mod_tarsuszero\external\get_stack_audio::execute_returns(), $result);
+            \mod_tarsus\external\get_stack_audio::execute_returns(), $result);
         $this->assertEquals('success', $result['status']);
         $this->assertStringStartsWith('data:audio/wav;base64,', $result['audio']);
         $this->assertSame('Daniel', $result['voice']);
 
-        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
-        $this->assertEquals('disabled', \mod_tarsuszero\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1')['status']);
+        $DB->set_field('tarsus', 'buildenabled', 0, ['id' => $tz->id]);
+        $this->assertEquals('disabled', \mod_tarsus\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1')['status']);
     }
 
     /**
@@ -380,9 +380,9 @@ final class practice_test extends \advanced_testcase {
     public function test_learn_refused_when_mode_is_off(): void {
         global $DB;
         [$tz] = $this->make_ready_activity();
-        $DB->set_field('tarsuszero', 'buildenabled', 0, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'buildenabled', 0, ['id' => $tz->id]);
 
-        $this->assertEquals('disabled', \mod_tarsuszero\external\get_learn_widget::execute((int) $tz->cmid)['status']);
+        $this->assertEquals('disabled', \mod_tarsus\external\get_learn_widget::execute((int) $tz->cmid)['status']);
     }
 
     /**
@@ -391,7 +391,7 @@ final class practice_test extends \advanced_testcase {
     public function test_practice_refused_when_mode_is_off(): void {
         global $DB;
         [$tz] = $this->make_ready_activity();
-        $DB->set_field('tarsuszero', 'testenabled', 0, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'testenabled', 0, ['id' => $tz->id]);
 
         $this->assertEquals('disabled', get_practice_widget::execute((int) $tz->cmid)['status']);
         $this->assertEquals('disabled', submit_practice_answer::execute(
@@ -417,6 +417,6 @@ final class practice_test extends \advanced_testcase {
 
         $result = get_practice_widget::execute((int) $tz->cmid);
         $this->assertEquals('blocked', $result['status']);
-        $this->assertEquals(get_string('guardrail_blocked_killswitch', 'mod_tarsuszero'), $result['error']);
+        $this->assertEquals(get_string('guardrail_blocked_killswitch', 'mod_tarsus'), $result['error']);
     }
 }

@@ -21,11 +21,11 @@
  * its avatar) around a thin divider, and informational messages from the
  * assistant — the welcome above all — appear as gradient-bordered cards.
  *
- * @module     mod_tarsuszero/chat
+ * @module     mod_tarsus/chat
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events', 'mod_tarsuszero/processing'],
+define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events', 'mod_tarsus/processing'],
         function(Ajax, Templates, Notification, Str, FilterEvents, Processing) {
 
     /**
@@ -322,7 +322,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Promise} Resolves to the card element.
      */
     function attachPracticeCard(widget) {
-        return attachCard('mod_tarsuszero/practice_card', practiceCardContext(widget), null, true);
+        return attachCard('mod_tarsus/practice_card', practiceCardContext(widget), null, true);
     }
 
     /**
@@ -452,9 +452,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         return Promise.all(items.map(function(item) {
             var build;
             if (item.kind === 'message') {
-                build = buildCard('mod_tarsuszero/chat_welcome_card', {title: item.title, message: item.text});
+                build = buildCard('mod_tarsus/chat_welcome_card', {title: item.title, message: item.text});
             } else if (item.kind === 'exchange') {
-                build = buildCard('mod_tarsuszero/chat_card', {
+                build = buildCard('mod_tarsus/chat_card', {
                     question: item.query,
                     answer: item.answer,
                     pending: false,
@@ -474,7 +474,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     return buildCard(card.template, card.context);
                 }));
             } else {
-                build = buildCard('mod_tarsuszero/practice_card', practiceCardContext(item));
+                build = buildCard('mod_tarsus/practice_card', practiceCardContext(item));
             }
             return build.then(function(entries) {
                 return (Array.isArray(entries) ? entries : [entries]).map(function(entry, index) {
@@ -578,7 +578,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var older = flow.querySelector(SELECTORS.FEED_OLDER);
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_activity_feed',
+            methodname: 'mod_tarsus_get_activity_feed',
             args: {cmid: state.cmid, offset: 0}
         }])[0].then(function(result) {
             if (result.status !== 'success') {
@@ -663,7 +663,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var offset = state.feedOffset;
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_activity_feed',
+            methodname: 'mod_tarsus_get_activity_feed',
             args: {cmid: state.cmid, offset: offset}
         }])[0].then(function(result) {
             if (result.status !== 'success') {
@@ -741,7 +741,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         badge.querySelector(SELECTORS.XP_TOTAL).textContent = Math.round(total * 100) / 100;
         var unit = badge.querySelector(SELECTORS.XP_UNIT);
         if (unit) {
-            Str.get_string(build ? 'learning_units' : 'xp', 'mod_tarsuszero').then(function(text) {
+            Str.get_string(build ? 'learning_units' : 'xp', 'mod_tarsus').then(function(text) {
                 unit.textContent = text;
                 return null;
             }).catch(Notification.exception);
@@ -784,17 +784,17 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      */
     function learnCards(item) {
         if (item.kind === 'complete') {
-            return [{template: 'mod_tarsuszero/learn_complete_card', context: {title: item.title, text: item.text}}];
+            return [{template: 'mod_tarsus/learn_complete_card', context: {title: item.title, text: item.text}}];
         }
         if (item.kind === 'motivation') {
-            return [{template: 'mod_tarsuszero/learn_motivation_card', context: {title: item.title, text: item.text}}];
+            return [{template: 'mod_tarsus/learn_motivation_card', context: {title: item.title, text: item.text}}];
         }
         if (item.kind === 'message') {
-            return [{template: 'mod_tarsuszero/chat_welcome_card', context: {title: item.title, message: item.text}}];
+            return [{template: 'mod_tarsus/chat_welcome_card', context: {title: item.title, message: item.text}}];
         }
         if (item.kind === 'objectives') {
             return [{
-                template: 'mod_tarsuszero/learn_objectives_card',
+                template: 'mod_tarsus/learn_objectives_card',
                 context: {
                     title: item.title,
                     message: item.message,
@@ -830,7 +830,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             };
         });
         return [{
-            template: 'mod_tarsuszero/learn_stack_card',
+            template: 'mod_tarsus/learn_stack_card',
             context: {
                 stackid: item.id,
                 askenabled: state.modes.indexOf('ask') !== -1,
@@ -864,7 +864,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      */
     function openLightbox(src) {
         var dialog = document.querySelector('.tarsus-lightbox');
-        var ready = dialog ? Promise.resolve(dialog) : Str.get_string('learn_image_close', 'mod_tarsuszero')
+        var ready = dialog ? Promise.resolve(dialog) : Str.get_string('learn_image_close', 'mod_tarsus')
             .then(function(closelabel) {
                 dialog = document.createElement('dialog');
                 dialog.className = 'tarsus-lightbox';
@@ -911,7 +911,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         player.querySelector('[data-region="audio-pause"]').classList.toggle('d-none', stateName !== 'playing');
         var key = stateName === 'playing' ? 'learn_audio_pause' : (stateName === 'idle' ? 'learn_audio' : 'learn_audio_play');
         var toggle = player.querySelector(SELECTORS.AUDIO_TOGGLE);
-        Str.get_string(key, 'mod_tarsuszero').then(function(text) {
+        Str.get_string(key, 'mod_tarsus').then(function(text) {
             toggle.setAttribute('title', text);
             toggle.setAttribute('aria-label', text);
             return null;
@@ -974,7 +974,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         setAudioState(card, 'loading');
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_stack_audio',
+            methodname: 'mod_tarsus_get_stack_audio',
             args: {cmid: state.cmid, stackid: card.getAttribute('data-stack-id')}
         }])[0].then(function(result) {
             if (result.status !== 'success' || !result.audio) {
@@ -1070,7 +1070,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var ring = card.querySelector(SELECTORS.LEARN_RING);
         if (ring) {
             ring.querySelector('.tarsus-learn-ring__fill').style.strokeDashoffset = ringOffset(target + 1, slides.length);
-            Str.get_string('learn_slide_of', 'mod_tarsuszero', {current: target + 1, total: slides.length})
+            Str.get_string('learn_slide_of', 'mod_tarsus', {current: target + 1, total: slides.length})
                 .then(function(text) {
                     ring.setAttribute('aria-label', text);
                     return null;
@@ -1123,7 +1123,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         };
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_learn_widget',
+            methodname: 'mod_tarsus_get_learn_widget',
             args: {cmid: state.cmid}
         }])[0].then(function(result) {
             unlock();
@@ -1185,7 +1185,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return Promise.resolve();
         }
         var started = state.mode === 'build' ? state.learnStarted : state.practiceStarted;
-        return Str.get_string(started ? 'practice_next' : 'practice_start', 'mod_tarsuszero').then(function(text) {
+        return Str.get_string(started ? 'practice_next' : 'practice_start', 'mod_tarsus').then(function(text) {
             label.textContent = text;
             return null;
         });
@@ -1218,7 +1218,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         };
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_get_practice_widget',
+            methodname: 'mod_tarsus_get_practice_widget',
             args: {cmid: state.cmid}
         }])[0].then(function(result) {
             unlock();
@@ -1323,7 +1323,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
 
         Ajax.call([{
-            methodname: 'mod_tarsuszero_submit_practice_answer',
+            methodname: 'mod_tarsus_submit_practice_answer',
             args: {
                 cmid: state.cmid,
                 widgetid: card.getAttribute('data-widget-id'),
@@ -1518,7 +1518,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Promise} Resolves to the card element
      */
     function attachWelcome(message, before) {
-        return attachCard('mod_tarsuszero/chat_welcome_card', {title: message.title, message: message.text}, before || null);
+        return attachCard('mod_tarsus/chat_welcome_card', {title: message.title, message: message.text}, before || null);
     }
 
     /**
@@ -1531,7 +1531,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
      * @return {Promise} Resolves to the card element
      */
     function attachExchange(question, answerHtml, pending, reply) {
-        return attachCard('mod_tarsuszero/chat_card', {
+        return attachCard('mod_tarsus/chat_card', {
             question: question,
             answer: answerHtml || '',
             pending: !!pending,
@@ -1583,7 +1583,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
             id = slide.getAttribute('data-slide-id') || '';
             var title = slide.getAttribute('data-slide-title') || '';
-            ready = title !== '' ? Promise.resolve(title) : Str.get_string('learn_slide_of', 'mod_tarsuszero', {
+            ready = title !== '' ? Promise.resolve(title) : Str.get_string('learn_slide_of', 'mod_tarsus', {
                 current: parseInt(slide.getAttribute('data-index'), 10) + 1,
                 total: parseInt(card.getAttribute('data-total'), 10) || 1
             });
@@ -1670,7 +1670,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         // answers; the finished exchange card then takes its place.
         processing = startProcessing('ask', false);
         Ajax.call([{
-            methodname: 'mod_tarsuszero_send_chat_message',
+            methodname: 'mod_tarsus_send_chat_message',
             args: {cmid: state.cmid, query: query, replytowidget: reply ? reply.id : ''}
         }])[0].then(function(result) {
             unlock();

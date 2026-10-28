@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -29,8 +29,8 @@ use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
-use mod_tarsuszero\local\conversation;
-use mod_tarsuszero\local\scope;
+use mod_tarsus\local\conversation;
+use mod_tarsus\local\scope;
 use moodle_exception;
 
 /**
@@ -40,7 +40,7 @@ use moodle_exception;
  * other guardrails, and registers the credit cost. The conversation itself lives
  * in the brain; the history endpoint reads it back from there.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -53,7 +53,7 @@ class send_chat_message extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid'  => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid'  => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'query' => new external_value(PARAM_RAW, 'The query that is sent to the brain.'),
             'replytowidget' => new external_value(PARAM_ALPHANUMEXT,
                 'The id of the widget (e.g. a slide of a learning unit) the question is about; empty for none.',
@@ -81,23 +81,23 @@ class send_chat_message extends external_api {
 
         $querytext = trim($params['query']);
         if ($querytext === '') {
-            throw new moodle_exception('empty_query', 'mod_tarsuszero');
+            throw new moodle_exception('empty_query', 'mod_tarsus');
         }
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        require_capability('mod/tarsuszero:view', $context);
+        require_capability('mod/tarsus:view', $context);
 
         // The teacher may have switched the chat off for this activity.
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
-        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, 'ask')) {
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
+        if (!\mod_tarsus\local\didactics::mode_enabled($activity, 'ask')) {
             return [
                 'status'  => 'disabled',
                 'answer'  => '',
                 'sources' => [],
-                'error'   => get_string('chat_modedisabled', 'mod_tarsuszero'),
+                'error'   => get_string('chat_modedisabled', 'mod_tarsus'),
             ];
         }
 
@@ -112,7 +112,7 @@ class send_chat_message extends external_api {
                 'status'  => 'noscope',
                 'answer'  => '',
                 'sources' => [],
-                'error'   => get_string('chat_noscope', 'mod_tarsuszero'),
+                'error'   => get_string('chat_noscope', 'mod_tarsus'),
             ];
         }
 
@@ -176,7 +176,7 @@ class send_chat_message extends external_api {
                 'status'  => 'blocked',
                 'answer'  => '',
                 'sources' => [],
-                'error'   => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'),
+                'error'   => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'),
             ];
         } catch (transport_exception $e) {
             // Safe user-facing feedback for server/connection errors.
@@ -184,7 +184,7 @@ class send_chat_message extends external_api {
                 'status'  => 'error',
                 'answer'  => '',
                 'sources' => [],
-                'error'   => get_string('transport_error', 'mod_tarsuszero'),
+                'error'   => get_string('transport_error', 'mod_tarsus'),
             ];
         }
     }

@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * German strings for mod_tarsuszero.
+ * German strings for mod_tarsus.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,10 +28,10 @@ $string['pluginname'] = 'Tarsus';
 $string['modulename'] = 'Tarsus';
 $string['modulenameplural'] = 'Tarsus-Aktivitäten';
 $string['pluginadministration'] = 'Tarsus-Verwaltung';
-$string['tarsuszeroname'] = 'Name';
-$string['tarsuszero:addinstance'] = 'Eine neue Tarsus-Aktivität hinzufügen';
-$string['tarsuszero:view'] = 'Tarsus-Aktivität ansehen';
-$string['tarsuszero:manage'] = 'Tarsus-Materialindexierung verwalten';
+$string['tarsusname'] = 'Name';
+$string['tarsus:addinstance'] = 'Eine neue Tarsus-Aktivität hinzufügen';
+$string['tarsus:view'] = 'Tarsus-Aktivität ansehen';
+$string['tarsus:manage'] = 'Tarsus-Materialindexierung verwalten';
 
 // Reconciliation-Übersicht für Lehrende.
 $string['indexcourse'] = 'Diesen Kurs indexieren';
@@ -239,15 +239,15 @@ $string['completionprogress_enabled'] = 'Fortschritt der Lernenden erreicht';
 $string['completionprogress_help'] = 'Die Aktivität gilt als abgeschlossen, sobald der vom Brain gemeldete Fortschritt diesen Prozentwert erreicht. „Wissen testen“ zählt den Übungsfortschritt, „Wissen aufbauen“ den Lernfortschritt, beide zusammen den Gesamtfortschritt des Brains.';
 $string['completiondetail:progress'] = '{$a}% Fortschritt erreichen';
 $string['error_completionprogress'] = 'Geben Sie einen Prozentwert zwischen 1 und 100 ein.';
-$string['privacy:metadata:tarsuszero_progress'] = 'Die zuletzt vom Brain gemeldeten Werte je Lernendem: Erfahrungspunkte, Lerneinheiten und Fortschritt, aus denen Bewertung und Abschluss abgeleitet werden.';
-$string['privacy:metadata:tarsuszero_progress:userid'] = 'Die lernende Person.';
-$string['privacy:metadata:tarsuszero_progress:earnedxp'] = 'In „Wissen testen“ erreichte Erfahrungspunkte.';
-$string['privacy:metadata:tarsuszero_progress:totalxp'] = 'Erreichbare Erfahrungspunkte.';
-$string['privacy:metadata:tarsuszero_progress:earnedunits'] = 'In „Wissen aufbauen“ erreichte Lerneinheiten.';
-$string['privacy:metadata:tarsuszero_progress:totalunits'] = 'Erreichbare Lerneinheiten.';
-$string['privacy:metadata:tarsuszero_progress:practiceprogress'] = 'Übungsfortschritt in Prozent.';
-$string['privacy:metadata:tarsuszero_progress:learnprogress'] = 'Lernfortschritt in Prozent.';
-$string['privacy:metadata:tarsuszero_progress:progress'] = 'Gesamtfortschritt in Prozent.';
-$string['privacy:metadata:tarsuszero_progress:timemodified'] = 'Zeitpunkt der letzten Meldung.';
+$string['privacy:metadata:tarsus_progress'] = 'Die zuletzt vom Brain gemeldeten Werte je Lernendem: Erfahrungspunkte, Lerneinheiten und Fortschritt, aus denen Bewertung und Abschluss abgeleitet werden.';
+$string['privacy:metadata:tarsus_progress:userid'] = 'Die lernende Person.';
+$string['privacy:metadata:tarsus_progress:earnedxp'] = 'In „Wissen testen“ erreichte Erfahrungspunkte.';
+$string['privacy:metadata:tarsus_progress:totalxp'] = 'Erreichbare Erfahrungspunkte.';
+$string['privacy:metadata:tarsus_progress:earnedunits'] = 'In „Wissen aufbauen“ erreichte Lerneinheiten.';
+$string['privacy:metadata:tarsus_progress:totalunits'] = 'Erreichbare Lerneinheiten.';
+$string['privacy:metadata:tarsus_progress:practiceprogress'] = 'Übungsfortschritt in Prozent.';
+$string['privacy:metadata:tarsus_progress:learnprogress'] = 'Lernfortschritt in Prozent.';
+$string['privacy:metadata:tarsus_progress:progress'] = 'Gesamtfortschritt in Prozent.';
+$string['privacy:metadata:tarsus_progress:timemodified'] = 'Zeitpunkt der letzten Meldung.';
 $string['privacy:metadata:core_grades'] = 'Die daraus abgeleitete Bewertung wird im Bewertungsbuch gespeichert.';
 $string['privacy:path:progress'] = 'Fortschritt';

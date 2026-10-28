@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -26,7 +26,7 @@ use local_tarsus\client\client_interface;
 /**
  * Display labels and shared structures for the practice external functions.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,9 +40,9 @@ final class practice_labels {
      */
     public static function taxonomy(string $level): string {
         return match (strtoupper($level)) {
-            'WISSEN' => get_string('taxonomy_knowledge', 'mod_tarsuszero'),
-            'VERSTEHEN' => get_string('taxonomy_understanding', 'mod_tarsuszero'),
-            'ANWENDEN' => get_string('taxonomy_application', 'mod_tarsuszero'),
+            'WISSEN' => get_string('taxonomy_knowledge', 'mod_tarsus'),
+            'VERSTEHEN' => get_string('taxonomy_understanding', 'mod_tarsus'),
+            'ANWENDEN' => get_string('taxonomy_application', 'mod_tarsus'),
             default => '',
         };
     }
@@ -55,9 +55,9 @@ final class practice_labels {
      */
     public static function difficulty(int $grade): string {
         return match ($grade) {
-            1 => get_string('difficulty_easy', 'mod_tarsuszero'),
-            2 => get_string('difficulty_medium', 'mod_tarsuszero'),
-            3 => get_string('difficulty_hard', 'mod_tarsuszero'),
+            1 => get_string('difficulty_easy', 'mod_tarsus'),
+            2 => get_string('difficulty_medium', 'mod_tarsus'),
+            3 => get_string('difficulty_hard', 'mod_tarsus'),
             default => '',
         };
     }
@@ -72,10 +72,10 @@ final class practice_labels {
     public static function choice(string $value, string $widgettype): string {
         if ($widgettype === 'trueFalseQuestionWidget') {
             if (strcasecmp($value, 'true') === 0) {
-                return get_string('choice_true', 'mod_tarsuszero');
+                return get_string('choice_true', 'mod_tarsus');
             }
             if (strcasecmp($value, 'false') === 0) {
-                return get_string('choice_false', 'mod_tarsuszero');
+                return get_string('choice_false', 'mod_tarsus');
             }
         }
         return $value;

@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 use local_tarsus\index\course_report;
 use local_tarsus\index\status;
-use mod_tarsuszero\external\set_resource_action;
-use mod_tarsuszero\external\get_index_status;
+use mod_tarsus\external\set_resource_action;
+use mod_tarsus\external\get_index_status;
 
 /**
  * Tests for the per-resource index action external functions.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \mod_tarsuszero\external\set_resource_action
- * @covers     \mod_tarsuszero\external\get_index_status
+ * @covers     \mod_tarsus\external\set_resource_action
+ * @covers     \mod_tarsus\external\get_index_status
  */
 final class resource_action_test extends \advanced_testcase {
 
     /**
-     * Build a course with one page and a tarsuszero activity.
+     * Build a course with one page and a tarsus activity.
      *
      * @return array{course: \stdClass, tz: \stdClass, resourceid: string}
      */
@@ -44,7 +44,7 @@ final class resource_action_test extends \advanced_testcase {
             'content' => '<p>Body</p>',
             'contentformat' => FORMAT_HTML,
         ]);
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $report = (new course_report())->for_course((int) $course->id);
         $resourceid = $report[0]['bits'][0]['resourceid'];
@@ -111,7 +111,7 @@ final class resource_action_test extends \advanced_testcase {
         $this->assertFalse($fresh['canremove']);
 
         $DB->set_field('local_tarsus_index', 'timemodified',
-            time() - \mod_tarsuszero\local\status_presenter::STUCK_AFTER - 1, ['resourceid' => $data['resourceid']]);
+            time() - \mod_tarsus\local\status_presenter::STUCK_AFTER - 1, ['resourceid' => $data['resourceid']]);
         $stuck = $this->status_row($data['tz']->cmid, $data['resourceid']);
         $this->assertTrue($stuck['canremove']);
         $this->assertFalse($stuck['canindex']);

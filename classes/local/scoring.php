@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\local;
+namespace mod_tarsus\local;
 
 use completion_info;
 
@@ -29,7 +29,7 @@ use completion_info;
  * rule compares the matching progress figure with the teacher's threshold.
  * The rules follow Tarsus's own specification.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,7 +38,7 @@ class scoring {
     /**
      * Store the figures the brain just reported and push grade and completion.
      *
-     * @param \stdClass $activity The tarsuszero record.
+     * @param \stdClass $activity The tarsus record.
      * @param int       $userid   The learner.
      * @param array     $progress The client's progress figures (earnedxp, totalxp,
      *                            earnedunits, totalunits, practiceprogress, learnprogress, progress).
@@ -51,7 +51,7 @@ class scoring {
             return;
         }
         $row = (object) [
-            'tarsuszeroid' => (int) $activity->id,
+            'tarsusid' => (int) $activity->id,
             'userid' => $userid,
             'earnedxp' => round((float) ($progress['earnedxp'] ?? 0), 2),
             'totalxp' => round((float) ($progress['totalxp'] ?? 0), 2),
@@ -62,12 +62,12 @@ class scoring {
             'progress' => round((float) ($progress['progress'] ?? 0), 2),
             'timemodified' => time(),
         ];
-        $existing = $DB->get_record('tarsuszero_progress', ['tarsuszeroid' => $activity->id, 'userid' => $userid]);
+        $existing = $DB->get_record('tarsus_progress', ['tarsusid' => $activity->id, 'userid' => $userid]);
         if ($existing) {
             $row->id = $existing->id;
-            $DB->update_record('tarsuszero_progress', $row);
+            $DB->update_record('tarsus_progress', $row);
         } else {
-            $DB->insert_record('tarsuszero_progress', $row);
+            $DB->insert_record('tarsus_progress', $row);
         }
 
         self::push($activity, $userid);
@@ -76,28 +76,28 @@ class scoring {
     /**
      * Forget a learner's figures (the conversation was reset) and withdraw the grade.
      *
-     * @param \stdClass $activity The tarsuszero record.
+     * @param \stdClass $activity The tarsus record.
      * @param int       $userid   The learner.
      * @return void
      */
     public static function clear(\stdClass $activity, int $userid): void {
         global $DB;
 
-        $DB->delete_records('tarsuszero_progress', ['tarsuszeroid' => $activity->id, 'userid' => $userid]);
+        $DB->delete_records('tarsus_progress', ['tarsusid' => $activity->id, 'userid' => $userid]);
         self::push($activity, $userid);
     }
 
     /**
      * The stored figures of a learner, if any.
      *
-     * @param int $instanceid The tarsuszero id.
+     * @param int $instanceid The tarsus id.
      * @param int $userid     The learner.
      * @return \stdClass|null
      */
     public static function row(int $instanceid, int $userid): ?\stdClass {
         global $DB;
 
-        $row = $DB->get_record('tarsuszero_progress', ['tarsuszeroid' => $instanceid, 'userid' => $userid]);
+        $row = $DB->get_record('tarsus_progress', ['tarsusid' => $instanceid, 'userid' => $userid]);
         return $row ?: null;
     }
 
@@ -108,7 +108,7 @@ class scoring {
      * knowledge alone: earned / total learning units. Both: their mean.
      * Neither (chat only): no grade.
      *
-     * @param \stdClass      $activity The tarsuszero record.
+     * @param \stdClass      $activity The tarsus record.
      * @param \stdClass|null $row      The stored figures.
      * @return float|null The grade, or null when the activity carries none.
      */
@@ -137,7 +137,7 @@ class scoring {
      * Test knowledge alone: practiceProgress. Build knowledge alone:
      * learnProgress. Both: the brain's overall progress (their mean).
      *
-     * @param \stdClass      $activity The tarsuszero record.
+     * @param \stdClass      $activity The tarsus record.
      * @param \stdClass|null $row      The stored figures.
      * @return float
      */
@@ -179,17 +179,17 @@ class scoring {
     /**
      * Send the learner's grade to the gradebook and refresh completion.
      *
-     * @param \stdClass $activity The tarsuszero record.
+     * @param \stdClass $activity The tarsus record.
      * @param int       $userid   The learner.
      * @return void
      */
     private static function push(\stdClass $activity, int $userid): void {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/tarsuszero/lib.php');
+        require_once($CFG->dirroot . '/mod/tarsus/lib.php');
 
-        tarsuszero_update_grades($activity, $userid);
+        tarsus_update_grades($activity, $userid);
 
-        $cm = get_coursemodule_from_instance('tarsuszero', $activity->id, $activity->course);
+        $cm = get_coursemodule_from_instance('tarsus', $activity->id, $activity->course);
         if ($cm && !empty($activity->completionprogress)) {
             $course = get_course($cm->course);
             $completion = new completion_info($course);

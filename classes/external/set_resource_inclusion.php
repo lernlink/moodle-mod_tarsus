@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -29,13 +29,13 @@ use local_tarsus\material\resource_id;
 use moodle_exception;
 
 /**
- * External function to include or exclude a resource from a tarsuszero activity's scope.
+ * External function to include or exclude a resource from a tarsus activity's scope.
  *
  * Only indexed resources may be included. The inclusion set is scoped per
- * activity instance so different tarsuszero activities can cover different
+ * activity instance so different tarsus activities can cover different
  * subsets of the course's indexed content.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -48,7 +48,7 @@ class set_resource_inclusion extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'resourceid' => new external_value(PARAM_RAW, 'The namespaced resource id.'),
             'included' => new external_value(PARAM_BOOL, 'True to include, false to exclude.'),
         ]);
@@ -72,18 +72,18 @@ class set_resource_inclusion extends external_api {
             'included' => $included,
         ]);
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
-        require_capability('mod/tarsuszero:manage', $context);
+        require_capability('mod/tarsus:manage', $context);
 
         // Isolation guard: the resource must belong to this activity's course.
         $parts = resource_id::parse($params['resourceid']);
         if ($parts === null || (int) $parts['courseid'] !== (int) $cm->course) {
-            throw new moodle_exception('invalidresource', 'mod_tarsuszero');
+            throw new moodle_exception('invalidresource', 'mod_tarsus');
         }
 
-        $tarsuszeroid = (int) $cm->instance;
+        $tarsusid = (int) $cm->instance;
 
         if ($params['included']) {
             // Only content the brain actually holds may be put in scope:
@@ -91,24 +91,24 @@ class set_resource_inclusion extends external_api {
             // never ground an answer in.
             $row = (new repository())->get($params['resourceid']);
             if ($row === null || $row->status !== status::INDEXED) {
-                throw new moodle_exception('includenotindexed', 'mod_tarsuszero');
+                throw new moodle_exception('includenotindexed', 'mod_tarsus');
             }
 
             // Insert only if not already present (idempotent).
-            $exists = $DB->record_exists('tarsuszero_inclusions', [
-                'tarsuszeroid' => $tarsuszeroid,
+            $exists = $DB->record_exists('tarsus_inclusions', [
+                'tarsusid' => $tarsusid,
                 'resourceid' => $params['resourceid'],
             ]);
             if (!$exists) {
-                $DB->insert_record('tarsuszero_inclusions', (object) [
-                    'tarsuszeroid' => $tarsuszeroid,
+                $DB->insert_record('tarsus_inclusions', (object) [
+                    'tarsusid' => $tarsusid,
                     'resourceid' => $params['resourceid'],
                     'timecreated' => time(),
                 ]);
             }
         } else {
-            $DB->delete_records('tarsuszero_inclusions', [
-                'tarsuszeroid' => $tarsuszeroid,
+            $DB->delete_records('tarsus_inclusions', [
+                'tarsusid' => $tarsusid,
                 'resourceid' => $params['resourceid'],
             ]);
         }

@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_tarsuszero\external\send_chat_message;
-use mod_tarsuszero\external\get_activity_feed;
-use mod_tarsuszero\output\learner_chat;
+use mod_tarsus\external\send_chat_message;
+use mod_tarsus\external\get_activity_feed;
+use mod_tarsus\output\learner_chat;
 
 /**
  * Tests for the Learner RAG chat UI external APIs & output classes.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero\external\send_chat_message
- * @covers     \mod_tarsuszero\external\get_activity_feed
- * @covers     \mod_tarsuszero\output\learner_chat
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus\external\send_chat_message
+ * @covers     \mod_tarsus\external\get_activity_feed
+ * @covers     \mod_tarsus\output\learner_chat
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,7 +46,7 @@ final class chat_test extends \advanced_testcase {
      * Create a page in the course, mark it indexed and include it in the activity.
      *
      * @param \stdClass $course The course.
-     * @param \stdClass $tz     The tarsuszero activity record.
+     * @param \stdClass $tz     The tarsus activity record.
      * @param string    $content The page body.
      * @return string The included resource id.
      */
@@ -64,8 +64,8 @@ final class chat_test extends \advanced_testcase {
         (new \local_tarsus\index\repository())->mark_uploaded($resourceid, 'hash-1');
         (new \local_tarsus\index\repository())->mark_indexed($resourceid, 'bit-1', 'hash-1');
 
-        $DB->insert_record('tarsuszero_inclusions', (object) [
-            'tarsuszeroid' => $tz->id,
+        $DB->insert_record('tarsus_inclusions', (object) [
+            'tarsusid' => $tz->id,
             'resourceid' => $resourceid,
             'timecreated' => time(),
         ]);
@@ -79,7 +79,7 @@ final class chat_test extends \advanced_testcase {
     public function test_learner_chat_export(): void {
         global $PAGE;
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $chat = new learner_chat((int) $tz->cmid);
         $exported = $chat->export_for_template($PAGE->get_renderer('core'));
@@ -100,7 +100,7 @@ final class chat_test extends \advanced_testcase {
         global $DB, $USER;
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->setUser($student);
@@ -166,7 +166,7 @@ final class chat_test extends \advanced_testcase {
      */
     public function test_ask_about_a_slide_travels_with_the_request(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
         set_config('mockmode', '1', 'local_tarsus');
@@ -195,7 +195,7 @@ final class chat_test extends \advanced_testcase {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -204,8 +204,8 @@ final class chat_test extends \advanced_testcase {
         $this->make_included_page($course, $tz);
 
         // The teacher tunes this activity away from the defaults.
-        $DB->set_field('tarsuszero', 'conversationstyle', 4, ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'dqr', 7, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'conversationstyle', 4, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'dqr', 7, ['id' => $tz->id]);
 
         $this->setUser($student);
         set_config('mockmode', '1', 'local_tarsus');
@@ -222,7 +222,7 @@ final class chat_test extends \advanced_testcase {
      */
     public function test_send_without_included_material_is_refused(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->setUser($student);
@@ -234,7 +234,7 @@ final class chat_test extends \advanced_testcase {
 
         $this->assertEquals('noscope', $result['status']);
         $this->assertEmpty($result['answer']);
-        $this->assertEquals(get_string('chat_noscope', 'mod_tarsuszero'), $result['error']);
+        $this->assertEquals(get_string('chat_noscope', 'mod_tarsus'), $result['error']);
     }
 
     /**
@@ -242,7 +242,7 @@ final class chat_test extends \advanced_testcase {
      */
     public function test_stale_inclusion_is_filtered_at_read_time(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -269,13 +269,13 @@ final class chat_test extends \advanced_testcase {
         global $DB;
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
 
         $this->setAdminUser();
         $this->make_included_page($course, $tz);
-        $DB->set_field('tarsuszero', 'askenabled', 0, ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'askenabled', 0, ['id' => $tz->id]);
 
         $this->setUser($student);
         set_config('mockmode', '1', 'local_tarsus');
@@ -283,7 +283,7 @@ final class chat_test extends \advanced_testcase {
         $result = send_chat_message::execute((int) $tz->cmid, 'What is biology?');
 
         $this->assertEquals('disabled', $result['status']);
-        $this->assertEquals(get_string('chat_modedisabled', 'mod_tarsuszero'), $result['error']);
+        $this->assertEquals(get_string('chat_modedisabled', 'mod_tarsus'), $result['error']);
     }
 
     /**
@@ -291,7 +291,7 @@ final class chat_test extends \advanced_testcase {
      */
     public function test_send_empty_query(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->setUser($student);
@@ -306,7 +306,7 @@ final class chat_test extends \advanced_testcase {
      */
     public function test_send_with_killswitch_engaged(): void {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -323,6 +323,6 @@ final class chat_test extends \advanced_testcase {
 
         $this->assertEquals('blocked', $result['status']);
         $this->assertEmpty($result['answer']);
-        $this->assertEquals(get_string('guardrail_blocked_killswitch', 'mod_tarsuszero'), $result['error']);
+        $this->assertEquals(get_string('guardrail_blocked_killswitch', 'mod_tarsus'), $result['error']);
     }
 }

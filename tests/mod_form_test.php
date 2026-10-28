@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/course/modlib.php');
-require_once($CFG->dirroot . '/mod/tarsuszero/mod_form.php');
+require_once($CFG->dirroot . '/mod/tarsus/mod_form.php');
 
 /**
  * Tests for the activity settings form.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero_mod_form
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus_mod_form
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,9 +46,9 @@ final class mod_form_test extends \advanced_testcase {
      *
      * @param \stdClass $course The course.
      * @param int       $cmid   The course module id.
-     * @return \mod_tarsuszero_mod_form The form, loaded with the stored data.
+     * @return \mod_tarsus_mod_form The form, loaded with the stored data.
      */
-    private function edit_form(\stdClass $course, int $cmid): \mod_tarsuszero_mod_form {
+    private function edit_form(\stdClass $course, int $cmid): \mod_tarsus_mod_form {
         global $PAGE;
 
         // The generator's course object predates the module: reload it so
@@ -57,9 +57,9 @@ final class mod_form_test extends \advanced_testcase {
         $course = get_course($course->id);
         $PAGE->set_url('/course/modedit.php', ['update' => $cmid]);
         $PAGE->set_course($course);
-        [$cm, $context, $module, $data, $cw] = get_moduleinfo_data(get_coursemodule_from_id('tarsuszero', $cmid), $course);
+        [$cm, $context, $module, $data, $cw] = get_moduleinfo_data(get_coursemodule_from_id('tarsus', $cmid), $course);
 
-        $form = new \mod_tarsuszero_mod_form($data, $cw->section, $cm, $course);
+        $form = new \mod_tarsus_mod_form($data, $cw->section, $cm, $course);
         $form->set_data($data);
 
         return $form;
@@ -87,11 +87,11 @@ final class mod_form_test extends \advanced_testcase {
         global $DB;
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
-        $DB->set_field('tarsuszero', 'questiontypes',
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
+        $DB->set_field('tarsus', 'questiontypes',
             '{"1":["tradeCostingQuestionWidget"],"2":["tradeCostingQuestionWidget"],"3":["tradeCostingQuestionWidget"]}',
             ['id' => $tz->id]);
-        $DB->set_field('tarsuszero', 'taxonomylevels', '2', ['id' => $tz->id]);
+        $DB->set_field('tarsus', 'taxonomylevels', '2', ['id' => $tz->id]);
 
         $form = $this->edit_form($course, (int) $tz->cmid);
 
@@ -109,14 +109,14 @@ final class mod_form_test extends \advanced_testcase {
         global $PAGE;
 
         $course = get_course($this->getDataGenerator()->create_course()->id);
-        $PAGE->set_url('/course/modedit.php', ['add' => 'tarsuszero']);
+        $PAGE->set_url('/course/modedit.php', ['add' => 'tarsus']);
         $PAGE->set_course($course);
-        [$module, $context, $cw, $cm, $data] = prepare_new_moduleinfo_data($course, 'tarsuszero', 0);
+        [$module, $context, $cw, $cm, $data] = prepare_new_moduleinfo_data($course, 'tarsus', 0);
 
-        $form = new \mod_tarsuszero_mod_form($data, 0, null, $course);
+        $form = new \mod_tarsus_mod_form($data, 0, null, $course);
         $form->set_data($data);
 
-        $defaults = \mod_tarsuszero\local\didactics::default_question_types();
+        $defaults = \mod_tarsus\local\didactics::default_question_types();
         foreach ([1, 2, 3] as $grade) {
             $this->assertSame($defaults[$grade], array_values((array) $this->element_value($form, 'qtypes' . $grade)));
         }

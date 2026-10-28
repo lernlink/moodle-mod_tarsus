@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -23,9 +23,9 @@ defined('MOODLE_INTERNAL') || die();
  *
  * The conversation is the assistant's memory of a learner's progress, so
  * erasing it is a teacher-only action: students must not hold the
- * mod/tarsuszero:resetchat capability by default.
+ * mod/tarsus:resetchat capability by default.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @coversNothing
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -41,13 +41,13 @@ final class resetchat_test extends \advanced_testcase {
     }
 
     /**
-     * Create a course with one tarsuszero activity and return its module context.
+     * Create a course with one tarsus activity and return its module context.
      *
      * @return array{0: \stdClass, 1: \context_module} Course and module context.
      */
     private function make_activity(): array {
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
         return [$course, \context_module::instance($tz->cmid)];
     }
 
@@ -62,12 +62,12 @@ final class resetchat_test extends \advanced_testcase {
         $this->setUser($student);
 
         // The student can use the chat...
-        $this->assertTrue(has_capability('mod/tarsuszero:view', $context));
+        $this->assertTrue(has_capability('mod/tarsus:view', $context));
 
         // ...but not erase it: resetchat.php gates on this capability.
-        $this->assertFalse(has_capability('mod/tarsuszero:resetchat', $context));
+        $this->assertFalse(has_capability('mod/tarsus:resetchat', $context));
         $this->expectException(\required_capability_exception::class);
-        require_capability('mod/tarsuszero:resetchat', $context);
+        require_capability('mod/tarsus:resetchat', $context);
     }
 
     /**
@@ -80,7 +80,7 @@ final class resetchat_test extends \advanced_testcase {
             $user = $this->getDataGenerator()->create_user();
             $this->getDataGenerator()->enrol_user($user->id, $course->id, $role);
             $this->setUser($user);
-            $this->assertTrue(has_capability('mod/tarsuszero:resetchat', $context), $role);
+            $this->assertTrue(has_capability('mod/tarsus:resetchat', $context), $role);
         }
     }
 }

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
-use mod_tarsuszero\output\teacher_dashboard;
+use mod_tarsus\output\teacher_dashboard;
 
 /**
- * Tests for mod_tarsuszero library functions and the teacher dashboard.
+ * Tests for mod_tarsus library functions and the teacher dashboard.
  *
- * @package    mod_tarsuszero
- * @covers     ::tarsuszero_add_instance
- * @covers     \mod_tarsuszero\output\teacher_dashboard
+ * @package    mod_tarsus
+ * @covers     ::tarsus_add_instance
+ * @covers     \mod_tarsus\output\teacher_dashboard
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@ final class lib_test extends \advanced_testcase {
      */
     protected function setUp(): void {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/tarsuszero/lib.php');
+        require_once($CFG->dirroot . '/mod/tarsus/lib.php');
         parent::setUp();
     }
 
@@ -57,30 +57,30 @@ final class lib_test extends \advanced_testcase {
             'intro' => '<p>Intro</p>',
             'introformat' => FORMAT_HTML,
         ];
-        $id = tarsuszero_add_instance($data);
+        $id = tarsus_add_instance($data);
         $this->assertGreaterThan(0, $id);
-        $this->assertSame('My RAG activity', $DB->get_field('tarsuszero', 'name', ['id' => $id]));
+        $this->assertSame('My RAG activity', $DB->get_field('tarsus', 'name', ['id' => $id]));
 
         $data->instance = $id;
         $data->name = 'Renamed';
-        $this->assertTrue(tarsuszero_update_instance($data));
-        $this->assertSame('Renamed', $DB->get_field('tarsuszero', 'name', ['id' => $id]));
+        $this->assertTrue(tarsus_update_instance($data));
+        $this->assertSame('Renamed', $DB->get_field('tarsus', 'name', ['id' => $id]));
 
-        $this->assertTrue(tarsuszero_delete_instance($id));
-        $this->assertFalse($DB->record_exists('tarsuszero', ['id' => $id]));
-        $this->assertFalse(tarsuszero_delete_instance($id));
+        $this->assertTrue(tarsus_delete_instance($id));
+        $this->assertFalse($DB->record_exists('tarsus', ['id' => $id]));
+        $this->assertFalse(tarsus_delete_instance($id));
     }
 
     /**
-     * tarsuszero_supports answers known features.
+     * tarsus_supports answers known features.
      *
      * @return void
      */
     public function test_supports(): void {
-        $this->assertTrue(tarsuszero_supports(FEATURE_MOD_INTRO));
-        $this->assertTrue(tarsuszero_supports(FEATURE_GRADE_HAS_GRADE));
-        $this->assertTrue(tarsuszero_supports(FEATURE_COMPLETION_HAS_RULES));
-        $this->assertNull(tarsuszero_supports('some_unknown_feature'));
+        $this->assertTrue(tarsus_supports(FEATURE_MOD_INTRO));
+        $this->assertTrue(tarsus_supports(FEATURE_GRADE_HAS_GRADE));
+        $this->assertTrue(tarsus_supports(FEATURE_COMPLETION_HAS_RULES));
+        $this->assertNull(tarsus_supports('some_unknown_feature'));
     }
 
     /**
@@ -98,7 +98,7 @@ final class lib_test extends \advanced_testcase {
             'content' => '<p>Body</p>',
             'contentformat' => FORMAT_HTML,
         ]);
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         $dashboard = new teacher_dashboard($tz->cmid, (int) $course->id, true);
         $context = $dashboard->export_for_template($PAGE->get_renderer('core'));
@@ -132,7 +132,7 @@ final class lib_test extends \advanced_testcase {
                 'contentformat' => FORMAT_HTML,
             ]);
         }
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
         // First page: capped at ten materials, with a paging bar shown.
         $first = (new teacher_dashboard($tz->cmid, (int) $course->id, true, 0))

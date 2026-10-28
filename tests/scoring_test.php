@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
-use mod_tarsuszero\local\scoring;
+use mod_tarsus\local\scoring;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -27,11 +27,11 @@ require_once($CFG->libdir . '/completionlib.php');
 /**
  * Grades and completion from the brain's figures.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \mod_tarsuszero\local\scoring
- * @covers     \mod_tarsuszero\completion\custom_completion
+ * @covers     \mod_tarsus\local\scoring
+ * @covers     \mod_tarsus\completion\custom_completion
  */
 final class scoring_test extends \advanced_testcase {
 
@@ -44,17 +44,17 @@ final class scoring_test extends \advanced_testcase {
     /**
      * An activity with the given modes, in a course with completion on.
      *
-     * @param array $fields Extra tarsuszero fields.
+     * @param array $fields Extra tarsus fields.
      * @return array{course: \stdClass, tz: \stdClass, activity: \stdClass, user: \stdClass}
      */
     private function make(array $fields = []): array {
         global $DB;
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id,
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id,
             'completion' => COMPLETION_TRACKING_AUTOMATIC] + $fields);
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-        return ['course' => $course, 'tz' => $tz, 'activity' => $DB->get_record('tarsuszero', ['id' => $tz->id]), 'user' => $user];
+        return ['course' => $course, 'tz' => $tz, 'activity' => $DB->get_record('tarsus', ['id' => $tz->id]), 'user' => $user];
     }
 
     /**
@@ -113,16 +113,16 @@ final class scoring_test extends \advanced_testcase {
 
         $row = scoring::row((int) $data['activity']->id, (int) $data['user']->id);
         $this->assertEqualsWithDelta(1.48, (float) $row->earnedxp, 0.001);
-        $grades = grade_get_grades($data['course']->id, 'mod', 'tarsuszero', $data['activity']->id, $data['user']->id);
+        $grades = grade_get_grades($data['course']->id, 'mod', 'tarsus', $data['activity']->id, $data['user']->id);
         $this->assertEqualsWithDelta(58.22, (float) $grades->items[0]->grades[$data['user']->id]->grade, 0.01);
 
-        $cm = get_coursemodule_from_instance('tarsuszero', $data['activity']->id);
+        $cm = get_coursemodule_from_instance('tarsus', $data['activity']->id);
         $completion = new \completion_info($data['course']);
         $this->assertSame(COMPLETION_COMPLETE, (int) $completion->get_data($cm, false, $data['user']->id)->completionstate);
 
         scoring::clear($data['activity'], (int) $data['user']->id);
         $this->assertNull(scoring::row((int) $data['activity']->id, (int) $data['user']->id));
-        $grades = grade_get_grades($data['course']->id, 'mod', 'tarsuszero', $data['activity']->id, $data['user']->id);
+        $grades = grade_get_grades($data['course']->id, 'mod', 'tarsus', $data['activity']->id, $data['user']->id);
         $this->assertNull($grades->items[0]->grades[$data['user']->id]->grade);
         $this->assertSame(COMPLETION_INCOMPLETE, (int) $completion->get_data($cm, false, $data['user']->id)->completionstate);
     }
@@ -136,7 +136,7 @@ final class scoring_test extends \advanced_testcase {
 
         scoring::record($data['activity'], (int) $data['user']->id, self::FIGURES);
 
-        $cm = get_coursemodule_from_instance('tarsuszero', $data['activity']->id);
+        $cm = get_coursemodule_from_instance('tarsus', $data['activity']->id);
         $completion = new \completion_info($data['course']);
         $this->assertSame(COMPLETION_INCOMPLETE, (int) $completion->get_data($cm, false, $data['user']->id)->completionstate);
     }
@@ -149,9 +149,9 @@ final class scoring_test extends \advanced_testcase {
         $data = $this->make(['testenabled' => 0, 'buildenabled' => 1]);
         scoring::record($data['activity'], (int) $data['user']->id, self::FIGURES);
 
-        tarsuszero_update_grades($data['activity']);
+        tarsus_update_grades($data['activity']);
 
-        $grades = tarsuszero_get_user_grades($data['activity']);
+        $grades = tarsus_get_user_grades($data['activity']);
         $this->assertSame(100.0, $grades[$data['user']->id]->rawgrade);
     }
 }

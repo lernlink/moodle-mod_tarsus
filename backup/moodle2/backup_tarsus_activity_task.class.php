@@ -15,23 +15,23 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Backup task for the Tarsus Zero activity.
+ * Backup task for the Tarsus activity.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/tarsuszero/backup/moodle2/backup_tarsuszero_stepslib.php');
+require_once($CFG->dirroot . '/mod/tarsus/backup/moodle2/backup_tarsus_stepslib.php');
 
 /**
- * Backs up one Tarsus Zero activity: its settings and the resources the teacher included.
+ * Backs up one Tarsus activity: its settings and the resources the teacher included.
  *
  * The conversation itself lives in the brain and is not part of the backup.
  */
-class backup_tarsuszero_activity_task extends backup_activity_task {
+class backup_tarsus_activity_task extends backup_activity_task {
 
     /**
      * No activity-specific settings.
@@ -43,7 +43,7 @@ class backup_tarsuszero_activity_task extends backup_activity_task {
      * One structure step.
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_tarsuszero_activity_structure_step('tarsuszero_structure', 'tarsuszero.xml'));
+        $this->add_step(new backup_tarsus_activity_structure_step('tarsus_structure', 'tarsus.xml'));
     }
 
     /**
@@ -56,10 +56,10 @@ class backup_tarsuszero_activity_task extends backup_activity_task {
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot, '/');
-        $search = '/(' . $base . '\/mod\/tarsuszero\/index\.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@TARSUSZEROINDEX*$2@$', $content);
-        $search = '/(' . $base . '\/mod\/tarsuszero\/view\.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@TARSUSZEROVIEWBYID*$2@$', $content);
+        $search = '/(' . $base . '\/mod\/tarsus\/index\.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@TARSUSINDEX*$2@$', $content);
+        $search = '/(' . $base . '\/mod\/tarsus\/view\.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@TARSUSVIEWBYID*$2@$', $content);
 
         return $content;
     }

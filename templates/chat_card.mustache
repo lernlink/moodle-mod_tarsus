@@ -15,7 +15,7 @@
     along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_tarsuszero/chat_card
+    @template mod_tarsus/chat_card
 
     One exchange with the assistant: the learner's question on top, a thin
     divider, the assistant's answer below — a single centred card.
@@ -33,8 +33,8 @@
 <div class="tarsus-card" data-region="tarsus-chat-card">
     <div class="tarsus-card__inner">
         {{#reply}}
-        <div class="tarsus-card__reply" aria-label="{{#str}}chat_reply_about, mod_tarsuszero, {{reply}}{{/str}}">
-            {{#pix}}reply, mod_tarsuszero{{/pix}}<span>{{reply}}</span>
+        <div class="tarsus-card__reply" aria-label="{{#str}}chat_reply_about, mod_tarsus, {{reply}}{{/str}}">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span>{{reply}}</span>
         </div>
         {{/reply}}
         <div class="tarsus-card__question d-flex align-items-start">

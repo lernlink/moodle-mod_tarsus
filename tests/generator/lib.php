@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * PHPUnit data generator for mod_tarsuszero.
+ * PHPUnit data generator for mod_tarsus.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,16 +25,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Creates mod_tarsuszero instances for tests.
+ * Creates mod_tarsus instances for tests.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_tarsuszero_generator extends testing_module_generator {
+class mod_tarsus_generator extends testing_module_generator {
 
     /**
-     * Create a new tarsuszero instance.
+     * Create a new tarsus instance.
      *
      * @param array|\stdClass|null $record  Instance data overrides.
      * @param array|null           $options Generator options.

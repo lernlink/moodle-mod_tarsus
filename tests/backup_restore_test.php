@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 use local_tarsus\material\resource_id;
 
@@ -29,11 +29,11 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
  * Backup and restore of the activity: settings travel, inclusions are remapped,
  * and the recycle bin can back the activity up before deleting it.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \backup_tarsuszero_activity_task
- * @covers     \restore_tarsuszero_activity_task
+ * @covers     \backup_tarsus_activity_task
+ * @covers     \restore_tarsus_activity_task
  */
 final class backup_restore_test extends \advanced_testcase {
 
@@ -46,12 +46,12 @@ final class backup_restore_test extends \advanced_testcase {
         global $DB;
         $course = $this->getDataGenerator()->create_course();
         $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'content' => '<p>Body</p>']);
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', [
+        $tz = $this->getDataGenerator()->create_module('tarsus', [
             'course' => $course->id, 'dqr' => 5, 'operators' => 'ihk', 'gifenabled' => 1, 'anticheat' => 1, 'learntempo' => 0.5,
         ]);
         $resourceid = resource_id::build((int) $course->id, 'mod_page', (int) $page->cmid);
-        $DB->insert_record('tarsuszero_inclusions', (object) [
-            'tarsuszeroid' => $tz->id, 'resourceid' => $resourceid, 'timecreated' => time(),
+        $DB->insert_record('tarsus_inclusions', (object) [
+            'tarsusid' => $tz->id, 'resourceid' => $resourceid, 'timecreated' => time(),
         ]);
         return ['course' => $course, 'page' => $page, 'tz' => $tz, 'resourceid' => $resourceid];
     }
@@ -67,7 +67,7 @@ final class backup_restore_test extends \advanced_testcase {
         $data = $this->setup_course();
 
         $newcm = duplicate_module($data['course'], get_fast_modinfo($data['course'])->get_cm($data['tz']->cmid));
-        $copy = $DB->get_record('tarsuszero', ['id' => $newcm->instance], '*', MUST_EXIST);
+        $copy = $DB->get_record('tarsus', ['id' => $newcm->instance], '*', MUST_EXIST);
 
         $this->assertNotEquals($data['tz']->id, $copy->id);
         $this->assertSame(5, (int) $copy->dqr);
@@ -76,7 +76,7 @@ final class backup_restore_test extends \advanced_testcase {
         $this->assertSame(1, (int) $copy->anticheat);
         $this->assertEqualsWithDelta(0.5, (float) $copy->learntempo, 0.001);
         $this->assertSame([$data['resourceid']],
-            array_values($DB->get_fieldset_select('tarsuszero_inclusions', 'resourceid', 'tarsuszeroid = ?', [$copy->id])));
+            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$copy->id])));
     }
 
     /**
@@ -104,14 +104,14 @@ final class backup_restore_test extends \advanced_testcase {
         $rc->execute_plan();
         $rc->destroy();
 
-        $restored = $DB->get_record('tarsuszero', ['course' => $newcourse->id], '*', MUST_EXIST);
+        $restored = $DB->get_record('tarsus', ['course' => $newcourse->id], '*', MUST_EXIST);
         $this->assertSame('ihk', $restored->operators);
         $newpagecm = $DB->get_record_sql(
             "SELECT cm.id FROM {course_modules} cm JOIN {modules} m ON m.id = cm.module WHERE m.name = 'page' AND cm.course = ?",
             [$newcourse->id], MUST_EXIST);
         $expected = resource_id::build((int) $newcourse->id, 'mod_page', (int) $newpagecm->id);
         $this->assertSame([$expected],
-            array_values($DB->get_fieldset_select('tarsuszero_inclusions', 'resourceid', 'tarsuszeroid = ?', [$restored->id])));
+            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$restored->id])));
     }
 
     /**
@@ -131,8 +131,8 @@ final class backup_restore_test extends \advanced_testcase {
 
         course_delete_module($data['tz']->cmid);
 
-        $this->assertFalse($DB->record_exists('tarsuszero', ['id' => $data['tz']->id]));
-        $this->assertFalse($DB->record_exists('tarsuszero_inclusions', ['tarsuszeroid' => $data['tz']->id]));
+        $this->assertFalse($DB->record_exists('tarsus', ['id' => $data['tz']->id]));
+        $this->assertFalse($DB->record_exists('tarsus_inclusions', ['tarsusid' => $data['tz']->id]));
         $this->assertSame(1, $DB->count_records('tool_recyclebin_course', ['courseid' => $data['course']->id]));
     }
 }

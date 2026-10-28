@@ -23,7 +23,7 @@
  * and students cannot erase at all: the conversation carries their
  * learning progress.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,26 +35,26 @@ use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\pseudonymizer;
-use mod_tarsuszero\local\scope;
+use mod_tarsus\local\scope;
 
 $id = required_param('id', PARAM_INT); // Course module id.
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 
-$cm = get_coursemodule_from_id('tarsuszero', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('tarsus', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
-$moduleinstance = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/tarsuszero:resetchat', $context);
+require_capability('mod/tarsus:resetchat', $context);
 
-$pageurl = new moodle_url('/mod/tarsuszero/resetchat.php', ['id' => $cm->id]);
-$viewurl = new moodle_url('/mod/tarsuszero/view.php', ['id' => $cm->id]);
+$pageurl = new moodle_url('/mod/tarsus/resetchat.php', ['id' => $cm->id]);
+$viewurl = new moodle_url('/mod/tarsus/view.php', ['id' => $cm->id]);
 
 $PAGE->set_url($pageurl);
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
-$PAGE->set_title(get_string('resetchat', 'mod_tarsuszero'));
+$PAGE->set_title(get_string('resetchat', 'mod_tarsus'));
 $PAGE->set_heading(format_string($course->fullname));
 
 if ($confirm) {
@@ -66,25 +66,25 @@ if ($confirm) {
             pseudonymizer::pseudonymize((int) $USER->id)
         ));
     } catch (blocked_exception | transport_exception $e) {
-        redirect($viewurl, get_string('resetchat_failed', 'mod_tarsuszero'), null,
+        redirect($viewurl, get_string('resetchat_failed', 'mod_tarsus'), null,
             \core\output\notification::NOTIFY_ERROR);
     }
 
     // The brain forgot everything, so the grade and the figures go too.
-    \mod_tarsuszero\local\scoring::clear($moduleinstance, (int) $USER->id);
+    \mod_tarsus\local\scoring::clear($moduleinstance, (int) $USER->id);
 
-    redirect($viewurl, get_string('resetchat_done', 'mod_tarsuszero'), null,
+    redirect($viewurl, get_string('resetchat_done', 'mod_tarsus'), null,
         \core\output\notification::NOTIFY_SUCCESS);
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('resetchat', 'mod_tarsuszero'));
+echo $OUTPUT->heading(get_string('resetchat', 'mod_tarsus'));
 
 echo $OUTPUT->confirm(
-    get_string('resetchat_confirm', 'mod_tarsuszero', format_string($moduleinstance->name)),
+    get_string('resetchat_confirm', 'mod_tarsus', format_string($moduleinstance->name)),
     new single_button(
         new moodle_url($pageurl, ['confirm' => 1, 'sesskey' => sesskey()]),
-        get_string('resetchat', 'mod_tarsuszero'),
+        get_string('resetchat', 'mod_tarsus'),
         'post'
     ),
     $viewurl

@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for mod_tarsuszero.
+ * Capability definitions for mod_tarsus.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
 
-    'mod/tarsuszero:addinstance' => [
+    'mod/tarsus:addinstance' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -37,7 +37,7 @@ $capabilities = [
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ],
 
-    'mod/tarsuszero:view' => [
+    'mod/tarsus:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
@@ -51,7 +51,7 @@ $capabilities = [
     // Erase one's own conversation with the assistant. Deliberately withheld
     // from students: the conversation is the assistant's memory of their
     // learning progress, and erasing it cannot be undone.
-    'mod/tarsuszero:resetchat' => [
+    'mod/tarsus:resetchat' => [
         'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -63,7 +63,7 @@ $capabilities = [
     ],
 
     // Manage course material indexation (trigger indexing, view the reconciliation list).
-    'mod/tarsuszero:manage' => [
+    'mod/tarsus:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [

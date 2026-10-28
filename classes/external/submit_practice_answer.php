@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -29,9 +29,9 @@ use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
-use mod_tarsuszero\local\conversation;
-use mod_tarsuszero\local\scope;
-use mod_tarsuszero\local\scoring;
+use mod_tarsus\local\conversation;
+use mod_tarsus\local\scope;
+use mod_tarsus\local\scoring;
 use moodle_exception;
 
 /**
@@ -41,7 +41,7 @@ use moodle_exception;
  * browser: the brain judges the answer, and the response carries the verdict,
  * the clarifications and the updated experience figures.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,7 +54,7 @@ class submit_practice_answer extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'widgetid' => new external_value(PARAM_RAW, 'The question widget id from get_practice_widget.'),
             'widgettype' => new external_value(PARAM_ALPHANUMEXT, 'The question widget type.'),
             'answer' => new external_value(PARAM_RAW, 'The learner\'s answer (single-answer question types).'),
@@ -128,19 +128,19 @@ class submit_practice_answer extends external_api {
         $answertext = trim($params['answer']);
         $useranswers = [];
         $usertable = [];
-        if ($params['widgettype'] === \mod_tarsuszero\local\didactics::TYPE_CROSSMULTIPLICATION) {
+        if ($params['widgettype'] === \mod_tarsus\local\didactics::TYPE_CROSSMULTIPLICATION) {
             foreach ($params['answers'] as $entry) {
                 $variable = trim((string) $entry['variable']);
                 $value = trim((string) $entry['answer']);
                 if ($variable === '' || $value === '') {
-                    throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                    throw new moodle_exception('empty_query', 'mod_tarsus');
                 }
                 $useranswers[] = ['variable' => $variable, 'answer' => $value];
             }
             if ($useranswers === []) {
-                throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                throw new moodle_exception('empty_query', 'mod_tarsus');
             }
-        } else if ($params['widgettype'] === \mod_tarsuszero\local\didactics::TYPE_TRADECOSTING) {
+        } else if ($params['widgettype'] === \mod_tarsus\local\didactics::TYPE_TRADECOSTING) {
             // A spreadsheet calculation travels as the whole table; no
             // asked cell may stay blank or unanswered ('?').
             foreach ($params['table'] as $row) {
@@ -148,34 +148,34 @@ class submit_practice_answer extends external_api {
                 $rate = trim((string) $row['rate']);
                 $amount = trim((string) $row['amount']);
                 if ($position === '' || $rate === '?' || $amount === '?') {
-                    throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                    throw new moodle_exception('empty_query', 'mod_tarsus');
                 }
                 $usertable[] = ['position' => $position, 'rate' => $rate, 'amount' => $amount];
             }
             if ($usertable === []) {
-                throw new moodle_exception('empty_query', 'mod_tarsuszero');
+                throw new moodle_exception('empty_query', 'mod_tarsus');
             }
         } else if ($answertext === '') {
-            throw new moodle_exception('empty_query', 'mod_tarsuszero');
+            throw new moodle_exception('empty_query', 'mod_tarsus');
         }
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        require_capability('mod/tarsuszero:view', $context);
+        require_capability('mod/tarsus:view', $context);
 
         // The teacher may have switched the practice off for this activity.
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
         // A learning unit's check question belongs to Build knowledge.
         $mode = $params['state'] === 'learn' ? 'build' : 'test';
-        if (!\mod_tarsuszero\local\didactics::mode_enabled($activity, $mode)) {
-            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsuszero'));
+        if (!\mod_tarsus\local\didactics::mode_enabled($activity, $mode)) {
+            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsus'));
         }
 
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
-            return self::result('noscope', get_string('chat_noscope', 'mod_tarsuszero'));
+            return self::result('noscope', get_string('chat_noscope', 'mod_tarsus'));
         }
 
         $client = client_factory::get_client();
@@ -229,9 +229,9 @@ class submit_practice_answer extends external_api {
             ]);
 
         } catch (blocked_exception $e) {
-            return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'));
+            return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {
-            return self::result('error', get_string('transport_error', 'mod_tarsuszero'));
+            return self::result('error', get_string('transport_error', 'mod_tarsus'));
         }
     }
 

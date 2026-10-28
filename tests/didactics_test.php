@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
-use mod_tarsuszero\local\didactics;
+use mod_tarsus\local\didactics;
 
 /**
  * Tests for the practice didactic settings codec.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero\local\didactics
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus\local\didactics
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -124,9 +124,9 @@ final class didactics_test extends \advanced_testcase {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
 
-        $record = $DB->get_record('tarsuszero', ['id' => $tz->id], '*', MUST_EXIST);
+        $record = $DB->get_record('tarsus', ['id' => $tz->id], '*', MUST_EXIST);
 
         // The generator bypasses the form, so the columns hold their DB
         // defaults — and decoding them yields the plugin defaults.

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -28,7 +28,7 @@ use local_tarsus\index\repository;
 use local_tarsus\index\status;
 use local_tarsus\indexer;
 use local_tarsus\material\resource_id;
-use mod_tarsuszero\local\status_presenter;
+use mod_tarsus\local\status_presenter;
 use moodle_exception;
 
 /**
@@ -38,7 +38,7 @@ use moodle_exception;
  * belong to the activity's course, preventing cross-course tampering on the
  * shared brain (§4 isolation by id).
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,7 +54,7 @@ class set_resource_action extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'resourceid' => new external_value(PARAM_RAW, 'The namespaced resource id to act on.'),
             'action' => new external_value(PARAM_ALPHA, 'One of: index, reindex, remove, retry.'),
         ]);
@@ -79,18 +79,18 @@ class set_resource_action extends external_api {
         ]);
 
         if (!in_array($params['action'], self::ACTIONS, true)) {
-            throw new moodle_exception('invalidaction', 'mod_tarsuszero');
+            throw new moodle_exception('invalidaction', 'mod_tarsus');
         }
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
-        require_capability('mod/tarsuszero:manage', $context);
+        require_capability('mod/tarsus:manage', $context);
 
         // Isolation guard: the resource id must belong to this activity's course.
         $parts = resource_id::parse($params['resourceid']);
         if ($parts === null || (int) $parts['courseid'] !== (int) $cm->course) {
-            throw new moodle_exception('invalidresource', 'mod_tarsuszero');
+            throw new moodle_exception('invalidresource', 'mod_tarsus');
         }
 
         $indexer = new indexer();
@@ -103,7 +103,7 @@ class set_resource_action extends external_api {
         };
 
         if (!$marked) {
-            throw new moodle_exception('actionfailed', 'mod_tarsuszero');
+            throw new moodle_exception('actionfailed', 'mod_tarsus');
         }
 
         // The whole action runs inside this request — no background queue.
@@ -125,7 +125,7 @@ class set_resource_action extends external_api {
         // it on a later re-index. (Chat filters at read time as well, so
         // rows removed by observers are equally harmless.)
         if ($params['action'] === 'remove' && $row === null) {
-            $DB->delete_records('tarsuszero_inclusions', ['resourceid' => $params['resourceid']]);
+            $DB->delete_records('tarsus_inclusions', ['resourceid' => $params['resourceid']]);
         }
 
         $newstatus = $row->status ?? status::NOT_INDEXED;

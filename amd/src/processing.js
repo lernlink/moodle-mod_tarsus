@@ -22,7 +22,7 @@
  *
  * The step texts and timings mirror the Tarsus KI-Trainer.
  *
- * @module     mod_tarsuszero/processing
+ * @module     mod_tarsus/processing
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -131,15 +131,15 @@ define(['core/templates', 'core/str'], function(Templates, Str) {
         var element = null;
 
         var requests = steps.map(function(entry) {
-            return {key: entry.text, component: 'mod_tarsuszero'};
+            return {key: entry.text, component: 'mod_tarsus'};
         });
 
         return Promise.all([
             Str.get_strings(requests),
             Promise.all(steps.map(function(entry) {
-                return Templates.renderPix(entry.icon, 'mod_tarsuszero');
+                return Templates.renderPix(entry.icon, 'mod_tarsus');
             })),
-            Templates.render('mod_tarsuszero/processing_card', {})
+            Templates.render('mod_tarsus/processing_card', {})
         ]).then(function(results) {
             var texts = results[0];
             var icons = results[1];

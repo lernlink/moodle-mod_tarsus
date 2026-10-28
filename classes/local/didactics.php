@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\local;
+namespace mod_tarsus\local;
 
 /**
  * Didactic practice settings: taxonomy levels and question types.
@@ -27,7 +27,7 @@ namespace mod_tarsuszero\local;
  * through the question_types map, and the brain requires every grade to
  * carry at least one type (verified live: an empty grade list is rejected).
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -103,7 +103,7 @@ final class didactics {
      *
      * Every mode defaults to on when a legacy row carries no column.
      *
-     * @param \stdClass $activity The tarsuszero record.
+     * @param \stdClass $activity The tarsus record.
      * @param string    $mode     One of {@see MODES}.
      * @return bool True when learners may use the mode.
      */
@@ -143,7 +143,7 @@ final class didactics {
      * The language string key of a question widget type's display label.
      *
      * @param string $type The question widget type.
-     * @return string The string key in mod_tarsuszero.
+     * @return string The string key in mod_tarsus.
      */
     public static function type_label_key(string $type): string {
         return match ($type) {

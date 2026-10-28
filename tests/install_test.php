@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 /**
- * Install schema regression tests for mod_tarsuszero.
+ * Install schema regression tests for mod_tarsus.
  *
  * Asserts the activity and chat-history tables exist with their expected
  * columns and indexes after a clean install, the install-side counterpart to
  * the local_tarsus regression guard.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,14 +32,14 @@ final class install_test extends \advanced_testcase {
 
     /** @var array<string, string[]> Expected table => required columns. */
     private const SCHEMA = [
-        'tarsuszero' => [
+        'tarsus' => [
             'id', 'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'conversationstyle', 'dqr', 'industry',
             'taxonomylevels', 'questiontypes', 'operators', 'anticheat', 'learntempo',
             'askenabled', 'testenabled', 'buildenabled', 'gifenabled', 'learningmethod', 'completionprogress',
         ],
-        'tarsuszero_inclusions' => [
-            'id', 'tarsuszeroid', 'resourceid', 'timecreated',
+        'tarsus_inclusions' => [
+            'id', 'tarsusid', 'resourceid', 'timecreated',
         ],
     ];
 
@@ -77,8 +77,8 @@ final class install_test extends \advanced_testcase {
         global $DB;
 
         $this->assertFalse(
-            $DB->get_manager()->table_exists('tarsuszero_chats'),
-            'The retired tarsuszero_chats table must not exist on a clean install.'
+            $DB->get_manager()->table_exists('tarsus_chats'),
+            'The retired tarsus_chats table must not exist on a clean install.'
         );
     }
 }

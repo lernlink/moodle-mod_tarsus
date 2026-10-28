@@ -1,4 +1,4 @@
-# mod_tarsuszero
+# mod_tarsus
 
 Learning activity plugin for the Tarsus ↔ Moodle integration (Lerncoach).
 
@@ -7,7 +7,7 @@ Provides the learner experience (three RAG-grounded modes — *Frage stellen*,
 tab (reconciliation list, per-item Brain status, async tracking). Depends only
 on the `local_tarsus` client interface.
 
-- **Component:** `mod_tarsuszero`
+- **Component:** `mod_tarsus`
 - **Target:** Moodle 5.2 · PHP 8.3
 - **Status:** mock-first (Phase 1 = *Frage stellen* + teacher mode)
 

@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Restore structure step for the Tarsus Zero activity.
+ * Restore structure step for the Tarsus activity.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Reads tarsuszero.xml back into the tables.
+ * Reads tarsus.xml back into the tables.
  */
-class restore_tarsuszero_activity_structure_step extends restore_activity_structure_step {
+class restore_tarsus_activity_structure_step extends restore_activity_structure_step {
 
     /**
      * The paths to process.
@@ -36,11 +36,11 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
      */
     protected function define_structure() {
         $paths = [
-            new restore_path_element('tarsuszero', '/activity/tarsuszero'),
-            new restore_path_element('tarsuszero_inclusion', '/activity/tarsuszero/inclusions/inclusion'),
+            new restore_path_element('tarsus', '/activity/tarsus'),
+            new restore_path_element('tarsus_inclusion', '/activity/tarsus/inclusions/inclusion'),
         ];
         if ($this->get_setting_value('userinfo')) {
-            $paths[] = new restore_path_element('tarsuszero_progress', '/activity/tarsuszero/progresses/progress');
+            $paths[] = new restore_path_element('tarsus_progress', '/activity/tarsus/progresses/progress');
         }
 
         return $this->prepare_activity_structure($paths);
@@ -51,7 +51,7 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
      *
      * @param array $data The element's data.
      */
-    protected function process_tarsuszero($data) {
+    protected function process_tarsus($data) {
         global $DB;
 
         $data = (object) $data;
@@ -59,7 +59,7 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
         $data->course = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        $newitemid = $DB->insert_record('tarsuszero', $data);
+        $newitemid = $DB->insert_record('tarsus', $data);
         $this->apply_activity_instance($newitemid);
     }
 
@@ -68,15 +68,15 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
      *
      * @param array $data The element's data.
      */
-    protected function process_tarsuszero_inclusion($data) {
+    protected function process_tarsus_inclusion($data) {
         global $DB;
 
         $data = (object) $data;
-        $data->tarsuszeroid = $this->get_new_parentid('tarsuszero');
-        if ($DB->record_exists('tarsuszero_inclusions', ['tarsuszeroid' => $data->tarsuszeroid, 'resourceid' => $data->resourceid])) {
+        $data->tarsusid = $this->get_new_parentid('tarsus');
+        if ($DB->record_exists('tarsus_inclusions', ['tarsusid' => $data->tarsusid, 'resourceid' => $data->resourceid])) {
             return;
         }
-        $DB->insert_record('tarsuszero_inclusions', $data);
+        $DB->insert_record('tarsus_inclusions', $data);
     }
 
     /**
@@ -84,22 +84,22 @@ class restore_tarsuszero_activity_structure_step extends restore_activity_struct
      *
      * @param array $data The element's data.
      */
-    protected function process_tarsuszero_progress($data) {
+    protected function process_tarsus_progress($data) {
         global $DB;
 
         $data = (object) $data;
-        $data->tarsuszeroid = $this->get_new_parentid('tarsuszero');
+        $data->tarsusid = $this->get_new_parentid('tarsus');
         $data->userid = $this->get_mappingid('user', $data->userid);
         if (empty($data->userid)) {
             return;
         }
-        $DB->insert_record('tarsuszero_progress', $data);
+        $DB->insert_record('tarsus_progress', $data);
     }
 
     /**
      * Bring the description's files along.
      */
     protected function after_execute() {
-        $this->add_related_files('mod_tarsuszero', 'intro', null);
+        $this->add_related_files('mod_tarsus', 'intro', null);
     }
 }

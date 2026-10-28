@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\output;
+namespace mod_tarsus\output;
 
 use local_tarsus\index\course_report;
-use mod_tarsuszero\local\status_presenter;
+use mod_tarsus\local\status_presenter;
 use renderable;
 use renderer_base;
 use templatable;
@@ -25,7 +25,7 @@ use templatable;
 /**
  * The teacher reconciliation dashboard: per-activity brain status + index action.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -62,12 +62,12 @@ class teacher_dashboard implements renderable, templatable {
         $report = (new course_report())->for_course($this->courseid);
 
         // Load the set of included resource ids for this activity instance.
-        $tarsuszeroid = (int) get_coursemodule_from_id('tarsuszero', $this->cmid, 0, false, MUST_EXIST)->instance;
+        $tarsusid = (int) get_coursemodule_from_id('tarsus', $this->cmid, 0, false, MUST_EXIST)->instance;
         $includedids = $DB->get_fieldset_select(
-            'tarsuszero_inclusions',
+            'tarsus_inclusions',
             'resourceid',
-            'tarsuszeroid = :tid',
-            ['tid' => $tarsuszeroid]
+            'tarsusid = :tid',
+            ['tid' => $tarsusid]
         );
         $includedset = array_flip($includedids);
 
@@ -105,7 +105,7 @@ class teacher_dashboard implements renderable, templatable {
 
         $pageresources = array_slice($resources, $page * self::PER_PAGE, self::PER_PAGE);
 
-        $baseurl = new \moodle_url('/mod/tarsuszero/view.php', ['id' => $this->cmid]);
+        $baseurl = new \moodle_url('/mod/tarsus/view.php', ['id' => $this->cmid]);
         $pagingbar = $output->render(new \paging_bar($total, $page, self::PER_PAGE, $baseurl));
 
         return [

@@ -15,7 +15,7 @@
     along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_tarsuszero/practice_card
+    @template mod_tarsus/practice_card
 
     One practice question card in the Test knowledge mode.
 
@@ -52,10 +52,10 @@
         {{#taxonomy}}<span class="badge badge-light tarsus-practice-card__badge">{{taxonomy}}</span>{{/taxonomy}}
         {{#askenabled}}
         <button type="button" class="tarsus-learn-ask" data-action="ask-about"
-                title="{{#str}}learn_ask_about, mod_tarsuszero{{/str}}">
-            {{#pix}}reply, mod_tarsuszero{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsuszero{{/str}}</span>
+                title="{{#str}}learn_ask_about, mod_tarsus{{/str}}">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsus{{/str}}</span>
         </button>
         {{/askenabled}}
     </div>
-    {{> mod_tarsuszero/practice_body }}
+    {{> mod_tarsus/practice_body }}
 </div>

@@ -15,23 +15,23 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Restore task for the Tarsus Zero activity.
+ * Restore task for the Tarsus activity.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/tarsuszero/backup/moodle2/restore_tarsuszero_stepslib.php');
+require_once($CFG->dirroot . '/mod/tarsus/backup/moodle2/restore_tarsus_stepslib.php');
 
 use local_tarsus\material\resource_id;
 
 /**
- * Restores one Tarsus Zero activity and remaps its inclusion list.
+ * Restores one Tarsus activity and remaps its inclusion list.
  */
-class restore_tarsuszero_activity_task extends restore_activity_task {
+class restore_tarsus_activity_task extends restore_activity_task {
 
     /**
      * No activity-specific settings.
@@ -43,7 +43,7 @@ class restore_tarsuszero_activity_task extends restore_activity_task {
      * One structure step.
      */
     protected function define_my_steps() {
-        $this->add_step(new restore_tarsuszero_activity_structure_step('tarsuszero_structure', 'tarsuszero.xml'));
+        $this->add_step(new restore_tarsus_activity_structure_step('tarsus_structure', 'tarsus.xml'));
     }
 
     /**
@@ -52,7 +52,7 @@ class restore_tarsuszero_activity_task extends restore_activity_task {
      * @return restore_decode_content[]
      */
     public static function define_decode_contents() {
-        return [new restore_decode_content('tarsuszero', ['intro'], 'tarsuszero')];
+        return [new restore_decode_content('tarsus', ['intro'], 'tarsus')];
     }
 
     /**
@@ -62,8 +62,8 @@ class restore_tarsuszero_activity_task extends restore_activity_task {
      */
     public static function define_decode_rules() {
         return [
-            new restore_decode_rule('TARSUSZEROVIEWBYID', '/mod/tarsuszero/view.php?id=$1', 'course_module'),
-            new restore_decode_rule('TARSUSZEROINDEX', '/mod/tarsuszero/index.php?id=$1', 'course'),
+            new restore_decode_rule('TARSUSVIEWBYID', '/mod/tarsus/view.php?id=$1', 'course_module'),
+            new restore_decode_rule('TARSUSINDEX', '/mod/tarsus/index.php?id=$1', 'course'),
         ];
     }
 
@@ -92,7 +92,7 @@ class restore_tarsuszero_activity_task extends restore_activity_task {
 
         $instanceid = (int) $this->get_activityid();
         $courseid = (int) $this->get_courseid();
-        $rows = $DB->get_records('tarsuszero_inclusions', ['tarsuszeroid' => $instanceid]);
+        $rows = $DB->get_records('tarsus_inclusions', ['tarsusid' => $instanceid]);
 
         foreach ($rows as $row) {
             $parts = resource_id::parse((string) $row->resourceid);
@@ -107,16 +107,16 @@ class restore_tarsuszero_activity_task extends restore_activity_task {
             }
 
             if ($newcmid === 0) {
-                $DB->delete_records('tarsuszero_inclusions', ['id' => $row->id]);
+                $DB->delete_records('tarsus_inclusions', ['id' => $row->id]);
                 continue;
             }
 
             $remapped = resource_id::build($courseid, $parts['component'], $newcmid, $parts['bitkey']);
             if ($remapped !== $row->resourceid) {
-                if ($DB->record_exists('tarsuszero_inclusions', ['tarsuszeroid' => $instanceid, 'resourceid' => $remapped])) {
-                    $DB->delete_records('tarsuszero_inclusions', ['id' => $row->id]);
+                if ($DB->record_exists('tarsus_inclusions', ['tarsusid' => $instanceid, 'resourceid' => $remapped])) {
+                    $DB->delete_records('tarsus_inclusions', ['id' => $row->id]);
                 } else {
-                    $DB->set_field('tarsuszero_inclusions', 'resourceid', $remapped, ['id' => $row->id]);
+                    $DB->set_field('tarsus_inclusions', 'resourceid', $remapped, ['id' => $row->id]);
                 }
             }
         }

@@ -15,31 +15,31 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Prints a single tarsuszero activity.
+ * Prints a single tarsus activity.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require(__DIR__ . '/../../config.php');
 
-use mod_tarsuszero\output\teacher_dashboard;
+use mod_tarsus\output\teacher_dashboard;
 
 $id = required_param('id', PARAM_INT); // Course module id.
 $page = optional_param('page', 0, PARAM_INT); // Zero-based reconciliation page.
 
-$cm = get_coursemodule_from_id('tarsuszero', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('tarsus', $id, 0, false, MUST_EXIST);
 $course = get_course($cm->course);
-$moduleinstance = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/tarsuszero:view', $context);
+require_capability('mod/tarsus:view', $context);
 
-$canmanage = has_capability('mod/tarsuszero:manage', $context);
+$canmanage = has_capability('mod/tarsus:manage', $context);
 
-$viewurl = new moodle_url('/mod/tarsuszero/view.php', ['id' => $cm->id]);
+$viewurl = new moodle_url('/mod/tarsus/view.php', ['id' => $cm->id]);
 
 
 $PAGE->set_url($viewurl);
@@ -58,7 +58,7 @@ echo $OUTPUT->header();
 
 if (trim($moduleinstance->intro ?? '') !== '') {
     echo $OUTPUT->box(
-        format_module_intro('tarsuszero', $moduleinstance, $cm->id),
+        format_module_intro('tarsus', $moduleinstance, $cm->id),
         'generalbox',
         'intro'
     );
@@ -67,18 +67,18 @@ if (trim($moduleinstance->intro ?? '') !== '') {
 if ($canmanage) {
     $dashboard = new teacher_dashboard($cm->id, (int) $course->id, $canmanage, $page);
     echo $OUTPUT->render_from_template(
-        'mod_tarsuszero/teacher_dashboard',
+        'mod_tarsus/teacher_dashboard',
         $dashboard->export_for_template($OUTPUT)
     );
 
     // Show the learner chat below the dashboard so managers can verify answers
     // without leaving the page.
-    echo $OUTPUT->heading(get_string('previewchat', 'mod_tarsuszero'), 4, 'mt-4');
+    echo $OUTPUT->heading(get_string('previewchat', 'mod_tarsus'), 4, 'mt-4');
 }
 
-$chat = new \mod_tarsuszero\output\learner_chat($cm->id);
+$chat = new \mod_tarsus\output\learner_chat($cm->id);
 echo $OUTPUT->render_from_template(
-    'mod_tarsuszero/learner_chat',
+    'mod_tarsus/learner_chat',
     $chat->export_for_template($OUTPUT)
 );
 

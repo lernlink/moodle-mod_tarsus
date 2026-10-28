@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -29,10 +29,10 @@ use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
 use local_tarsus\usage_meter;
-use mod_tarsuszero\local\conversation;
-use mod_tarsuszero\local\didactics;
-use mod_tarsuszero\local\scope;
-use mod_tarsuszero\local\scoring;
+use mod_tarsus\local\conversation;
+use mod_tarsus\local\didactics;
+use mod_tarsus\local\scope;
+use mod_tarsus\local\scoring;
 use moodle_exception;
 
 /**
@@ -41,7 +41,7 @@ use moodle_exception;
  * The brain decides what comes next: the learning objectives first, then
  * one micro-learning stack of slides per call.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,7 +54,7 @@ class get_learn_widget extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
         ]);
     }
 
@@ -70,23 +70,23 @@ class get_learn_widget extends external_api {
 
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid]);
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        require_capability('mod/tarsuszero:view', $context);
+        require_capability('mod/tarsus:view', $context);
 
         // The teacher may have switched the mode off for this activity.
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
         if (!didactics::mode_enabled($activity, 'build')) {
-            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsuszero'));
+            return self::result('disabled', get_string('chat_modedisabled', 'mod_tarsus'));
         }
 
         // Units may only be built from what the teacher included — an
         // empty scope must never reach the API (see send_chat_message).
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
-            return self::result('noscope', get_string('chat_noscope', 'mod_tarsuszero'));
+            return self::result('noscope', get_string('chat_noscope', 'mod_tarsus'));
         }
 
         $client = client_factory::get_client();
@@ -102,7 +102,7 @@ class get_learn_widget extends external_api {
 
             $items = array_values(array_filter((array) ($response['items'] ?? []), 'is_array'));
             if ($items === []) {
-                return self::result('error', get_string('learn_nowidget', 'mod_tarsuszero'));
+                return self::result('error', get_string('learn_nowidget', 'mod_tarsus'));
             }
 
             scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
@@ -123,9 +123,9 @@ class get_learn_widget extends external_api {
             ]);
 
         } catch (blocked_exception $e) {
-            return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'));
+            return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {
-            return self::result('error', get_string('transport_error', 'mod_tarsuszero'));
+            return self::result('error', get_string('transport_error', 'mod_tarsus'));
         }
     }
 

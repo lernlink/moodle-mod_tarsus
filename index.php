@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Lists all tarsuszero instances in a course.
+ * Lists all tarsus instances in a course.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,28 +31,28 @@ require_course_login($course);
 
 $context = context_course::instance($course->id);
 
-$PAGE->set_url('/mod/tarsuszero/index.php', ['id' => $id]);
+$PAGE->set_url('/mod/tarsus/index.php', ['id' => $id]);
 $PAGE->set_context($context);
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('modulenameplural', 'mod_tarsuszero'));
+echo $OUTPUT->heading(get_string('modulenameplural', 'mod_tarsus'));
 
-$instances = get_all_instances_in_course('tarsuszero', $course);
+$instances = get_all_instances_in_course('tarsus', $course);
 
 if (empty($instances)) {
-    echo $OUTPUT->notification(get_string('nomaterials', 'mod_tarsuszero'), 'info');
+    echo $OUTPUT->notification(get_string('nomaterials', 'mod_tarsus'), 'info');
     echo $OUTPUT->footer();
     exit;
 }
 
 $table = new html_table();
-$table->head = [get_string('tarsuszeroname', 'mod_tarsuszero')];
+$table->head = [get_string('tarsusname', 'mod_tarsus')];
 $table->data = [];
 
 foreach ($instances as $instance) {
-    $url = new moodle_url('/mod/tarsuszero/view.php', ['id' => $instance->coursemodule]);
+    $url = new moodle_url('/mod/tarsus/view.php', ['id' => $instance->coursemodule]);
     $name = format_string($instance->name);
     $link = $instance->visible
         ? html_writer::link($url, $name)

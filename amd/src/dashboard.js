@@ -21,7 +21,7 @@
  * the final row state. There is no background polling: the page reconciles
  * against the brain once on open and whenever the sync button is pressed.
  *
- * @module     mod_tarsuszero/dashboard
+ * @module     mod_tarsus/dashboard
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -105,7 +105,7 @@ const sendAction = (row, resourceid, action) => {
     });
 
     Ajax.call([{
-        methodname: 'mod_tarsuszero_set_resource_action',
+        methodname: 'mod_tarsus_set_resource_action',
         args: {cmid: cmid, resourceid: resourceid, action: action},
     }])[0].then((data) => {
         updateRow(row, data);
@@ -133,7 +133,7 @@ const sendInclusion = (row, checkbox) => {
     checkbox.disabled = true;
 
     Ajax.call([{
-        methodname: 'mod_tarsuszero_set_resource_inclusion',
+        methodname: 'mod_tarsus_set_resource_inclusion',
         args: {cmid: cmid, resourceid: resourceid, included: included},
     }])[0].then(() => {
         checkbox.disabled = false;
@@ -219,7 +219,7 @@ const bulkIndex = (root) => {
         }
         const row = queue.shift();
         Ajax.call([{
-            methodname: 'mod_tarsuszero_set_resource_action',
+            methodname: 'mod_tarsus_set_resource_action',
             args: {cmid: cmid, resourceid: row.getAttribute('data-resourceid'), action: 'index'},
         }])[0].then((data) => {
             updateRow(row, data);
@@ -248,7 +248,7 @@ const bulkSync = (root, silent) => {
 
     setBulkBusy(root, true);
     Ajax.call([{
-        methodname: 'mod_tarsuszero_sync_page_status',
+        methodname: 'mod_tarsus_sync_page_status',
         args: {cmid: cmid, resourceids: resourceids},
     }])[0].then((response) => {
         updateRows(root, response.resources);
@@ -295,9 +295,9 @@ const handleClick = (root, event) => {
 
     if (action === 'remove') {
         Promise.all([
-            getString('confirmremove_title', 'mod_tarsuszero'),
-            getString('confirmremove_body', 'mod_tarsuszero'),
-            getString('action_remove', 'mod_tarsuszero'),
+            getString('confirmremove_title', 'mod_tarsus'),
+            getString('confirmremove_body', 'mod_tarsus'),
+            getString('action_remove', 'mod_tarsus'),
         ]).then(([title, body, yes]) => {
             Notification.saveCancelPromise(title, body, yes).then(() => {
                 sendAction(row, resourceid, action);

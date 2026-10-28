@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\output;
+namespace mod_tarsus\output;
 
 defined('MOODLE_INTERNAL') || die();
 
 use local_tarsus\config;
-use mod_tarsuszero\local\didactics;
+use mod_tarsus\local\didactics;
 use renderable;
 use templatable;
 use renderer_base;
@@ -27,7 +27,7 @@ use renderer_base;
 /**
  * Renderable for the learner chat container.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -66,15 +66,15 @@ class learner_chat implements renderable, templatable {
         $robotavatar = config::robot_avatar_url();
         if ($robotavatar === '') {
             // No avatar uploaded in the admin settings: the bundled robot.
-            $robotavatar = $output->image_url('robot', 'mod_tarsuszero')->out(false);
+            $robotavatar = $output->image_url('robot', 'mod_tarsus')->out(false);
         }
 
         $robotname = trim((string) get_config('local_tarsus', 'robot_name'));
 
         // The teacher's mode switches decide which modes the switcher offers;
         // the first enabled one opens by default.
-        $cm = get_coursemodule_from_id('tarsuszero', $this->cmid, 0, false, MUST_EXIST);
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $this->cmid, 0, false, MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
         $modes = array_values(array_filter(didactics::MODES,
             static fn(string $mode): bool => didactics::mode_enabled($activity, $mode)));
 

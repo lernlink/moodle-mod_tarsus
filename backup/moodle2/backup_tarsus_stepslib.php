@@ -15,9 +15,9 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Backup structure step for the Tarsus Zero activity.
+ * Backup structure step for the Tarsus activity.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Defines what one Tarsus Zero activity writes into tarsuszero.xml.
+ * Defines what one Tarsus activity writes into tarsus.xml.
  */
-class backup_tarsuszero_activity_structure_step extends backup_activity_structure_step {
+class backup_tarsus_activity_structure_step extends backup_activity_structure_step {
 
     /**
      * The activity's settings and its inclusion list.
@@ -41,7 +41,7 @@ class backup_tarsuszero_activity_structure_step extends backup_activity_structur
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
 
-        $tarsuszero = new backup_nested_element('tarsuszero', ['id'], [
+        $tarsus = new backup_nested_element('tarsus', ['id'], [
             'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'conversationstyle', 'dqr', 'industry', 'taxonomylevels', 'questiontypes',
             'operators', 'anticheat', 'learntempo', 'askenabled', 'testenabled', 'buildenabled',
@@ -57,21 +57,21 @@ class backup_tarsuszero_activity_structure_step extends backup_activity_structur
             'practiceprogress', 'learnprogress', 'progress', 'timemodified',
         ]);
 
-        $tarsuszero->add_child($inclusions);
+        $tarsus->add_child($inclusions);
         $inclusions->add_child($inclusion);
-        $tarsuszero->add_child($progresses);
+        $tarsus->add_child($progresses);
         $progresses->add_child($progress);
 
-        $tarsuszero->set_source_table('tarsuszero', ['id' => backup::VAR_ACTIVITYID]);
-        $inclusion->set_source_table('tarsuszero_inclusions', ['tarsuszeroid' => backup::VAR_PARENTID]);
+        $tarsus->set_source_table('tarsus', ['id' => backup::VAR_ACTIVITYID]);
+        $inclusion->set_source_table('tarsus_inclusions', ['tarsusid' => backup::VAR_PARENTID]);
         if ($userinfo) {
-            $progress->set_source_table('tarsuszero_progress', ['tarsuszeroid' => backup::VAR_PARENTID]);
+            $progress->set_source_table('tarsus_progress', ['tarsusid' => backup::VAR_PARENTID]);
         }
 
         $progress->annotate_ids('user', 'userid');
 
-        $tarsuszero->annotate_files('mod_tarsuszero', 'intro', null);
+        $tarsus->annotate_files('mod_tarsus', 'intro', null);
 
-        return $this->prepare_activity_structure($tarsuszero);
+        return $this->prepare_activity_structure($tarsus);
     }
 }

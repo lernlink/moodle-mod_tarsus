@@ -73,7 +73,7 @@ jobs:
           sudo locale-gen en_AU.UTF-8
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
-      # mod_tarsuszero depends on local_tarsus. Pull it from the same
+      # mod_tarsus depends on local_tarsus. Pull it from the same
       # repository owner so the dependency resolves regardless of org name.
       - name: Add local_tarsus dependency
         run: moodle-plugin-ci add-plugin --branch main ${{ github.repository_owner }}/moodle-local_tarsus

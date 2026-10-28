@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -28,9 +28,9 @@ use local_tarsus\client\client_factory;
 use local_tarsus\client\transport_exception;
 use local_tarsus\guardrail\blocked_exception;
 use local_tarsus\guardrail\pipeline;
-use mod_tarsuszero\local\conversation;
-use mod_tarsuszero\local\scope;
-use mod_tarsuszero\local\scoring;
+use mod_tarsus\local\conversation;
+use mod_tarsus\local\scope;
+use mod_tarsus\local\scoring;
 use moodle_exception;
 
 /**
@@ -41,7 +41,7 @@ use moodle_exception;
  * exchanges, informational messages and practice questions in their original
  * order, with the experience figures alongside. Nothing is stored locally.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -57,7 +57,7 @@ class get_activity_feed extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'offset' => new external_value(PARAM_INT,
                 'How many widgets to skip, counted from the newest: 0 for the newest page.', VALUE_DEFAULT, 0),
         ]);
@@ -80,14 +80,14 @@ class get_activity_feed extends external_api {
 
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'offset' => $offset]);
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        require_capability('mod/tarsuszero:view', $context);
+        require_capability('mod/tarsus:view', $context);
 
         // No scope means no feed to read — and no call to the brain.
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
         $allowed = scope::allowed_resource_ids((int) $cm->instance);
         if ($allowed === []) {
             return ['status' => 'success', 'error' => '', 'items' => [], 'hasmore' => false];
@@ -151,14 +151,14 @@ class get_activity_feed extends external_api {
         } catch (blocked_exception $e) {
             return [
                 'status' => 'blocked',
-                'error' => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsuszero'),
+                'error' => get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'),
                 'items' => [],
                 'hasmore' => false,
             ];
         } catch (transport_exception $e) {
             return [
                 'status' => 'error',
-                'error' => get_string('transport_error', 'mod_tarsuszero'),
+                'error' => get_string('transport_error', 'mod_tarsus'),
                 'items' => [],
                 'hasmore' => false,
             ];

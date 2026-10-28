@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\completion;
+namespace mod_tarsus\completion;
 
 use core_completion\activity_custom_completion;
-use mod_tarsuszero\local\scoring;
+use mod_tarsus\local\scoring;
 
 /**
  * Completion rule: the learner's progress reached the teacher's threshold.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,7 +33,7 @@ class custom_completion extends activity_custom_completion {
         global $DB;
 
         $this->validate_rule($rule);
-        $activity = $DB->get_record('tarsuszero', ['id' => $this->cm->instance], '*', MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $this->cm->instance], '*', MUST_EXIST);
         if (empty($activity->completionprogress)) {
             return COMPLETION_INCOMPLETE;
         }
@@ -49,7 +49,7 @@ class custom_completion extends activity_custom_completion {
     #[\Override]
     public function get_custom_rule_descriptions(): array {
         return [
-            'completionprogress' => get_string('completiondetail:progress', 'mod_tarsuszero',
+            'completionprogress' => get_string('completiondetail:progress', 'mod_tarsus',
                 (int) ($this->cm->customdata['customcompletionrules']['completionprogress'] ?? 0)),
         ];
     }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/tarsuszero/db" VERSION="2026062605" COMMENT="Schema for mod_tarsuszero."
+<XMLDB PATH="mod/tarsus/db" VERSION="2026062605" COMMENT="Schema for mod_tarsus."
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="tarsuszero" COMMENT="Tarsus Zero activity instances.">
+    <TABLE NAME="tarsus" COMMENT="Tarsus activity instances.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The course this instance belongs to."/>
@@ -34,25 +34,25 @@
       </KEYS>
     </TABLE>
 
-    <TABLE NAME="tarsuszero_inclusions" COMMENT="Tracks which indexed resources a teacher has included in a specific tarsuszero activity instance.">
+    <TABLE NAME="tarsus_inclusions" COMMENT="Tracks which indexed resources a teacher has included in a specific tarsus activity instance.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="tarsuszeroid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsuszero table."/>
+        <FIELD NAME="tarsusid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsus table."/>
         <FIELD NAME="resourceid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Namespaced resource id from local_tarsus."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="tarsuszeroid" TYPE="foreign" FIELDS="tarsuszeroid" REFTABLE="tarsuszero" REFFIELDS="id"/>
+        <KEY NAME="tarsusid" TYPE="foreign" FIELDS="tarsusid" REFTABLE="tarsus" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="tarsuszeroid_resourceid" UNIQUE="true" FIELDS="tarsuszeroid, resourceid"/>
+        <INDEX NAME="tarsusid_resourceid" UNIQUE="true" FIELDS="tarsusid, resourceid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="tarsuszero_progress" COMMENT="The latest experience, learning-unit and progress figures the brain reported per learner and activity; the source of the gradebook grade and the completion rule.">
+    <TABLE NAME="tarsus_progress" COMMENT="The latest experience, learning-unit and progress figures the brain reported per learner and activity; the source of the gradebook grade and the completion rule.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="tarsuszeroid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsuszero table."/>
+        <FIELD NAME="tarsusid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Link to tarsus table."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The learner."/>
         <FIELD NAME="earnedxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="earnedExperiencePoints (Test knowledge)."/>
         <FIELD NAME="totalxp" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="totalExperiencePoints."/>
@@ -65,11 +65,11 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="tarsuszeroid" TYPE="foreign" FIELDS="tarsuszeroid" REFTABLE="tarsuszero" REFFIELDS="id"/>
+        <KEY NAME="tarsusid" TYPE="foreign" FIELDS="tarsusid" REFTABLE="tarsus" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="tarsuszeroid_userid" UNIQUE="true" FIELDS="tarsuszeroid, userid"/>
+        <INDEX NAME="tarsusid_userid" UNIQUE="true" FIELDS="tarsusid, userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

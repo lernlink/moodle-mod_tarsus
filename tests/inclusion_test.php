@@ -14,27 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero;
+namespace mod_tarsus;
 
 defined('MOODLE_INTERNAL') || die();
 
 use local_tarsus\index\repository;
 use local_tarsus\indexer;
-use mod_tarsuszero\external\set_resource_action;
-use mod_tarsuszero\external\set_resource_inclusion;
+use mod_tarsus\external\set_resource_action;
+use mod_tarsus\external\set_resource_inclusion;
 
 /**
  * Tests for the activity inclusion rules.
  *
- * @package    mod_tarsuszero
- * @covers     \mod_tarsuszero\external\set_resource_inclusion
+ * @package    mod_tarsus
+ * @covers     \mod_tarsus\external\set_resource_inclusion
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class inclusion_test extends \advanced_testcase {
 
     /**
-     * Build a course with a tarsuszero activity and a tracked page.
+     * Build a course with a tarsus activity and a tracked page.
      *
      * @return array{course: \stdClass, tz: \stdClass, resourceid: string}
      */
@@ -42,7 +42,7 @@ final class inclusion_test extends \advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
-        $tz = $this->getDataGenerator()->create_module('tarsuszero', ['course' => $course->id]);
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
         $page = $this->getDataGenerator()->create_module('page', [
             'course' => $course->id,
             'content' => '<p>Body</p>',
@@ -71,7 +71,7 @@ final class inclusion_test extends \advanced_testcase {
         }
 
         global $DB;
-        $this->assertFalse($DB->record_exists('tarsuszero_inclusions', ['resourceid' => $data['resourceid']]));
+        $this->assertFalse($DB->record_exists('tarsus_inclusions', ['resourceid' => $data['resourceid']]));
     }
 
     /**
@@ -90,14 +90,14 @@ final class inclusion_test extends \advanced_testcase {
 
         $result = set_resource_inclusion::execute($data['tz']->cmid, $data['resourceid'], true);
         $this->assertTrue($result['included']);
-        $this->assertTrue($DB->record_exists('tarsuszero_inclusions', ['resourceid' => $data['resourceid']]));
+        $this->assertTrue($DB->record_exists('tarsus_inclusions', ['resourceid' => $data['resourceid']]));
 
         // Excluding must work even once the resource is no longer indexed,
         // or a stale choice could never be cleaned up from the interface.
         $repo->delete($data['resourceid']);
         $result = set_resource_inclusion::execute($data['tz']->cmid, $data['resourceid'], false);
         $this->assertFalse($result['included']);
-        $this->assertFalse($DB->record_exists('tarsuszero_inclusions', ['resourceid' => $data['resourceid']]));
+        $this->assertFalse($DB->record_exists('tarsus_inclusions', ['resourceid' => $data['resourceid']]));
     }
 
     /**
@@ -120,6 +120,6 @@ final class inclusion_test extends \advanced_testcase {
         set_resource_action::execute($data['tz']->cmid, $data['resourceid'], 'remove');
 
         $this->assertNull($repo->get($data['resourceid']));
-        $this->assertFalse($DB->record_exists('tarsuszero_inclusions', ['resourceid' => $data['resourceid']]));
+        $this->assertFalse($DB->record_exists('tarsus_inclusions', ['resourceid' => $data['resourceid']]));
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,7 +31,7 @@ use local_tarsus\index\repository;
 use local_tarsus\index\status;
 use local_tarsus\index\status_sync;
 use local_tarsus\material\resource_id;
-use mod_tarsuszero\local\status_presenter;
+use mod_tarsus\local\status_presenter;
 use moodle_exception;
 
 /**
@@ -41,7 +41,7 @@ use moodle_exception;
  * call, which is exactly one page of the teacher dashboard — so a page refresh
  * costs a single API call regardless of how large the course is.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,7 +54,7 @@ class sync_page_status extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'resourceids' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'A namespaced resource id shown on the current page.')
             ),
@@ -75,20 +75,20 @@ class sync_page_status extends external_api {
             'resourceids' => $resourceids,
         ]);
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
-        require_capability('mod/tarsuszero:manage', $context);
+        require_capability('mod/tarsus:manage', $context);
 
         if (count($params['resourceids']) > client_interface::BATCH_LIMIT) {
-            throw new moodle_exception('toomanyresources', 'mod_tarsuszero', '', client_interface::BATCH_LIMIT);
+            throw new moodle_exception('toomanyresources', 'mod_tarsus', '', client_interface::BATCH_LIMIT);
         }
 
         // Isolation guard: every id must belong to this activity's course (§4).
         foreach ($params['resourceids'] as $resourceid) {
             $parts = resource_id::parse($resourceid);
             if ($parts === null || (int) $parts['courseid'] !== (int) $cm->course) {
-                throw new moodle_exception('invalidresource', 'mod_tarsuszero');
+                throw new moodle_exception('invalidresource', 'mod_tarsus');
             }
         }
 

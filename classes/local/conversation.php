@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\local;
+namespace mod_tarsus\local;
 
 use local_tarsus\pseudonymizer;
 
@@ -27,7 +27,7 @@ use local_tarsus\pseudonymizer;
  * the robot identity is a global admin setting, and the user travels as
  * pseudonym + display name + interface language.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -52,7 +52,7 @@ final class conversation {
     public static function params(\stdClass $cm, array $allowed): array {
         global $DB, $USER;
 
-        $activity = $DB->get_record('tarsuszero', ['id' => $cm->instance], '*', MUST_EXIST);
+        $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
         $name = trim(format_string($activity->name));
 
         $description = trim(html_to_text((string) $activity->intro, 0, false));

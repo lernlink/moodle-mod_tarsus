@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_tarsuszero\external;
+namespace mod_tarsus\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -25,7 +25,7 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use context_module;
 use local_tarsus\index\course_report;
-use mod_tarsuszero\local\status_presenter;
+use mod_tarsus\local\status_presenter;
 use moodle_exception;
 
 /**
@@ -34,7 +34,7 @@ use moodle_exception;
  * Polled by the dashboard while any resource is mid-flight so the badges and
  * action buttons update once the worker has run, without a page reload.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -47,7 +47,7 @@ class get_index_status extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsuszero activity.'),
+            'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
         ]);
     }
 
@@ -61,10 +61,10 @@ class get_index_status extends external_api {
     public static function execute(int $cmid): array {
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid]);
 
-        $cm = get_coursemodule_from_id('tarsuszero', $params['cmid'], 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('tarsus', $params['cmid'], 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         self::validate_context($context);
-        require_capability('mod/tarsuszero:manage', $context);
+        require_capability('mod/tarsus:manage', $context);
 
         $resources = [];
         foreach ((new course_report())->for_course($cm->course) as $activity) {

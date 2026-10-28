@@ -15,20 +15,20 @@
 // along with Moodle. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and metadata for mod_tarsuszero.
+ * Plugin version and metadata for mod_tarsus.
  *
- * @package    mod_tarsuszero
+ * @package    mod_tarsus
  * @copyright  2026 lern.link GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_tarsuszero';
-$plugin->version   = 2026102800;
+$plugin->component = 'mod_tarsus';
+$plugin->version   = 2026102801;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.31.0 (Dark mode)';
+$plugin->release   = '0.32.0 (Renamed to mod_tarsus)';
 $plugin->dependencies = [
     'local_tarsus' => 2026101600,
 ];
