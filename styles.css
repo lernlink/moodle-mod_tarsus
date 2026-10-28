@@ -1,3 +1,116 @@
+/* Colour tokens. The screens paint their own surfaces (cards, pads,
+   chips, tracks) rather than inheriting Boost's, so they carry their own
+   light palette here and a dark one below, keyed off the data-bs-theme
+   attribute Boost 5.3 sets on <html> for its colour modes. Older sites
+   never set the attribute and keep the light values. The lightbox dialog
+   lives on <body>, outside the chat box, so it is scoped as well. */
+.tarsus-chat-box,
+.tarsus-lightbox {
+    --tz-fg: #1d2125;
+    --tz-ink: #23282d;
+    --tz-muted: #50555c;
+    --tz-faint: #6a7076;
+    --tz-card: #fff;
+    --tz-line: rgba(0, 0, 0, 0.08);
+    --tz-line-soft: rgba(0, 0, 0, 0.06);
+    --tz-line-strong: rgba(0, 0, 0, 0.18);
+    --tz-line-table: rgba(0, 0, 0, 0.125);
+    --tz-pad: #efeff0;
+    --tz-pad-active: #fff;
+    --tz-pad-active-line: rgba(0, 0, 0, 0.1);
+    --tz-pad-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    --tz-chip: rgba(255, 255, 255, 0.45);
+    --tz-chip-ink: #23282d;
+    --tz-reply-pad: rgba(35, 40, 45, 0.07);
+    --tz-reply-hover: rgba(0, 0, 0, 0.08);
+    --tz-soft: #f4f4f2;
+    --tz-badge: #f1f0ec;
+    --tz-row-alt: #f3f5f9;
+    --tz-number-bg: #e3e8f2;
+    --tz-number-fg: #2c3e5a;
+    --tz-track: #e6e9ef;
+    --tz-track-ink: rgba(35, 40, 45, 0.22);
+    --tz-ring-track: rgba(0, 0, 0, 0.08);
+    --tz-band-ring-track: rgba(0, 0, 0, 0.12);
+    --tz-wave: rgba(0, 0, 0, 0.18);
+    --tz-loading-ring: rgba(0, 0, 0, 0.1);
+    --tz-loading-glyph: rgba(35, 40, 45, 0.35);
+    --tz-accent: #2f6fb1;
+    --tz-accent-stroke: #2f6fb1;
+    --tz-focus: #0f6cbf;
+    --tz-success-soft: #e9f7ec;
+    --tz-danger-soft: #fdeef0;
+    --tz-warning-soft: #fff4e0;
+    --tz-danger: #d9534f;
+    --tz-level-1: #3e9e6f;
+    --tz-level-2: #d98a2b;
+    --tz-level-3: #c8405e;
+    --tz-processing-track: #e3eef6;
+    --tz-card-shadow: 0 4px 16px rgba(35, 23, 90, 0.06);
+    --tz-frame-welcome: linear-gradient(135deg, #b39ddb 0%, #d8a7e8 35%, #f8b5c1 70%, #ffd9a0 100%);
+    --tz-frame-practice: linear-gradient(135deg, #9cc6dc 0%, #aedfd8 35%, #d8f0ec 70%, #a3c3e4 100%);
+    --tz-frame-learn: linear-gradient(135deg, #b8a8e6 0%, #cdb9ec 35%, #ead9f4 70%, #a9b4ea 100%);
+    --tz-frame-complete: linear-gradient(135deg, #a8e0b8 0%, #c4ecc9 35%, #e2f6df 70%, #a9dcc2 100%);
+    --tz-frame-motivation: linear-gradient(135deg, #a9d8ee 0%, #c3e6f4 35%, #e3f3fa 70%, #a5cfe9 100%);
+    --tz-frame-objectives: linear-gradient(135deg, #d9e88a 0%, #e8f2a8 35%, #f4f9d4 70%, #cfe27f 100%);
+}
+
+/* Dark mode: Boost's raised surface (#343a40) for card bodies and its
+   greys for text; hairlines and pads become translucent white; the
+   pastel frames turn into the same hues at a third of the lightness, so
+   the three card kinds still tell apart at a glance; the accent strokes
+   are lifted a step to hold on the dark surface while the filled accent
+   (buttons, hover) keeps its inverse text. */
+[data-bs-theme="dark"] .tarsus-chat-box,
+[data-bs-theme="dark"] .tarsus-lightbox {
+    --tz-fg: #dee2e6;
+    --tz-ink: #e9ecef;
+    --tz-muted: #afb5bc;
+    --tz-faint: #9aa1a8;
+    --tz-card: #343a40;
+    --tz-line: rgba(255, 255, 255, 0.12);
+    --tz-line-soft: rgba(255, 255, 255, 0.08);
+    --tz-line-strong: rgba(255, 255, 255, 0.22);
+    --tz-line-table: rgba(255, 255, 255, 0.15);
+    --tz-pad: #1d2125;
+    --tz-pad-active: #495057;
+    --tz-pad-active-line: rgba(255, 255, 255, 0.1);
+    --tz-pad-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --tz-chip: rgba(255, 255, 255, 0.14);
+    --tz-chip-ink: #f1f3f5;
+    --tz-reply-pad: rgba(255, 255, 255, 0.1);
+    --tz-reply-hover: rgba(255, 255, 255, 0.14);
+    --tz-soft: #292e33;
+    --tz-badge: #495057;
+    --tz-row-alt: rgba(255, 255, 255, 0.05);
+    --tz-number-bg: #3b4a63;
+    --tz-number-fg: #d6e2f5;
+    --tz-track: #495057;
+    --tz-track-ink: rgba(255, 255, 255, 0.25);
+    --tz-ring-track: rgba(255, 255, 255, 0.18);
+    --tz-band-ring-track: rgba(255, 255, 255, 0.18);
+    --tz-wave: rgba(255, 255, 255, 0.25);
+    --tz-loading-ring: rgba(255, 255, 255, 0.15);
+    --tz-loading-glyph: rgba(255, 255, 255, 0.4);
+    --tz-accent-stroke: #5b9be0;
+    --tz-focus: #6fa7d9;
+    --tz-success-soft: #243d2e;
+    --tz-danger-soft: #45272d;
+    --tz-warning-soft: #44361f;
+    --tz-danger: #e5736f;
+    --tz-level-1: #5cbf8c;
+    --tz-level-2: #e7a04a;
+    --tz-level-3: #e0607c;
+    --tz-processing-track: #292e33;
+    --tz-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --tz-frame-welcome: linear-gradient(135deg, #3e2f58 0%, #53335e 35%, #66373f 70%, #625035 100%);
+    --tz-frame-practice: linear-gradient(135deg, #2f4a58 0%, #325d57 35%, #3a6d64 70%, #31465c 100%);
+    --tz-frame-learn: linear-gradient(135deg, #3e325e 0%, #483664 35%, #5b3b6e 70%, #333a5f 100%);
+    --tz-frame-complete: linear-gradient(135deg, #325c3e 0%, #37663d 35%, #43703c 70%, #315b46 100%);
+    --tz-frame-motivation: linear-gradient(135deg, #345260 0%, #385a68 35%, #3d6272 70%, #324d5e 100%);
+    --tz-frame-objectives: linear-gradient(135deg, #50562e 0%, #5b6134 35%, #676e3b 70%, #4b522c 100%);
+}
+
 /* The feed runs down the page itself: no framed, inner-scrolling window.
    The page scrolls, the progress bar stays pinned under the site navbar
    and the composer at the bottom of the viewport — above the site's own
@@ -31,7 +144,7 @@
     height: 2.25rem;
     padding: 0;
     border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--tz-line);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -60,10 +173,10 @@
 .tarsus-chat-box .tarsus-card {
     max-width: 46rem;
     margin: 0 auto 1.25rem;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--tz-line);
     border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(35, 23, 90, 0.06);
+    background: var(--tz-card);
+    box-shadow: var(--tz-card-shadow);
 }
 
 .tarsus-chat-box .tarsus-card__inner {
@@ -87,7 +200,7 @@
 
 .tarsus-chat-box .tarsus-card__divider {
     border: 0;
-    border-top: 2px solid rgba(0, 0, 0, 0.18);
+    border-top: 2px solid var(--tz-line-strong);
     border-radius: 1px;
     margin: 1rem 0;
 }
@@ -104,12 +217,12 @@
     /* Same frame thickness all round as the sides of the practice and
        learning cards. */
     padding: 8px;
-    background: linear-gradient(135deg, #b39ddb 0%, #d8a7e8 35%, #f8b5c1 70%, #ffd9a0 100%);
+    background: var(--tz-frame-welcome);
     box-shadow: 0 10px 28px rgba(35, 23, 90, 0.12);
 }
 
 .tarsus-chat-box .tarsus-card--welcome .tarsus-card__inner {
-    background: #fff;
+    background: var(--tz-card);
     border-radius: 13px;
     padding: 2rem 1.75rem 1.75rem;
 }
@@ -163,7 +276,7 @@
 
 .tarsus-chat-box .tarsus-card__answer-body th,
 .tarsus-chat-box .tarsus-card__answer-body td {
-    border: 1px solid rgba(0, 0, 0, 0.125);
+    border: 1px solid var(--tz-line-table);
     padding: 0.25rem 0.5rem;
 }
 
@@ -186,7 +299,7 @@
     border-radius: 0.65rem;
     /* The pad under the mode buttons: the cool light grey of the Tarsus
        interface (sampled from its mode switch), the active button white. */
-    background: #efeff0;
+    background: var(--tz-pad);
 }
 
 .tarsus-mode-switch__btn {
@@ -199,18 +312,18 @@
     padding: 0.375rem 1rem;
     font-size: 0.875rem;
     line-height: 1.4;
-    color: #50555c;
+    color: var(--tz-muted);
     white-space: nowrap;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tarsus-mode-switch__btn:hover {
-    color: #1d2125;
+    color: var(--tz-fg);
 }
 
 .tarsus-mode-switch__btn:focus-visible {
-    outline: 2px solid #0f6cbf;
+    outline: 2px solid var(--tz-focus);
     outline-offset: 2px;
 }
 
@@ -228,11 +341,11 @@
 }
 
 .tarsus-mode-switch__btn--active {
-    background: #fff;
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #1d2125;
+    background: var(--tz-pad-active);
+    border-color: var(--tz-pad-active-line);
+    color: var(--tz-fg);
     font-weight: 600;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--tz-pad-active-shadow);
 }
 
 /* Experience figures beside the mode switcher: plain grey text, matching
@@ -240,7 +353,7 @@
 .tarsus-chat-box .tarsus-xp-badge {
     font-size: 0.875rem;
     line-height: 1.4;
-    color: #50555c;
+    color: var(--tz-muted);
     white-space: nowrap;
 }
 
@@ -250,12 +363,12 @@
 .tarsus-chat-box .tarsus-practice-card {
     border: 0;
     padding: 0 8px 8px;
-    background: linear-gradient(135deg, #9cc6dc 0%, #aedfd8 35%, #d8f0ec 70%, #a3c3e4 100%);
+    background: var(--tz-frame-practice);
     box-shadow: 0 10px 28px rgba(24, 74, 90, 0.1);
 }
 
 .tarsus-chat-box .tarsus-practice-card .tarsus-practice-card__inner {
-    background: #fff;
+    background: var(--tz-card);
     border-radius: 13px;
     /* Bootstrap's card body inset. */
     padding: 1rem;
@@ -272,8 +385,8 @@
    to Bootstrap's own .badge (weight 700) at equal specificity — hence
    the heavier selector. */
 .tarsus-chat-box .badge.tarsus-practice-card__badge {
-    background: #f1f0ec;
-    color: #1d2125;
+    background: var(--tz-badge);
+    color: var(--tz-fg);
     font-weight: 400;
 }
 
@@ -290,7 +403,7 @@
     border-radius: 1px;
     /* The empty bars are ink at 22%, like the ring's track, so the scale
        stays visible on the band's translucent pad. */
-    background: rgba(35, 40, 45, 0.22);
+    background: var(--tz-track-ink);
 }
 
 .tarsus-difficulty__bar:nth-child(1) {
@@ -306,7 +419,7 @@
 }
 
 .tarsus-difficulty__bar--filled {
-    background: #23282d;
+    background: var(--tz-ink);
 }
 
 /* The filled bars take the grade's colour, drawn from the cards' own
@@ -314,15 +427,15 @@
    verdicts, the amber of the score bar, the rose of a wrong answer, each
    deepened a step so it holds on the pastel pad and on white. */
 .tarsus-difficulty--1 .tarsus-difficulty__bar--filled {
-    background: #3e9e6f;
+    background: var(--tz-level-1);
 }
 
 .tarsus-difficulty--2 .tarsus-difficulty__bar--filled {
-    background: #d98a2b;
+    background: var(--tz-level-2);
 }
 
 .tarsus-difficulty--3 .tarsus-difficulty__bar--filled {
-    background: #c8405e;
+    background: var(--tz-level-3);
 }
 
 .tarsus-practice-card__question {
@@ -342,23 +455,23 @@
     margin: 0;
     padding: 0.75rem 0.9rem;
     border-radius: 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--tz-line-soft);
     cursor: pointer;
 }
 
 .tarsus-practice-card--answered .tarsus-practice-choice {
     cursor: default;
-    color: #6a7076;
+    color: var(--tz-faint);
 }
 
 .tarsus-practice-choice--correct {
-    background: #e9f7ec;
-    color: #1d2125;
+    background: var(--tz-success-soft);
+    color: var(--tz-fg);
 }
 
 .tarsus-practice-choice--incorrect {
-    background: #fdeef0;
-    color: #1d2125;
+    background: var(--tz-danger-soft);
+    color: var(--tz-fg);
 }
 
 .tarsus-practice-card__actions {
@@ -369,19 +482,19 @@
     margin-top: 1rem;
     padding: 0.9rem 1.1rem;
     border-radius: 0.75rem;
-    background: #f4f4f2;
+    background: var(--tz-soft);
 }
 
 .tarsus-practice-card__feedback--correct {
-    background: #e9f7ec;
+    background: var(--tz-success-soft);
 }
 
 .tarsus-practice-card__feedback--incorrect {
-    background: #fdeef0;
+    background: var(--tz-danger-soft);
 }
 
 .tarsus-practice-card__feedback--partial {
-    background: #fff4e0;
+    background: var(--tz-warning-soft);
 }
 
 /* Partial credit: a slim score bar above the feedback. */
@@ -396,7 +509,7 @@
     flex: 1 1 auto;
     height: 6px;
     border-radius: 999px;
-    background: #e6e9ef;
+    background: var(--tz-track);
     overflow: hidden;
 }
 
@@ -411,7 +524,7 @@
 .tarsus-practice-card__score-value {
     flex: 0 0 auto;
     font-size: 0.875rem;
-    color: #50555c;
+    color: var(--tz-muted);
     font-variant-numeric: tabular-nums;
 }
 
@@ -444,12 +557,12 @@
     min-width: 5rem;
     font-family: "SFMono-Regular", Menlo, Consolas, monospace;
     font-size: 0.9rem;
-    color: #1d2125;
+    color: var(--tz-fg);
 }
 
 .tarsus-practice-variable--incorrect .tarsus-practice-variable__input {
-    border-color: #d9534f;
-    background: #fdeef0;
+    border-color: var(--tz-danger);
+    background: var(--tz-danger-soft);
 }
 
 /* Spreadsheet calculation questions: the costing table with asked cells
@@ -469,16 +582,16 @@
 .tarsus-practice-table th {
     text-align: left;
     font-weight: 600;
-    color: #6a7076;
+    color: var(--tz-faint);
     font-size: 0.8rem;
     letter-spacing: 0.02em;
     padding: 0.35rem 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid var(--tz-line);
 }
 
 .tarsus-practice-table td {
     padding: 0.3rem 0.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--tz-line-soft);
     vertical-align: middle;
 }
 
@@ -495,8 +608,8 @@
 }
 
 .tarsus-practice-table__cell--incorrect .tarsus-practice-table__input {
-    border-color: #d9534f;
-    background: #fdeef0;
+    border-color: var(--tz-danger);
+    background: var(--tz-danger-soft);
 }
 
 /* Practice progress: a slim fill bar across the top of the chat. */
@@ -504,7 +617,7 @@
     height: 6px;
     margin-bottom: 0.6rem;
     border-radius: 999px;
-    background: #e6e9ef;
+    background: var(--tz-track);
     overflow: hidden;
 }
 
@@ -529,12 +642,12 @@
 .tarsus-chat-box .tarsus-learn-card {
     border: 0;
     padding: 0 8px 8px;
-    background: linear-gradient(135deg, #b8a8e6 0%, #cdb9ec 35%, #ead9f4 70%, #a9b4ea 100%);
+    background: var(--tz-frame-learn);
     box-shadow: 0 10px 28px rgba(70, 50, 120, 0.1);
 }
 
 .tarsus-chat-box .tarsus-learn-card .tarsus-learn-card__inner {
-    background: #fff;
+    background: var(--tz-card);
     border-radius: 13px;
     /* Bootstrap's card body inset. */
     padding: 1rem;
@@ -563,7 +676,7 @@
     height: 24px;
     box-sizing: border-box;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.45);
+    background: var(--tz-chip);
 }
 
 .tarsus-chat-box .tarsus-card__band .badge {
@@ -572,7 +685,7 @@
     padding: 0 0.5rem;
     font-size: 0.8rem;
     line-height: 1;
-    color: #23282d;
+    color: var(--tz-chip-ink);
 }
 
 .tarsus-chat-box .tarsus-card__band .tarsus-difficulty {
@@ -585,11 +698,11 @@
 }
 
 .tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__track {
-    stroke: rgba(0, 0, 0, 0.12);
+    stroke: var(--tz-band-ring-track);
 }
 
 .tarsus-chat-box .tarsus-card__band .tarsus-learn-ring__fill {
-    stroke: #2f6fb1;
+    stroke: var(--tz-accent-stroke);
 }
 
 /* "Ask about this" (Dazu fragen): the band's last chip, pushed to the
@@ -606,14 +719,14 @@
     font-size: 0.8rem;
     line-height: 1;
     white-space: nowrap;
-    background: rgba(255, 255, 255, 0.45);
-    color: #23282d;
+    background: var(--tz-chip);
+    color: var(--tz-chip-ink);
     transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:hover,
 .tarsus-chat-box .tarsus-card__band .tarsus-learn-ask:focus-visible {
-    background: #2f6fb1;
+    background: var(--tz-accent);
     color: #fff;
 }
 
@@ -638,8 +751,8 @@
     border-radius: 6px;
     font-size: 0.8rem;
     line-height: 1.25;
-    background: rgba(35, 40, 45, 0.07);
-    color: #23282d;
+    background: var(--tz-reply-pad);
+    color: var(--tz-ink);
 }
 
 .tarsus-chat-box .tarsus-reply-chip.d-none {
@@ -664,13 +777,13 @@
     font-size: 0.75rem;
     line-height: 1;
     background: transparent;
-    color: #50555c;
+    color: var(--tz-muted);
 }
 
 .tarsus-chat-box .tarsus-reply-chip__clear:hover,
 .tarsus-chat-box .tarsus-reply-chip__clear:focus-visible {
-    background: rgba(0, 0, 0, 0.08);
-    color: #23282d;
+    background: var(--tz-reply-hover);
+    color: var(--tz-ink);
 }
 
 .tarsus-chat-box .tarsus-reply-chip .icon {
@@ -687,7 +800,7 @@
     gap: 0.35rem;
     margin-bottom: 0.5rem;
     font-size: 0.8rem;
-    color: #50555c;
+    color: var(--tz-muted);
 }
 
 .tarsus-chat-box .tarsus-card__reply .icon {
@@ -715,11 +828,11 @@
 }
 
 .tarsus-learn-ring__track {
-    stroke: rgba(0, 0, 0, 0.08);
+    stroke: var(--tz-ring-track);
 }
 
 .tarsus-learn-ring__fill {
-    stroke: #23282d;
+    stroke: var(--tz-ink);
     stroke-linecap: round;
     stroke-dasharray: 56.55;
     transition: stroke-dashoffset 0.3s ease;
@@ -754,7 +867,7 @@
 }
 
 .tarsus-learn-slide__image:focus-visible {
-    outline: 3px solid #0f6cbf;
+    outline: 3px solid var(--tz-focus);
     outline-offset: 2px;
 }
 
@@ -804,15 +917,15 @@
 }
 
 .tarsus-learn-objectives__item:nth-child(odd) {
-    background: #f3f5f9;
+    background: var(--tz-row-alt);
 }
 
 .tarsus-learn-objectives__number {
     flex: 0 0 1.75rem;
     height: 1.75rem;
     border-radius: 6px;
-    background: #e3e8f2;
-    color: #2c3e5a;
+    background: var(--tz-number-bg);
+    color: var(--tz-number-fg);
     font-weight: 600;
     font-size: 0.9rem;
     display: flex;
@@ -826,7 +939,7 @@
 
 .tarsus-learn-objectives__item--done .tarsus-learn-objectives__text {
     text-decoration: line-through;
-    color: #6a7076;
+    color: var(--tz-faint);
 }
 
 .tarsus-learn-objectives__item .badge {
@@ -845,19 +958,19 @@
 
 /* The success card: the welcome card's frame in a soft green. */
 .tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--complete {
-    background: linear-gradient(135deg, #a8e0b8 0%, #c4ecc9 35%, #e2f6df 70%, #a9dcc2 100%);
+    background: var(--tz-frame-complete);
     box-shadow: 0 10px 28px rgba(40, 110, 60, 0.1);
 }
 
 /* The motivation card between two objectives: soft blue. */
 .tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--motivation {
-    background: linear-gradient(135deg, #a9d8ee 0%, #c3e6f4 35%, #e3f3fa 70%, #a5cfe9 100%);
+    background: var(--tz-frame-motivation);
     box-shadow: 0 10px 28px rgba(40, 90, 130, 0.1);
 }
 
 /* The learning objectives card: soft lime, as in Tarsus. */
 .tarsus-chat-box .tarsus-card--welcome.tarsus-learn-card--objectives {
-    background: linear-gradient(135deg, #d9e88a 0%, #e8f2a8 35%, #f4f9d4 70%, #cfe27f 100%);
+    background: var(--tz-frame-objectives);
     box-shadow: 0 10px 28px rgba(100, 120, 30, 0.1);
 }
 
@@ -913,7 +1026,7 @@
     width: auto;
     height: auto;
     border-radius: 12px;
-    background: #fff;
+    background: var(--tz-card);
     padding: 12px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
@@ -938,9 +1051,9 @@
    no real progress, so the bar only says "still working". */
 .tarsus-chat-box .tarsus-processing {
     padding: 0.9rem 1.25rem 0.85rem;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    background: var(--tz-card);
+    border: 1px solid var(--tz-line-soft);
+    box-shadow: var(--tz-card-shadow);
 }
 
 .tarsus-processing__row {
@@ -959,7 +1072,7 @@
 .tarsus-processing__bar {
     height: 8px;
     border-radius: 999px;
-    background: #e3eef6;
+    background: var(--tz-processing-track);
     overflow: hidden;
 }
 
@@ -1018,8 +1131,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.45);
-    color: #23282d;
+    background: var(--tz-chip);
+    color: var(--tz-chip-ink);
     transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -1028,7 +1141,7 @@
 }
 
 .tarsus-chat-box .tarsus-learn-player[data-state="loading"] .tarsus-learn-player__toggle {
-    color: rgba(35, 40, 45, 0.35);
+    color: var(--tz-loading-glyph);
     cursor: progress;
 }
 
@@ -1043,14 +1156,14 @@
     position: absolute;
     inset: 2px;
     border-radius: 50%;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #2f6fb1;
+    border: 2px solid var(--tz-loading-ring);
+    border-top-color: var(--tz-accent-stroke);
     animation: tarsus-turn 0.9s linear infinite;
 }
 
 .tarsus-chat-box .tarsus-learn-player[data-state="ready"] .tarsus-learn-player__toggle,
 .tarsus-chat-box .tarsus-learn-player[data-state="playing"] .tarsus-learn-player__toggle {
-    background: #2f6fb1;
+    background: var(--tz-accent);
     color: #fff;
 }
 
@@ -1067,11 +1180,11 @@
     flex: 1 1 0;
     min-width: 1px;
     border-radius: 1px;
-    background: rgba(0, 0, 0, 0.18);
+    background: var(--tz-wave);
 }
 
 .tarsus-chat-box .tarsus-learn-player__bar--played {
-    background: #2f6fb1;
+    background: var(--tz-accent-stroke);
 }
 
 @media (prefers-reduced-motion: reduce) {
