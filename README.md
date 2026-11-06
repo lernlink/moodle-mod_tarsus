@@ -83,8 +83,8 @@ workflow runs moodle-plugin-ci on Moodle 5.2 and 5.3.
 
 ## Credits
 
-Developed by lern.link GmbH and Vadym Nersesov. Tarsus and the Flexudy Brain
-are products of Flexudy. This plugin is not affiliated with Moodle HQ.
+Developed by Vadym Nersesov, lern.link GmbH. Tarsus and the Flexudy Brain are
+products of Tarsus GmbH.
 
 ## License
 
