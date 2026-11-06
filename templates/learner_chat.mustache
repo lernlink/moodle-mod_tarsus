@@ -78,22 +78,27 @@
             </button>
         </div>
         <input type="text" class="tarsus-chat-input form-control mb-2" placeholder="{{#str}}chat_placeholder, mod_tarsus{{/str}}" aria-label="{{#str}}chat_placeholder, mod_tarsus{{/str}}" autocomplete="off" required>
-        <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem;">
-            <div class="d-flex align-items-center" style="gap: 0.75rem;">
+        {{! On phones the mode buttons show their icons only (the labels move
+            into the title and aria-label) and share the row's width. }}
+        <div class="tarsus-composer__row d-flex align-items-center justify-content-between">
+            <div class="tarsus-composer__modes d-flex align-items-center">
             <div class="tarsus-mode-switch__group" role="group" aria-label="{{#str}}mode_switch, mod_tarsus{{/str}}">
                 {{#buildenabled}}
-                <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false">
-                    {{#pix}}mode_build, mod_tarsus{{/pix}}{{#str}}mode_build, mod_tarsus{{/str}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="build" aria-pressed="false"
+                        title="{{#str}}mode_build, mod_tarsus{{/str}}" aria-label="{{#str}}mode_build, mod_tarsus{{/str}}">
+                    {{#pix}}mode_build, mod_tarsus{{/pix}}<span class="tarsus-mode-switch__label">{{#str}}mode_build, mod_tarsus{{/str}}</span>
                 </button>
                 {{/buildenabled}}
                 {{#testenabled}}
-                <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false">
-                    {{#pix}}mode_test, mod_tarsus{{/pix}}{{#str}}mode_test, mod_tarsus{{/str}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="test" aria-pressed="false"
+                        title="{{#str}}mode_test, mod_tarsus{{/str}}" aria-label="{{#str}}mode_test, mod_tarsus{{/str}}">
+                    {{#pix}}mode_test, mod_tarsus{{/pix}}<span class="tarsus-mode-switch__label">{{#str}}mode_test, mod_tarsus{{/str}}</span>
                 </button>
                 {{/testenabled}}
                 {{#askenabled}}
-                <button type="button" class="tarsus-mode-switch__btn" data-mode="ask" aria-pressed="false">
-                    {{#pix}}mode_ask, mod_tarsus{{/pix}}{{#str}}mode_ask, mod_tarsus{{/str}}
+                <button type="button" class="tarsus-mode-switch__btn" data-mode="ask" aria-pressed="false"
+                        title="{{#str}}mode_ask, mod_tarsus{{/str}}" aria-label="{{#str}}mode_ask, mod_tarsus{{/str}}">
+                    {{#pix}}mode_ask, mod_tarsus{{/pix}}<span class="tarsus-mode-switch__label">{{#str}}mode_ask, mod_tarsus{{/str}}</span>
                 </button>
                 {{/askenabled}}
             </div>
@@ -105,9 +110,10 @@
                 <span class="tarsus-practice-next__icon">{{#pix}}send, mod_tarsus{{/pix}}</span>
                 <span class="tarsus-practice-next__spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
             </button>
-            <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit">
-                <span class="tarsus-chat-spinner spinner-border spinner-border-sm mr-2 d-none" role="status" aria-hidden="true"></span>
-                {{#str}}send, mod_tarsus{{/str}}{{#pix}}send, mod_tarsus{{/pix}}
+            <button class="tarsus-chat-submit btn btn-primary d-flex align-items-center flex-shrink-0" type="submit"
+                    title="{{#str}}send, mod_tarsus{{/str}}" aria-label="{{#str}}send, mod_tarsus{{/str}}">
+                <span class="tarsus-chat-spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span class="tarsus-chat-submit__label">{{#str}}send, mod_tarsus{{/str}}</span>{{#pix}}send, mod_tarsus{{/pix}}
             </button>
         </div>
     </form>

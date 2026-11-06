@@ -357,6 +357,69 @@
     white-space: nowrap;
 }
 
+/* The composer's bottom row: the mode switcher (with the experience
+   figures) on the left, the send or practice button on the right. */
+.tarsus-chat-box .tarsus-composer__row {
+    gap: 0.5rem;
+}
+
+.tarsus-chat-box .tarsus-composer__modes {
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+/* Phones: the mode buttons drop their labels (title and aria-label keep the
+   names) and share the row, so nothing runs off the screen. The send button
+   shrinks to its glyph as well. */
+@media (max-width: 575.98px) {
+    /* On the narrowest phones the practice button may drop to a second
+       line, right-aligned, instead of pushing the row off the screen. */
+    .tarsus-chat-box .tarsus-composer__row {
+        flex-wrap: wrap;
+    }
+
+    .tarsus-chat-box .tarsus-practice-next {
+        margin-left: auto;
+    }
+
+    .tarsus-chat-box .tarsus-composer__modes {
+        flex: 1 1 auto;
+    }
+
+    .tarsus-chat-box .tarsus-mode-switch__group {
+        display: flex;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .tarsus-chat-box .tarsus-mode-switch__btn {
+        flex: 1 1 0;
+        justify-content: center;
+        min-width: 2.75rem;
+        padding: 0.5rem 0.25rem;
+    }
+
+    .tarsus-chat-box .tarsus-mode-switch__btn .icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 1.25rem;
+    }
+
+    .tarsus-chat-box .tarsus-mode-switch__label,
+    .tarsus-chat-box .tarsus-chat-submit__label {
+        display: none;
+    }
+
+    .tarsus-chat-box .tarsus-chat-submit {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .tarsus-chat-box .tarsus-xp-badge {
+        font-size: 0.8rem;
+    }
+}
+
 /* Practice question cards (Test knowledge mode): the welcome card's
    gradient-border technique in a soft blue-green, so they read
    differently from chat cards at a glance. */
