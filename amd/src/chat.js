@@ -70,6 +70,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         LEARN_NAV: '.tarsus-learn-nav',
         LEARN_RING: '[data-region="ring"]',
         LEARN_BADGE: '[data-region="slide-badge"]',
+        WEB_CARD: '[data-region="web-card"]',
+        WEB_FRAME: '[data-region="web-frame"]',
         JUMP_TOP: '[data-action="jump-top"]',
         ENLARGE: '[data-action="enlarge"]',
         AUDIO_TOGGLE: '[data-action="audio-toggle"]',
@@ -462,7 +464,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     robotavatarurl: state.robotAvatar,
                     robotname: state.robotName
                 });
-            } else if (['objectives', 'stack', 'complete', 'motivation'].indexOf(item.kind) !== -1) {
+            } else if (['objectives', 'stack', 'complete', 'motivation', 'web'].indexOf(item.kind) !== -1) {
                 // A stack yields its slide card and one card per check
                 // question; a question already on the page (the newer
                 // half of a straddling stack) is not built twice.
@@ -549,7 +551,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         items.forEach(function(item) {
             if (item.kind === 'practice') {
                 state.practiceStarted = true;
-            } else if (item.kind === 'objectives' || item.kind === 'stack' || item.kind === 'motivation') {
+            } else if (item.kind === 'objectives' || item.kind === 'stack' || item.kind === 'motivation'
+                    || (item.kind === 'web' && item.origin === 'learn')) {
                 state.learnStarted = true;
             } else if (item.kind === 'complete') {
                 state.learnStarted = true;
@@ -792,6 +795,9 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         if (item.kind === 'message') {
             return [{template: 'mod_tarsus/chat_welcome_card', context: {title: item.title, message: item.text}}];
         }
+        if (item.kind === 'web') {
+            return [{template: 'mod_tarsus/web_card', context: webCardContext(item)}];
+        }
         if (item.kind === 'objectives') {
             return [{
                 template: 'mod_tarsus/learn_objectives_card',
@@ -840,6 +846,29 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 slides: slides
             }
         }];
+    }
+
+    /**
+     * The template context of an interactive web card (the agent-driven
+     * interaction type): a chat answer or a learning step, as the brain's
+     * own HTML document shown in a frame.
+     *
+     * @param {Object} item {id, origin, query, title, taxonomy, code}
+     * @return {Object}
+     */
+    function webCardContext(item) {
+        return {
+            widgetid: item.id || '',
+            learn: item.origin === 'learn',
+            question: item.query || '',
+            title: item.title || '',
+            taxonomy: item.taxonomy || '',
+            code: item.code || '',
+            askenabled: state.modes.indexOf('ask') !== -1,
+            useravatarurl: state.userAvatar,
+            robotavatarurl: state.robotAvatar,
+            robotname: state.robotName
+        };
     }
 
     /**
@@ -1572,7 +1601,10 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     function askAbout(card) {
         var id = '';
         var ready;
-        if (card.matches(SELECTORS.PRACTICE_CARD)) {
+        if (card.matches(SELECTORS.WEB_CARD)) {
+            id = card.getAttribute('data-widget-id') || '';
+            ready = Promise.resolve(shorten(card.getAttribute('data-title') || card.getAttribute('data-question') || '', 90));
+        } else if (card.matches(SELECTORS.PRACTICE_CARD)) {
             id = card.getAttribute('data-widget-id') || '';
             var question = card.querySelector('.tarsus-practice-card__question');
             ready = Promise.resolve(shorten(question ? question.textContent : '', 90));
@@ -1691,7 +1723,20 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                     return attachWelcome(message, null);
                 });
             }, Promise.resolve()).then(function() {
-                return attachExchange(query, result.answer, false, reply ? reply.title : '');
+                // Every answer card the brain sent, in its order: text
+                // answers and, with the agent-driven interaction type, the
+                // interactive web cards — one call may carry several.
+                var items = (result.items || []).length ? result.items : [{kind: 'answer', html: result.answer}];
+                return items.reduce(function(previous, item) {
+                    return previous.then(function() {
+                        if (item.kind === 'web') {
+                            return attachCard('mod_tarsus/web_card', webCardContext({
+                                id: item.id, origin: 'ask', query: query, code: item.html
+                            }), null);
+                        }
+                        return attachExchange(query, item.html, false, reply ? reply.title : '');
+                    });
+                }, Promise.resolve());
             }).then(function() {
                 // The reference is for one question.
                 setReply(null);
@@ -1779,7 +1824,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             }
             var ask = e.target.closest(SELECTORS.ASK_ABOUT);
             if (ask && state.container.contains(ask)) {
-                var askcard = ask.closest(SELECTORS.PRACTICE_CARD + ', ' + SELECTORS.LEARN_CARD);
+                var askcard = ask.closest(SELECTORS.PRACTICE_CARD + ', ' + SELECTORS.LEARN_CARD + ', ' + SELECTORS.WEB_CARD);
                 if (askcard) {
                     askAbout(askcard);
                 }
@@ -1796,6 +1841,21 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 e.preventDefault();
                 openLightbox(e.target.getAttribute('src')).catch(Notification.exception);
             }
+        });
+
+        // The web cards' documents report their own height (the
+        // genericWebWidget:resize message of Tarsus's embedding contract);
+        // the frame that sent it grows or shrinks to fit.
+        window.addEventListener('message', function(e) {
+            var data = e.data || {};
+            if (data.type !== 'genericWebWidget:resize') {
+                return;
+            }
+            state.container.querySelectorAll(SELECTORS.WEB_FRAME).forEach(function(frame) {
+                if (frame.contentWindow === e.source) {
+                    frame.style.height = (Math.max(80, parseInt(data.height, 10) || 0) + 4) + 'px';
+                }
+            });
         });
 
         measureChrome();

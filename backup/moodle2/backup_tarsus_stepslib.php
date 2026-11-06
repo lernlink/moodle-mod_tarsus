@@ -45,7 +45,7 @@ class backup_tarsus_activity_structure_step extends backup_activity_structure_st
             'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'conversationstyle', 'dqr', 'industry', 'taxonomylevels', 'questiontypes',
             'operators', 'anticheat', 'learntempo', 'askenabled', 'testenabled', 'buildenabled',
-            'gifenabled', 'learningmethod', 'completionprogress',
+            'gifenabled', 'learningmethod', 'interactiontype', 'completionprogress',
         ]);
 
         $inclusions = new backup_nested_element('inclusions');

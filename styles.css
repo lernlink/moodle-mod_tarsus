@@ -1192,3 +1192,28 @@
         animation: none;
     }
 }
+
+/* Interactive web cards (the agent-driven interaction type): the brain's
+   document in a frame as wide as the card body and as tall as the document
+   reports. The document brings its own light palette, so the frame keeps a
+   light surface in both colour modes. */
+.tarsus-chat-box .tarsus-web-frame {
+    display: block;
+    width: 100%;
+    /* Until the document reports its height, which a frame below the
+       viewport only does once it is scrolled into view. */
+    height: 360px;
+    border: 0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+/* The answer column of a chat card shrinks to its text; the frame needs
+   the column to take the room beside the avatar. */
+.tarsus-chat-box .tarsus-web-card .tarsus-card__answer-body {
+    flex: 1 1 auto;
+}
+
+.tarsus-chat-box .tarsus-web-card--learn .tarsus-learn-card__inner {
+    padding-bottom: 1rem;
+}

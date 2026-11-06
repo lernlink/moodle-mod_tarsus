@@ -152,14 +152,17 @@ class get_learn_widget extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA, 'Item kind: objectives, stack, motivation, complete or message.'),
+                    'kind' => new external_value(PARAM_ALPHA,
+                        'Item kind: objectives, stack, motivation, complete, message or web.'),
                     'id' => new external_value(PARAM_RAW, 'The widget or stack id.'),
-                    'text' => new external_value(PARAM_RAW, 'Rendered HTML (complete, message).', VALUE_OPTIONAL),
-                    'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),
+                    'text' => new external_value(PARAM_RAW, 'Rendered HTML (complete, message, web).', VALUE_OPTIONAL),
+                    'title' => new external_value(PARAM_TEXT, 'Title (objectives, web).', VALUE_OPTIONAL),
                     'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
                     'objectives' => practice_labels::objectives_structure(),
                     'slides' => practice_labels::slides_structure(),
-                ]),
+                    'query' => new external_value(PARAM_RAW, 'The learner\'s question (web from the chat).', VALUE_OPTIONAL),
+                    'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level (web).', VALUE_OPTIONAL),
+                ] + practice_labels::web_structure()),
                 'The learn items, as many as the brain sent.'
             ),
             'progress' => practice_labels::progress_structure(),

@@ -67,6 +67,17 @@ class mod_tarsus_mod_form extends moodleform_mod {
         $mform->addElement('header', 'settings_general', get_string('settings_general', 'mod_tarsus'));
         $mform->setExpanded('settings_general');
 
+        // Who shapes the output: the trainer's text and slide cards, or the
+        // agent's interactive web cards. The wire values are the brain's.
+        $interactions = [
+            didactics::INTERACTION_TRAINERDRIVEN => get_string('interactiontype_trainerdriven', 'mod_tarsus'),
+            didactics::INTERACTION_AIDRIVEN => get_string('interactiontype_aidriven', 'mod_tarsus'),
+        ];
+        $mform->addElement('select', 'interactiontype', get_string('interactiontype', 'mod_tarsus'), $interactions);
+        $mform->setType('interactiontype', PARAM_ALPHAEXT);
+        $mform->setDefault('interactiontype', didactics::INTERACTION_TRAINERDRIVEN);
+        $mform->addHelpButton('interactiontype', 'interactiontype', 'mod_tarsus');
+
         // DQR levels as named on the Tarsus site; the wire value stays 3..7.
         $dqrlevels = [
             3 => get_string('dqr_level3', 'mod_tarsus'),

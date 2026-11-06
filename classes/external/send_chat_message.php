@@ -156,12 +156,28 @@ class send_chat_message extends external_api {
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 
+            // Every answer card, in the brain's order: text answers, and
+            // with the agent-driven interaction type the interactive web
+            // cards — one call may carry several, all are shown.
+            $items = [];
+            foreach ((array) ($response['items'] ?? []) as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                if (($item['kind'] ?? '') === 'web' && trim((string) ($item['code'] ?? '')) !== '') {
+                    $items[] = ['kind' => 'web', 'id' => (string) ($item['id'] ?? ''), 'html' => (string) $item['code']];
+                } else if (trim((string) ($item['text'] ?? '')) !== '') {
+                    $items[] = ['kind' => 'answer', 'id' => (string) ($item['id'] ?? ''), 'html' => $render((string) $item['text'])];
+                }
+            }
+
             return [
                 'status'   => 'success',
                 // The brain answers in Markdown (the response says so
                 // explicitly); render it through Moodle's own converter so
                 // the output is real HTML and has passed the XSS cleaner.
                 'answer'   => $render($answer),
+                'items'    => $items,
                 'messages' => array_map(static fn(array $message): array => [
                     'title' => (string) ($message['title'] ?? ''),
                     'text' => $render((string) $message['text']),
@@ -198,7 +214,16 @@ class send_chat_message extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'status'  => new external_value(PARAM_ALPHA, 'Status (success, noscope, disabled, blocked, error).'),
-            'answer'  => new external_value(PARAM_RAW, 'The grounded answer.'),
+            'answer'  => new external_value(PARAM_RAW, 'The grounded answer (the last text answer; empty for a web card).'),
+            'items' => new external_multiple_structure(
+                new external_single_structure([
+                    'kind' => new external_value(PARAM_ALPHA, 'answer (rendered Markdown) or web (the brain\'s HTML document).'),
+                    'id' => new external_value(PARAM_RAW, 'The widget id.'),
+                    'html' => new external_value(PARAM_RAW, 'Rendered answer HTML, or the document for an isolated frame.'),
+                ]),
+                'Every answer card the brain sent, in its order.',
+                VALUE_OPTIONAL
+            ),
             'messages' => new external_multiple_structure(
                 new external_single_structure([
                     'title' => new external_value(PARAM_TEXT, 'The widget\'s title (the welcome carries the activity name).'),

@@ -87,6 +87,15 @@ final class didactics {
     /** @var string[] The didactic concepts the brain knows for Build knowledge. */
     public const LEARNING_METHODS = [self::METHOD_MICROLEARNING];
 
+    /** @var string The trainer shapes the output: text answers and slide stacks (the brain's default). */
+    public const INTERACTION_TRAINERDRIVEN = 'trainer-driven';
+
+    /** @var string The agent shapes the output: interactive web cards (genericWebWidget). */
+    public const INTERACTION_AIDRIVEN = 'ai-driven';
+
+    /** @var string[] The interaction types the brain knows (interaction_type). */
+    public const INTERACTION_TYPES = [self::INTERACTION_TRAINERDRIVEN, self::INTERACTION_AIDRIVEN];
+
     /**
      * Normalise a stored didactic concept.
      *
@@ -96,6 +105,17 @@ final class didactics {
     public static function learning_method(?string $value): string {
         $value = strtolower(trim((string) $value));
         return in_array($value, self::LEARNING_METHODS, true) ? $value : self::METHOD_MICROLEARNING;
+    }
+
+    /**
+     * Normalise a stored interaction type.
+     *
+     * @param string|null $value The stored value.
+     * @return string A known type; trainer-driven when unknown (the brain's own default).
+     */
+    public static function interaction_type(?string $value): string {
+        $value = strtolower(trim((string) $value));
+        return in_array($value, self::INTERACTION_TYPES, true) ? $value : self::INTERACTION_TRAINERDRIVEN;
     }
 
     /**

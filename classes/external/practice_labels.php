@@ -281,6 +281,23 @@ final class practice_labels {
      */
     public static function learn_item(array $item, callable $render): array {
         $kind = (string) ($item['kind'] ?? '');
+        if ($kind === 'web') {
+            $level = (string) ($item['taxonomylevel'] ?? '');
+            return [
+                'kind' => 'web',
+                'id' => (string) ($item['id'] ?? ''),
+                'origin' => (($item['origin'] ?? 'ask') === 'learn') ? 'learn' : 'ask',
+                'query' => (string) ($item['query'] ?? ''),
+                'title' => (string) ($item['title'] ?? ''),
+                'text' => $render((string) ($item['text'] ?? '')),
+                'taxonomy' => self::taxonomy($level),
+                'taxonomyicon' => self::taxonomy_icon($level),
+                // The brain's complete HTML document: the browser shows it
+                // in an isolated frame of its own, so it does not go through
+                // the text filters, which would strip its styles and scripts.
+                'code' => (string) ($item['code'] ?? ''),
+            ];
+        }
         if ($kind === 'complete' || $kind === 'motivation' || $kind === 'message') {
             return [
                 'kind' => $kind,
@@ -330,6 +347,21 @@ final class practice_labels {
             'kind' => 'stack',
             'id' => (string) ($item['id'] ?? ''),
             'slides' => $slides,
+        ];
+    }
+
+    /**
+     * The wire fields a 'web' item adds to a feed or learn item structure.
+     *
+     * @return array<string, external_value>
+     */
+    public static function web_structure(): array {
+        return [
+            'origin' => new external_value(PARAM_ALPHA, 'ask (a chat answer) or learn (a learning step) (web).', VALUE_OPTIONAL),
+            'taxonomyicon' => new external_value(PARAM_ALPHANUMEXT, 'Pix identifier of the level\'s icon, may be empty (web).',
+                VALUE_OPTIONAL),
+            'code' => new external_value(PARAM_RAW, 'The brain\'s HTML document, shown in an isolated frame (web).',
+                VALUE_OPTIONAL),
         ];
     }
 

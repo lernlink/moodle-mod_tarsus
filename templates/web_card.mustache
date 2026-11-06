@@ -1,0 +1,77 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_tarsus/web_card
+
+    An interactive card of the agent-driven interaction type: the brain's
+    self-contained HTML document in a frame of its own, which takes the height
+    the document reports (chat.js listens for its resize message). From the
+    chat the card carries the learner's question like an exchange card; from
+    Build knowledge it is a learning step in the learn frame, with its
+    taxonomy badge and "Ask about this".
+
+    Context variables required for this template:
+    * widgetid - string, the widget id.
+    * learn - bool, whether the card is a learning step (otherwise a chat answer).
+    * question - string, the learner's question (chat cards).
+    * title - string, the step title (learn cards, may be empty); labels the card for "Ask about this",
+      the document shows its own heading.
+    * taxonomy - string, the step's taxonomy label (learn cards, may be empty).
+    * code - string, the HTML document; escaped into the frame's srcdoc.
+    * askenabled - bool, whether the chat mode is on (shows "Ask about this").
+    * useravatarurl - string, the learner's profile picture URL.
+    * robotavatarurl - string, the assistant's avatar URL.
+    * robotname - string, the assistant's display name.
+}}
+<div class="tarsus-card tarsus-web-card{{#learn}} tarsus-learn-card tarsus-web-card--learn{{/learn}}" data-region="web-card"
+     data-widget-id="{{widgetid}}" data-title="{{title}}" data-question="{{question}}">
+    {{#learn}}
+    <div class="tarsus-card__band tarsus-learn-card__meta">
+        <span class="badge badge-light tarsus-practice-card__badge tarsus-learn-badge">
+            {{#taxonomy}}{{taxonomy}}{{/taxonomy}}
+            {{^taxonomy}}{{#str}}mode_build, mod_tarsus{{/str}}{{/taxonomy}}
+        </span>
+        {{#askenabled}}
+        <button type="button" class="tarsus-learn-ask" data-action="ask-about"
+                title="{{#str}}learn_ask_about, mod_tarsus{{/str}}">
+            {{#pix}}reply, mod_tarsus{{/pix}}<span>{{#str}}learn_ask_about, mod_tarsus{{/str}}</span>
+        </button>
+        {{/askenabled}}
+    </div>
+    <div class="tarsus-learn-card__inner">
+        {{! The document carries its own heading; the title only labels the card for "Ask about this". }}
+        <iframe class="tarsus-web-frame" data-region="web-frame" sandbox="allow-scripts" srcdoc="{{code}}"
+                title="{{#str}}web_frame_title, mod_tarsus{{/str}}"></iframe>
+    </div>
+    {{/learn}}
+    {{^learn}}
+    <div class="tarsus-card__inner">
+        <div class="tarsus-card__question d-flex align-items-start">
+            <img class="tarsus-card__avatar" src="{{useravatarurl}}" alt="">
+            <div class="tarsus-card__question-text">{{question}}</div>
+        </div>
+        <hr class="tarsus-card__divider">
+        <div class="tarsus-card__answer d-flex align-items-start">
+            <img class="tarsus-card__avatar" src="{{robotavatarurl}}" alt="{{robotname}}">
+            <div class="tarsus-card__answer-body" data-region="card-answer">
+                <iframe class="tarsus-web-frame" data-region="web-frame" sandbox="allow-scripts" srcdoc="{{code}}"
+                        title="{{#str}}web_frame_title, mod_tarsus{{/str}}"></iframe>
+            </div>
+        </div>
+    </div>
+    {{/learn}}
+</div>

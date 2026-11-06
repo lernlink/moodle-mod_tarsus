@@ -129,7 +129,7 @@ class get_activity_feed extends external_api {
                     ];
                     continue;
                 }
-                if (in_array($kind, ['objectives', 'stack', 'complete', 'motivation'], true)) {
+                if (in_array($kind, ['objectives', 'stack', 'complete', 'motivation', 'web'], true)) {
                     $items[] = practice_labels::learn_item($item, $render);
                     continue;
                 }
@@ -177,15 +177,15 @@ class get_activity_feed extends external_api {
             'items' => new external_multiple_structure(
                 new external_single_structure([
                     'kind' => new external_value(PARAM_ALPHA,
-                        'Item kind: message, exchange, practice, objectives, stack, motivation or complete.'),
-                    'title' => new external_value(PARAM_TEXT, 'Title (objectives).', VALUE_OPTIONAL),
+                        'Item kind: message, exchange, practice, objectives, stack, motivation, complete or web.'),
+                    'title' => new external_value(PARAM_TEXT, 'Title (objectives, web).', VALUE_OPTIONAL),
                     'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
                     'objectives' => practice_labels::objectives_structure(),
                     'slides' => practice_labels::slides_structure(),
-                    'text' => new external_value(PARAM_RAW, 'Rendered message HTML (message).', VALUE_OPTIONAL),
-                    'query' => new external_value(PARAM_RAW, 'The learner\'s question (exchange).', VALUE_OPTIONAL),
+                    'text' => new external_value(PARAM_RAW, 'Rendered message HTML (message, web).', VALUE_OPTIONAL),
+                    'query' => new external_value(PARAM_RAW, 'The learner\'s question (exchange, web).', VALUE_OPTIONAL),
                     'answer' => new external_value(PARAM_RAW, 'Rendered answer HTML (exchange).', VALUE_OPTIONAL),
-                ] + practice_labels::practice_structure()),
+                ] + practice_labels::web_structure() + practice_labels::practice_structure()),
                 'The activity feed page, oldest first, all interaction modes interleaved.'
             ),
             'hasmore' => new external_value(PARAM_BOOL, 'Whether an older page may follow.', VALUE_OPTIONAL),

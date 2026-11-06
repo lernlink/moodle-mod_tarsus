@@ -26,6 +26,7 @@
         <FIELD NAME="buildenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether the Build knowledge mode is available to learners."/>
         <FIELD NAME="gifenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether Build knowledge widgets may include GIF animations."/>
         <FIELD NAME="learningmethod" TYPE="char" LENGTH="40" NOTNULL="true" DEFAULT="micro-learning" SEQUENCE="false" COMMENT="Didactic concept of the Build knowledge mode (learning_method)."/>
+        <FIELD NAME="interactiontype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="trainer-driven" SEQUENCE="false" COMMENT="Who shapes the brain's output (interaction_type): trainer-driven for text cards, ai-driven lets the agent send interactive web cards."/>
         <FIELD NAME="completionprogress" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Completion rule: the activity completes once the learner's progress reaches this percentage; 0 switches the rule off."/>
       </FIELDS>
       <KEYS>
