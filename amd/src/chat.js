@@ -146,20 +146,14 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * Freeze an answered practice card: mark the pick, show the feedback.
-     *
-     * Shared by fresh evaluations and by cards restored from the brain.
+     * Rule of three: restore the learner's figures and mark the wrong
+     * quantities. Correct ones stay plain and no model answers are listed,
+     * the feedback text already explains the solution.
      *
      * @param {Element} card The practice card element.
-     * @param {Object} verdict {correct: bool, feedback: string (HTML), useranswer: string,
-     *                          useranswers: [{variable, answer}], answers: [{variable, answer, iscorrect}]}
+     * @param {Object} verdict The verdict with answers and useranswers.
      */
-    function finalizePracticeCard(card, verdict) {
-        card.classList.add('tarsus-practice-card--answered');
-
-        // Rule of three: restore the learner's figures and mark the wrong
-        // quantities. Correct ones stay plain and no model answers are
-        // listed — the feedback text already explains the solution.
+    function restoreVariableAnswers(card, verdict) {
         var verdictByVariable = {};
         (verdict.answers || []).forEach(function(entry) {
             verdictByVariable[entry.variable] = entry;
@@ -179,9 +173,17 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 row.classList.add('tarsus-practice-variable--incorrect');
             }
         });
-        // Spreadsheet calculation: restore the learner's cells and mark the
-        // wrong ones. Correct cells stay plain and no model figure is shown
-        // — the feedback text already explains the solution.
+    }
+
+    /**
+     * Spreadsheet calculation: restore the learner's cells and mark the
+     * wrong ones. Correct cells stay plain and no model figure is shown,
+     * the feedback text already explains the solution.
+     *
+     * @param {Element} card The practice card element.
+     * @param {Object} verdict The verdict with usertable and answertable.
+     */
+    function restoreTableAnswers(card, verdict) {
         var userRows = {};
         (verdict.usertable || []).forEach(function(row) {
             userRows[row.position] = row;
@@ -208,7 +210,44 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 }
             });
         });
+    }
 
+    /**
+     * Attach cards one after another, in order.
+     *
+     * @param {Array} items What to attach
+     * @param {Function} attach Turns one item into a promise of its element
+     * @return {Promise} Resolves with the first attached element, or null
+     */
+    function attachInOrder(items, attach) {
+        var first = null;
+        var remember = function(element) {
+            first = first || element;
+            return element;
+        };
+        return items.reduce(function(chain, item) {
+            return chain.then(function() {
+                return attach(item);
+            }).then(remember);
+        }, Promise.resolve()).then(function() {
+            return first;
+        });
+    }
+
+    /**
+     * Freeze an answered practice card: mark the pick, show the feedback.
+     *
+     * Shared by fresh evaluations and by cards restored from the brain.
+     *
+     * @param {Element} card The practice card element.
+     * @param {Object} verdict {correct: bool, feedback: string (HTML), useranswer: string,
+     *                          useranswers: [{variable, answer}], answers: [{variable, answer, iscorrect}]}
+     */
+    function finalizePracticeCard(card, verdict) {
+        card.classList.add('tarsus-practice-card--answered');
+
+        restoreVariableAnswers(card, verdict);
+        restoreTableAnswers(card, verdict);
 
         var chosen = card.querySelector('input[type="radio"]:checked');
         if (!chosen && verdict.useranswer) {
@@ -579,6 +618,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return;
         }
         var older = flow.querySelector(SELECTORS.FEED_OLDER);
+        var feed = null;
 
         Ajax.call([{
             methodname: 'mod_tarsus_get_activity_feed',
@@ -590,6 +630,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 flow.innerHTML = '';
                 return null;
             }
+            feed = result;
             updateXp(result.progress);
             state.feedOffset = FEED_PAGE_SIZE;
             state.feedHasMore = Boolean(result.hasmore);
@@ -598,27 +639,30 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             // in one pass, already scrolled to its newest card — rendering
             // one by one would visibly flick through the whole history.
             // The loading spinner stays up until the page is ready.
-            return buildFeedCards(result.items).then(function(built) {
-                flow.innerHTML = '';
-                if (older) {
-                    flow.appendChild(older);
+            return buildFeedCards(result.items);
+        }).then(function(built) {
+            if (!built) {
+                return null;
+            }
+            flow.innerHTML = '';
+            if (older) {
+                flow.appendChild(older);
+            }
+            built.forEach(function(entry) {
+                if (!entry.card) {
+                    return;
                 }
-                built.forEach(function(entry) {
-                    if (!entry.card) {
-                        return;
-                    }
-                    flow.appendChild(entry.card);
-                    settleFeedCard(entry);
-                });
-                scrollToEnd();
-                return notePracticeHistory(result.items).then(function() {
-                    // A short history may leave the top in view: fetch on.
-                    if (nearFeedTop()) {
-                        loadOlderFeed();
-                    }
-                    return null;
-                });
+                flow.appendChild(entry.card);
+                settleFeedCard(entry);
             });
+            scrollToEnd();
+            return notePracticeHistory(feed.items);
+        }).then(function() {
+            // A short history may leave the top in view: fetch on.
+            if (feed && nearFeedTop()) {
+                loadOlderFeed();
+            }
+            return null;
         }).catch(Notification.exception);
     }
 
@@ -664,6 +708,13 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             older.classList.remove('d-none');
         }
         var offset = state.feedOffset;
+        var page = null;
+        var settle = function() {
+            state.feedLoading = false;
+            if (older) {
+                older.classList.add('d-none');
+            }
+        };
 
         Ajax.call([{
             methodname: 'mod_tarsus_get_activity_feed',
@@ -673,36 +724,36 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 state.feedHasMore = false;
                 return null;
             }
+            page = result;
             state.feedOffset = offset + FEED_PAGE_SIZE;
             state.feedHasMore = Boolean(result.hasmore) && result.items.length > 0;
-
-            var items = mergeStraddlingStack(flow, result.items);
-            return buildFeedCards(items).then(function(built) {
-                var anchor = older && older.nextSibling ? older.nextSibling : flow.firstChild;
-                keepViewport(function() {
-                    built.forEach(function(entry) {
-                        if (!entry.card) {
-                            return;
-                        }
-                        if (entry.replaces) {
-                            flow.replaceChild(entry.card, entry.replaces);
-                        } else {
-                            flow.insertBefore(entry.card, anchor);
-                        }
-                        settleFeedCard(entry);
-                    });
+            return buildFeedCards(mergeStraddlingStack(flow, result.items));
+        }).then(function(built) {
+            if (!built) {
+                return null;
+            }
+            var anchor = older && older.nextSibling ? older.nextSibling : flow.firstChild;
+            keepViewport(function() {
+                built.forEach(function(entry) {
+                    if (!entry.card) {
+                        return;
+                    }
+                    if (entry.replaces) {
+                        flow.replaceChild(entry.card, entry.replaces);
+                    } else {
+                        flow.insertBefore(entry.card, anchor);
+                    }
+                    settleFeedCard(entry);
                 });
-                return notePracticeHistory(result.items);
             });
+            return notePracticeHistory(page.items);
+        }).then(function() {
+            settle();
+            return null;
         }).catch(function(ex) {
+            settle();
             state.feedHasMore = false;
             Notification.exception(ex);
-        }).then(function() {
-            state.feedLoading = false;
-            if (older) {
-                older.classList.add('d-none');
-            }
-            return null;
         });
     }
 
@@ -733,8 +784,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         }
         var progress = state.progress;
         var build = state.mode === 'build';
-        var earned = progress ? (build ? progress.earnedunits : progress.earnedxp) : 0;
-        var total = progress ? (build ? progress.totalunits : progress.totalxp) : 0;
+        var earned = 0;
+        var total = 0;
+        if (progress) {
+            earned = build ? progress.earnedunits : progress.earnedxp;
+            total = build ? progress.totalunits : progress.totalxp;
+        }
         if (state.mode === 'ask' || !(total > 0)) {
             badge.classList.add('d-none');
             return;
@@ -938,7 +993,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         player.querySelector('[data-region="audio-play"]').classList.toggle('d-none',
             stateName === 'idle' || stateName === 'playing');
         player.querySelector('[data-region="audio-pause"]').classList.toggle('d-none', stateName !== 'playing');
-        var key = stateName === 'playing' ? 'learn_audio_pause' : (stateName === 'idle' ? 'learn_audio' : 'learn_audio_play');
+        var key = 'learn_audio_play';
+        if (stateName === 'playing') {
+            key = 'learn_audio_pause';
+        } else if (stateName === 'idle') {
+            key = 'learn_audio';
+        }
         var toggle = player.querySelector(SELECTORS.AUDIO_TOGGLE);
         Str.get_string(key, 'mod_tarsus').then(function(text) {
             toggle.setAttribute('title', text);
@@ -987,6 +1047,18 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
+     * Start playback without failing when the browser refuses autoplay.
+     *
+     * @param {HTMLAudioElement} audio The player
+     * @return {Promise} Resolves either way
+     */
+    function playQuietly(audio) {
+        return audio.play().catch(function() {
+            return null;
+        });
+    }
+
+    /**
      * Have the brain read a learning unit aloud, then offer playback.
      *
      * The narration is fetched once per card and kept in the page; later
@@ -1022,9 +1094,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             // The click is seconds old by now, so browsers may refuse to
             // start playback on their own (NotAllowedError): then the
             // player simply waits for the play button — no error.
-            return audio.play().catch(function() {
-                return null;
-            });
+            return playQuietly(audio);
         }).catch(function(ex) {
             setAudioState(card, 'idle');
             Notification.exception(ex);
@@ -1151,6 +1221,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             setNextBusy(false);
         };
 
+        var loaded = false;
         Ajax.call([{
             methodname: 'mod_tarsus_get_learn_widget',
             args: {cmid: state.cmid}
@@ -1167,21 +1238,21 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             if (result.complete) {
                 state.learnComplete = true;
             }
-            var firstcard = null;
-            return result.items.reduce(function(previous, item) {
-                return learnCards(item).reduce(function(chain, card) {
-                    return chain.then(function() {
-                        return attachCard(card.template, card.context, null, true).then(function(element) {
-                            firstcard = firstcard || element;
-                            return element;
-                        });
-                    });
-                }, previous);
-            }, Promise.resolve()).then(function() {
-                scrollToCard(firstcard);
-                state.learnStarted = true;
-                return updateNextLabel();
+            loaded = true;
+            var cards = [];
+            result.items.forEach(function(item) {
+                cards = cards.concat(learnCards(item));
             });
+            return attachInOrder(cards, function(card) {
+                return attachCard(card.template, card.context, null, true);
+            });
+        }).then(function(firstcard) {
+            if (!loaded) {
+                return null;
+            }
+            scrollToCard(firstcard);
+            state.learnStarted = true;
+            return updateNextLabel();
         }).catch(function(ex) {
             unlock();
             Notification.exception(ex);
@@ -1246,6 +1317,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             setNextBusy(false);
         };
 
+        var loaded = false;
         Ajax.call([{
             methodname: 'mod_tarsus_get_practice_widget',
             args: {cmid: state.cmid}
@@ -1263,19 +1335,15 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             updateXp(result.progress);
 
             // As many cards as the brain generated for this step.
-            var firstcard = null;
-            return result.widgets.reduce(function(previous, widget) {
-                return previous.then(function() {
-                    return attachPracticeCard(widget).then(function(element) {
-                        firstcard = firstcard || element;
-                        return element;
-                    });
-                });
-            }, Promise.resolve()).then(function() {
-                scrollToCard(firstcard);
-                state.practiceStarted = true;
-                return updateNextLabel();
-            });
+            loaded = true;
+            return attachInOrder(result.widgets, attachPracticeCard);
+        }).then(function(firstcard) {
+            if (!loaded) {
+                return null;
+            }
+            scrollToCard(firstcard);
+            state.practiceStarted = true;
+            return updateNextLabel();
         }).catch(function(ex) {
             unlock();
             Notification.exception(ex);
@@ -1316,7 +1384,12 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 ['rate', 'amount'].forEach(function(cell) {
                     var input = row.querySelector('input[data-cell="' + cell + '"]');
                     var given = row.querySelector('span[data-cell="' + cell + '"]');
-                    var value = input ? input.value.trim() : (given ? given.textContent : '');
+                    var value = '';
+                    if (input) {
+                        value = input.value.trim();
+                    } else if (given) {
+                        value = given.textContent;
+                    }
                     if (input && value === '') {
                         complete = false;
                     }
@@ -1701,6 +1774,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         // The processing bar runs at the end of the feed while the brain
         // answers; the finished exchange card then takes its place.
         processing = startProcessing('ask', false);
+        var answered = null;
         Ajax.call([{
             methodname: 'mod_tarsus_send_chat_message',
             args: {cmid: state.cmid, query: query, replytowidget: reply ? reply.id : ''}
@@ -1718,31 +1792,33 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
 
             // Informational cards (e.g. the welcome) come first, in the
             // order Tarsus sent them, then the exchange.
-            return (result.messages || []).reduce(function(previous, message) {
-                return previous.then(function() {
-                    return attachWelcome(message, null);
-                });
-            }, Promise.resolve()).then(function() {
-                // Every answer card the brain sent, in its order: text
-                // answers and, with the agent-driven interaction type, the
-                // interactive web cards — one call may carry several.
-                var items = (result.items || []).length ? result.items : [{kind: 'answer', html: result.answer}];
-                return items.reduce(function(previous, item) {
-                    return previous.then(function() {
-                        if (item.kind === 'web') {
-                            return attachCard('mod_tarsus/web_card', webCardContext({
-                                id: item.id, origin: 'ask', query: query, code: item.html
-                            }), null);
-                        }
-                        return attachExchange(query, item.html, false, reply ? reply.title : '');
-                    });
-                }, Promise.resolve());
-            }).then(function() {
+            answered = result;
+            return attachInOrder(result.messages || [], function(message) {
+                return attachWelcome(message, null);
+            });
+        }).then(function() {
+            if (!answered) {
+                return null;
+            }
+            // Every answer card the brain sent, in its order: text
+            // answers and, with the agent-driven interaction type, the
+            // interactive web cards — one call may carry several.
+            var items = (answered.items || []).length ? answered.items : [{kind: 'answer', html: answered.answer}];
+            return attachInOrder(items, function(item) {
+                if (item.kind === 'web') {
+                    return attachCard('mod_tarsus/web_card', webCardContext({
+                        id: item.id, origin: 'ask', query: query, code: item.html
+                    }), null);
+                }
+                return attachExchange(query, item.html, false, reply ? reply.title : '');
+            });
+        }).then(function() {
+            if (answered) {
                 // The reference is for one question.
                 setReply(null);
                 scrollToEnd();
-                return null;
-            });
+            }
+            return null;
         }).catch(function(ex) {
             unlock();
             input.value = query;

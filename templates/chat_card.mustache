@@ -29,6 +29,16 @@
     * robotavatarurl - string, the assistant's avatar URL.
     * robotname - string, the assistant's display name.
     * reply - string, optional: the title of the slide the question is about ("Ask about this").
+    Example context (json):
+    {
+        "question": "What is a transformer?",
+        "answer": "<p>A transformer is a neural network built on attention.</p>",
+        "pending": false,
+        "useravatarurl": "https://example.org/user/pix.php/2/f1.jpg",
+        "robotavatarurl": "https://example.org/pluginfile.php/1/local_tarsus/robot_avatar/0/robot.png",
+        "robotname": "Tarsus",
+        "reply": ""
+    }
 }}
 <div class="tarsus-card" data-region="tarsus-chat-card">
     <div class="tarsus-card__inner">

@@ -24,6 +24,25 @@
     * title - string, the programme title.
     * message - string, rendered introduction HTML (server-cleaned).
     * objectives - array of {number, objective, taxonomy, done}.
+    Example context (json):
+    {
+        "title": "Transformer models",
+        "message": "<p>Three objectives for this unit.</p>",
+        "objectives": [
+            {
+                "number": 1,
+                "objective": "Name the parts of a transformer.",
+                "taxonomy": "Remember",
+                "done": true
+            },
+            {
+                "number": 2,
+                "objective": "Explain self-attention.",
+                "taxonomy": "Understand",
+                "done": false
+            }
+        ]
+    }
 }}
 <div class="tarsus-card tarsus-card--welcome tarsus-learn-card--objectives" data-region="learn-objectives">
     <div class="tarsus-card__inner">

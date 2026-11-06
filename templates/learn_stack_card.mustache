@@ -28,6 +28,80 @@
       imageposition, question (practice_card context, question slides only; its difficulty shows on the
       band after the ring while the slide is on)}; the slide's taxonomy
       level shows as the card badge (text only), falling back to the mode name.
+    Example context (json):
+    {
+        "stackid": "stack-1",
+        "askenabled": true,
+        "total": 2,
+        "ringoffset": "28.27",
+        "slides": [
+            {
+                "id": "slide-1",
+                "index": 0,
+                "number": 1,
+                "first": true,
+                "isquestion": false,
+                "taxonomy": "Understand",
+                "taxonomyicon": "",
+                "title": "Self-attention",
+                "text": "<p>Every token looks at every other token.</p>",
+                "image": "https://example.org/pluginfile.php/1/local_tarsus/slide/0/attention.png",
+                "imageposition": "right"
+            },
+            {
+                "id": "slide-q",
+                "index": 1,
+                "number": 2,
+                "first": false,
+                "isquestion": true,
+                "taxonomy": "",
+                "taxonomyicon": "",
+                "title": "",
+                "text": "",
+                "image": "",
+                "imageposition": "right",
+                "question": {
+                    "widgetid": "q-2",
+                    "widgettype": "singleChoiceQuestionWidget",
+                    "question": "<p>Which part of a transformer weighs the tokens against each other?</p>",
+                    "haschoices": true,
+                    "choices": [
+                        {
+                            "value": "Attention",
+                            "label": "Attention"
+                        },
+                        {
+                            "value": "Pooling",
+                            "label": "Pooling"
+                        }
+                    ],
+                    "hasvariables": false,
+                    "variables": [],
+                    "hastable": false,
+                    "table": [],
+                    "columnsjson": "[]",
+                    "taxonomy": "Understand",
+                    "difficulty": "Easy",
+                    "bars": [
+                        {
+                            "filled": true
+                        },
+                        {
+                            "filled": false
+                        },
+                        {
+                            "filled": false
+                        }
+                    ],
+                    "difficultyclass": "tarsus-practice-card__bars--grade-1",
+                    "hasbars": true,
+                    "state": "learn",
+                    "learn": true,
+                    "askenabled": true
+                }
+            }
+        ]
+    }
 }}
 <div class="tarsus-card tarsus-learn-card" data-region="learn-card" data-stack-id="{{stackid}}" data-total="{{total}}">
     <div class="tarsus-card__band tarsus-learn-card__meta">

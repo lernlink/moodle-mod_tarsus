@@ -162,7 +162,7 @@
 
 .tarsus-chat-box .tarsus-chat-form {
     position: sticky;
-    bottom: var(--sticky-footer-total-height, 0px);
+    bottom: var(--sticky-footer-total-height, 0);
     /* Below Boost's sticky footer (z-index 3): on the way out of the
        viewport the composer slides under the Previous/Next bar, not over it. */
     z-index: 2;
@@ -1094,7 +1094,7 @@
 }
 
 .tarsus-lightbox__image {
-    max-width: min(92vw, 1400px);
+    max-width: 92vw;
     max-height: 90vh;
     width: auto;
     height: auto;
@@ -1289,4 +1289,11 @@
 
 .tarsus-chat-box .tarsus-web-card--learn .tarsus-learn-card__inner {
     padding-bottom: 1rem;
+}
+
+@media (min-width: 1522px) {
+    .tarsus-chat-box .tarsus-lightbox__image,
+    .tarsus-lightbox .tarsus-lightbox__image {
+        max-width: 1400px;
+    }
 }

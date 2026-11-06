@@ -36,6 +36,19 @@
     * useravatarurl - string, the learner's profile picture URL.
     * robotavatarurl - string, the assistant's avatar URL.
     * robotname - string, the assistant's display name.
+    Example context (json):
+    {
+        "widgetid": "web-1",
+        "learn": false,
+        "question": "Show me the steps.",
+        "title": "",
+        "taxonomy": "",
+        "code": "<!DOCTYPE html><html><body><p>Interactive card</p></body></html>",
+        "askenabled": true,
+        "useravatarurl": "https://example.org/user/pix.php/2/f1.jpg",
+        "robotavatarurl": "https://example.org/pluginfile.php/1/local_tarsus/robot_avatar/0/robot.png",
+        "robotname": "Tarsus"
+    }
 }}
 <div class="tarsus-card tarsus-web-card{{#learn}} tarsus-learn-card tarsus-web-card--learn{{/learn}}" data-region="web-card"
      data-widget-id="{{widgetid}}" data-title="{{title}}" data-question="{{question}}">

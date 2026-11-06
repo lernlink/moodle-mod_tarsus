@@ -27,6 +27,18 @@
     * robotname - string, the assistant's display name.
     * askenabled, testenabled, buildenabled - bool, which modes the teacher switched on.
     * modes - string, the enabled modes in switcher order (CSV); the first opens by default.
+    Example context (json):
+    {
+        "cmid": 12,
+        "containerid": "tarsus-chat-12",
+        "useravatarurl": "https://example.org/user/pix.php/2/f1.jpg",
+        "robotavatarurl": "https://example.org/pluginfile.php/1/local_tarsus/robot_avatar/0/robot.png",
+        "robotname": "Tarsus",
+        "askenabled": true,
+        "testenabled": true,
+        "buildenabled": true,
+        "modes": "build,test,ask"
+    }
 }}
 <div class="tarsus-chat-box flex-grow-1" id="{{containerid}}"
      data-user-avatar="{{useravatarurl}}"

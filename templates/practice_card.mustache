@@ -39,6 +39,46 @@
       units), 'practice' otherwise.
     * learn - bool, optional: frame the card like a learning unit.
     * askenabled - bool, whether the chat mode is on (shows "Ask about this").
+    Example context (json):
+    {
+        "widgetid": "q-1",
+        "widgettype": "singleChoiceQuestionWidget",
+        "question": "<p>Which part of a transformer weighs the tokens against each other?</p>",
+        "haschoices": true,
+        "choices": [
+            {
+                "value": "Attention",
+                "label": "Attention"
+            },
+            {
+                "value": "Pooling",
+                "label": "Pooling"
+            }
+        ],
+        "hasvariables": false,
+        "variables": [],
+        "hastable": false,
+        "table": [],
+        "columnsjson": "[]",
+        "taxonomy": "Understand",
+        "difficulty": "Easy",
+        "bars": [
+            {
+                "filled": true
+            },
+            {
+                "filled": false
+            },
+            {
+                "filled": false
+            }
+        ],
+        "difficultyclass": "tarsus-practice-card__bars--grade-1",
+        "hasbars": true,
+        "state": "practice",
+        "learn": false,
+        "askenabled": true
+    }
 }}
 <div class="tarsus-card tarsus-practice-card{{#learn}} tarsus-practice-card--learn{{/learn}}" data-region="practice-card"
      data-state="{{#state}}{{state}}{{/state}}{{^state}}practice{{/state}}"

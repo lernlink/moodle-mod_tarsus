@@ -298,13 +298,10 @@ const handleClick = (root, event) => {
             getString('confirmremove_title', 'mod_tarsus'),
             getString('confirmremove_body', 'mod_tarsus'),
             getString('action_remove', 'mod_tarsus'),
-        ]).then(([title, body, yes]) => {
-            Notification.saveCancelPromise(title, body, yes).then(() => {
-                sendAction(row, resourceid, action);
-                return null;
-            }).catch(() => null);
+        ]).then(([title, body, yes]) => Notification.saveCancelPromise(title, body, yes)).then(() => {
+            sendAction(row, resourceid, action);
             return null;
-        }).catch(Notification.exception);
+        }).catch(() => null); // Cancelled: nothing to do.
         return;
     }
 

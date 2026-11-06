@@ -24,6 +24,11 @@
     Context variables required for this template:
     * title - string, the brain's title; empty falls back to the plugin's own.
     * text - string, server-cleaned HTML of the message (output unescaped).
+    Example context (json):
+    {
+        "title": "Well done",
+        "text": "<p>You have reached every learning objective.</p>"
+    }
 }}
 <div class="tarsus-card tarsus-card--welcome tarsus-learn-card--complete" data-region="learn-complete">
     <div class="tarsus-card__inner text-center">
