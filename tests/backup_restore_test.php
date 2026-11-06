@@ -65,7 +65,13 @@ final class backup_restore_test extends \advanced_testcase {
         $this->setAdminUser();
         $data = $this->setup_course();
 
-        $newcm = duplicate_module($data['course'], get_fast_modinfo($data['course'])->get_cm($data['tz']->cmid));
+        // Moodle 5.2 moved module duplication to the format actions; older
+        // supported versions still use the global function.
+        if (class_exists(\core_courseformat\local\cmactions::class)) {
+            $newcm = (new \core_courseformat\local\cmactions($data['course']))->duplicate($data['tz']->cmid);
+        } else {
+            $newcm = duplicate_module($data['course'], get_fast_modinfo($data['course'])->get_cm($data['tz']->cmid));
+        }
         $copy = $DB->get_record('tarsus', ['id' => $newcm->instance], '*', MUST_EXIST);
 
         $this->assertNotEquals($data['tz']->id, $copy->id);
@@ -146,7 +152,11 @@ final class backup_restore_test extends \advanced_testcase {
         set_config('coursebinenable', 1, 'tool_recyclebin');
         $data = $this->setup_course();
 
-        course_delete_module($data['tz']->cmid);
+        if (class_exists(\core_courseformat\local\cmactions::class)) {
+            (new \core_courseformat\local\cmactions($data['course']))->delete($data['tz']->cmid);
+        } else {
+            course_delete_module($data['tz']->cmid);
+        }
 
         $this->assertFalse($DB->record_exists('tarsus', ['id' => $data['tz']->id]));
         $this->assertFalse($DB->record_exists('tarsus_inclusions', ['tarsusid' => $data['tz']->id]));

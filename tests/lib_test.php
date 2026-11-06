@@ -65,9 +65,13 @@ final class lib_test extends \advanced_testcase {
         $this->assertTrue(tarsus_update_instance($data));
         $this->assertSame('Renamed', $DB->get_field('tarsus', 'name', ['id' => $id]));
 
-        $this->assertTrue(tarsus_delete_instance($id));
-        $this->assertFalse($DB->record_exists('tarsus', ['id' => $id]));
-        $this->assertFalse(tarsus_delete_instance($id));
+        // Deletion removes the grade item too, which needs the course module
+        // the generator creates around the instance.
+        $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
+        $this->assertTrue(tarsus_delete_instance($tz->id));
+        $this->assertFalse($DB->record_exists('tarsus', ['id' => $tz->id]));
+        $this->assertFalse(tarsus_delete_instance($tz->id));
+        $this->assertTrue($DB->record_exists('tarsus', ['id' => $id]));
     }
 
     /**
