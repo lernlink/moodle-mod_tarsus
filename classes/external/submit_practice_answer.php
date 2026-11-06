@@ -99,6 +99,7 @@ class submit_practice_answer extends external_api {
      * @param array  $answers    Per-variable answers (rule of three).
      * @param array  $table      The filled costing table (spreadsheet calculation).
      * @param array  $columns    The costing table's column names as the question came with them.
+     * @param string $state      'practice' (Test knowledge) or 'learn' (the check question of a learning unit).
      * @return array Status, verdict, feedback, choices and progress.
      * @throws moodle_exception
      */

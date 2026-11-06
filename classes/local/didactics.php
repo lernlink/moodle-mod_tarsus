@@ -233,7 +233,7 @@ final class didactics {
     /**
      * Encode the question types map for storage.
      *
-     * @param array<int, string[]> $map Grade => question widget types.
+     * @param array $map Grade => list of question widget types.
      * @return string JSON with string keys, e.g. {"1":["singleChoiceQuestionWidget"]}.
      */
     public static function encode_question_types(array $map): string {
