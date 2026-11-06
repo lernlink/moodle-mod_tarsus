@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
 
@@ -30,13 +30,12 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
  * and the recycle bin can back the activity up before deleting it.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \backup_tarsus_activity_task
  * @covers     \restore_tarsus_activity_task
  */
 final class backup_restore_test extends \advanced_testcase {
-
     /**
      * A course with a page and an activity that includes the page.
      *
@@ -75,8 +74,10 @@ final class backup_restore_test extends \advanced_testcase {
         $this->assertSame(1, (int) $copy->gifenabled);
         $this->assertSame(1, (int) $copy->anticheat);
         $this->assertEqualsWithDelta(0.5, (float) $copy->learntempo, 0.001);
-        $this->assertSame([$data['resourceid']],
-            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$copy->id])));
+        $this->assertSame(
+            [$data['resourceid']],
+            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$copy->id]))
+        );
     }
 
     /**
@@ -91,15 +92,27 @@ final class backup_restore_test extends \advanced_testcase {
 
         // MODE_IMPORT keeps the unpacked backup in the temp dir, where the
         // restore controller picks it up by id (as core's own tests do).
-        $bc = new \backup_controller(\backup::TYPE_1COURSE, $data['course']->id, \backup::FORMAT_MOODLE,
-            \backup::INTERACTIVE_NO, \backup::MODE_IMPORT, $USER->id);
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $data['course']->id,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_IMPORT,
+            $USER->id
+        );
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
 
         $newcourse = $this->getDataGenerator()->create_course();
-        $rc = new \restore_controller($backupid, $newcourse->id, \backup::INTERACTIVE_NO, \backup::MODE_GENERAL,
-            $USER->id, \backup::TARGET_NEW_COURSE);
+        $rc = new \restore_controller(
+            $backupid,
+            $newcourse->id,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL,
+            $USER->id,
+            \backup::TARGET_NEW_COURSE
+        );
         $this->assertTrue($rc->execute_precheck());
         $rc->execute_plan();
         $rc->destroy();
@@ -108,10 +121,14 @@ final class backup_restore_test extends \advanced_testcase {
         $this->assertSame('ihk', $restored->operators);
         $newpagecm = $DB->get_record_sql(
             "SELECT cm.id FROM {course_modules} cm JOIN {modules} m ON m.id = cm.module WHERE m.name = 'page' AND cm.course = ?",
-            [$newcourse->id], MUST_EXIST);
+            [$newcourse->id],
+            MUST_EXIST
+        );
         $expected = resource_id::build((int) $newcourse->id, 'mod_page', (int) $newpagecm->id);
-        $this->assertSame([$expected],
-            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$restored->id])));
+        $this->assertSame(
+            [$expected],
+            array_values($DB->get_fieldset_select('tarsus_inclusions', 'resourceid', 'tarsusid = ?', [$restored->id]))
+        );
     }
 
     /**

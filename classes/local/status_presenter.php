@@ -8,17 +8,15 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\local;
 
 use local_tarsus\index\status;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Maps an index status to its presentational shape (badge + available actions).
@@ -27,11 +25,10 @@ defined('MOODLE_INTERNAL') || die();
  * AJAX external functions so the template and the live updates never drift.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class status_presenter {
-
     /**
      * @var int Seconds after which a resource still awaiting the brain's
      *          confirmation counts as stuck and may be removed by the teacher.
@@ -68,7 +65,7 @@ class status_presenter {
      * @return bool
      */
     public static function is_inflight(string $status): bool {
-        // pendingreindex is not in flight: with no background queue it is a
+        // The pendingreindex state is not in flight: with no background queue it is a
         // stable "content changed" state that waits for the teacher to act.
         return in_array($status, [
             status::PENDING,

@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
@@ -27,11 +25,10 @@ use local_tarsus\client\client_interface;
  * Display labels and shared structures for the practice external functions.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class practice_labels {
-
     /**
      * Localise a taxonomy level as reported by the brain (e.g. 'WISSEN').
      *
@@ -177,7 +174,7 @@ final class practice_labels {
         foreach (($item['choices'] ?? []) as $choice) {
             $choices[] = [
                 'value' => (string) $choice,
-                'label' => practice_labels::choice((string) $choice, (string) $item['type']),
+                'label' => self::choice((string) $choice, (string) $item['type']),
             ];
         }
         return [
@@ -186,8 +183,8 @@ final class practice_labels {
             'type' => (string) $item['type'],
             'question' => $render((string) $item['question']),
             'choices' => $choices,
-            'taxonomy' => practice_labels::taxonomy((string) ($item['taxonomylevel'] ?? '')),
-            'difficulty' => practice_labels::difficulty((int) ($item['difficultylevel'] ?? 0)),
+            'taxonomy' => self::taxonomy((string) ($item['taxonomylevel'] ?? '')),
+            'difficulty' => self::difficulty((int) ($item['difficultylevel'] ?? 0)),
             'difficultylevel' => (int) ($item['difficultylevel'] ?? 0),
             'variables' => array_values(array_map('strval', $item['variables'] ?? [])),
             'answered' => !empty($item['answered']),
@@ -195,12 +192,12 @@ final class practice_labels {
             'score' => ($item['score'] ?? null) === null ? -1 : (float) $item['score'],
             'feedback' => $render((string) ($item['feedback'] ?? '')),
             'useranswer' => (string) ($item['useranswer'] ?? ''),
-            'useranswers' => practice_labels::answers($item['useranswers'] ?? [], $render),
-            'answers' => practice_labels::answers($item['answers'] ?? [], $render),
-            'table' => practice_labels::table($item['table'] ?? []),
+            'useranswers' => self::answers($item['useranswers'] ?? [], $render),
+            'answers' => self::answers($item['answers'] ?? [], $render),
+            'table' => self::table($item['table'] ?? []),
             'columns' => array_values(array_map('strval', $item['columns'] ?? [])),
-            'usertable' => practice_labels::table($item['usertable'] ?? []),
-            'answertable' => practice_labels::table($item['answertable'] ?? []),
+            'usertable' => self::table($item['usertable'] ?? []),
+            'answertable' => self::table($item['answertable'] ?? []),
         ];
     }
 
@@ -223,37 +220,61 @@ final class practice_labels {
                 'Answer choices; empty for open questions (practice).',
                 VALUE_OPTIONAL
             ),
-            'taxonomy' => new external_value(PARAM_RAW, 'Display label of the taxonomy level (practice).',
-                VALUE_OPTIONAL),
-            'difficulty' => new external_value(PARAM_RAW, 'Display label of the difficulty grade (practice).',
-                VALUE_OPTIONAL),
-            'difficultylevel' => new external_value(PARAM_INT, 'The difficulty grade (1..3; 0 unknown).',
-                VALUE_OPTIONAL),
-            'answered' => new external_value(PARAM_BOOL, 'Whether the question has been answered (practice).',
-                VALUE_OPTIONAL),
-            'correct' => new external_value(PARAM_BOOL, 'Whether the answer was judged correct (practice).',
-                VALUE_OPTIONAL),
-            'score' => new external_value(PARAM_FLOAT, 'The brain\'s score 0-100 (practice, answered); -1 when unknown.',
-                VALUE_OPTIONAL),
-            'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML (practice, answered).',
-                VALUE_OPTIONAL),
-            'useranswer' => new external_value(PARAM_RAW, 'The learner\'s answer (practice, answered).',
-                VALUE_OPTIONAL),
+            'taxonomy' => new external_value(
+                PARAM_RAW,
+                'Display label of the taxonomy level (practice).',
+                VALUE_OPTIONAL
+            ),
+            'difficulty' => new external_value(
+                PARAM_RAW,
+                'Display label of the difficulty grade (practice).',
+                VALUE_OPTIONAL
+            ),
+            'difficultylevel' => new external_value(
+                PARAM_INT,
+                'The difficulty grade (1..3; 0 unknown).',
+                VALUE_OPTIONAL
+            ),
+            'answered' => new external_value(
+                PARAM_BOOL,
+                'Whether the question has been answered (practice).',
+                VALUE_OPTIONAL
+            ),
+            'correct' => new external_value(
+                PARAM_BOOL,
+                'Whether the answer was judged correct (practice).',
+                VALUE_OPTIONAL
+            ),
+            'score' => new external_value(
+                PARAM_FLOAT,
+                'The brain\'s score 0-100 (practice, answered); -1 when unknown.',
+                VALUE_OPTIONAL
+            ),
+            'feedback' => new external_value(
+                PARAM_RAW,
+                'Rendered feedback HTML (practice, answered).',
+                VALUE_OPTIONAL
+            ),
+            'useranswer' => new external_value(
+                PARAM_RAW,
+                'The learner\'s answer (practice, answered).',
+                VALUE_OPTIONAL
+            ),
             'variables' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'An asked quantity.'),
                 'Quantities a rule-of-three question asks for (practice).',
                 VALUE_OPTIONAL
             ),
-            'useranswers' => practice_labels::answers_structure('The learner\'s per-variable answers (practice, answered).'),
-            'answers' => practice_labels::answers_structure('The model per-variable answers (practice, answered).'),
-            'table' => practice_labels::table_structure('The costing table of a spreadsheet calculation (practice).'),
+            'useranswers' => self::answers_structure('The learner\'s per-variable answers (practice, answered).'),
+            'answers' => self::answers_structure('The model per-variable answers (practice, answered).'),
+            'table' => self::table_structure('The costing table of a spreadsheet calculation (practice).'),
             'columns' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'A column name.'),
                 'The three column names the costing table came with (practice).',
                 VALUE_OPTIONAL
             ),
-            'usertable' => practice_labels::table_structure('The learner\'s costing rows (practice, answered).'),
-            'answertable' => practice_labels::table_structure('The model costing rows with verdicts (practice, answered).'),
+            'usertable' => self::table_structure('The learner\'s costing rows (practice, answered).'),
+            'answertable' => self::table_structure('The model costing rows with verdicts (practice, answered).'),
         ];
     }
 
@@ -358,10 +379,16 @@ final class practice_labels {
     public static function web_structure(): array {
         return [
             'origin' => new external_value(PARAM_ALPHA, 'ask (a chat answer) or learn (a learning step) (web).', VALUE_OPTIONAL),
-            'taxonomyicon' => new external_value(PARAM_ALPHANUMEXT, 'Pix identifier of the level\'s icon, may be empty (web).',
-                VALUE_OPTIONAL),
-            'code' => new external_value(PARAM_RAW, 'The brain\'s HTML document, shown in an isolated frame (web).',
-                VALUE_OPTIONAL),
+            'taxonomyicon' => new external_value(
+                PARAM_ALPHANUMEXT,
+                'Pix identifier of the level\'s icon, may be empty (web).',
+                VALUE_OPTIONAL
+            ),
+            'code' => new external_value(
+                PARAM_RAW,
+                'The brain\'s HTML document, shown in an isolated frame (web).',
+                VALUE_OPTIONAL
+            ),
         ];
     }
 
@@ -400,7 +427,10 @@ final class practice_labels {
                 'image' => new external_value(PARAM_RAW, 'Illustration as an image data URI, may be empty.'),
                 'imageposition' => new external_value(PARAM_ALPHA, 'left or right.'),
                 'question' => new external_single_structure(
-                    self::practice_structure(), 'The check question (question slides).', VALUE_OPTIONAL),
+                    self::practice_structure(),
+                    'The check question (question slides).',
+                    VALUE_OPTIONAL
+                ),
             ]),
             'The slides of a learning unit.',
             VALUE_OPTIONAL

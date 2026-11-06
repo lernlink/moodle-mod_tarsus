@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Upgrade steps for mod_tarsus.
@@ -24,11 +24,9 @@
  * upgrade_mod_savepoint().
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Upgrade mod_tarsus.
@@ -45,8 +43,16 @@ function xmldb_tarsus_upgrade(int $oldversion): bool {
         // The interaction type: trainer-driven keeps the text cards,
         // ai-driven lets the brain send interactive web cards.
         $table = new xmldb_table('tarsus');
-        $field = new xmldb_field('interactiontype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null,
-            'trainer-driven', 'learningmethod');
+        $field = new xmldb_field(
+            'interactiontype',
+            XMLDB_TYPE_CHAR,
+            '20',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'trainer-driven',
+            'learningmethod'
+        );
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

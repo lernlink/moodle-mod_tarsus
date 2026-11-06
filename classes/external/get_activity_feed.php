@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,11 +40,10 @@ use moodle_exception;
  * order, with the experience figures alongside. Nothing is stored locally.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_activity_feed extends external_api {
-
     /** @var int How many widgets one call reads back (the page size Tarsus recommends). */
     public const PAGE_SIZE = 10;
 
@@ -58,8 +55,12 @@ class get_activity_feed extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
-            'offset' => new external_value(PARAM_INT,
-                'How many widgets to skip, counted from the newest: 0 for the newest page.', VALUE_DEFAULT, 0),
+            'offset' => new external_value(
+                PARAM_INT,
+                'How many widgets to skip, counted from the newest: 0 for the newest page.',
+                VALUE_DEFAULT,
+                0
+            ),
         ]);
     }
 
@@ -102,7 +103,7 @@ class get_activity_feed extends external_api {
         ];
 
         try {
-            $response = $pipeline->execute(function() use ($client, $callparams) {
+            $response = $pipeline->execute(function () use ($client, $callparams) {
                 return $client->retrieve_feed($callparams);
             });
 
@@ -147,7 +148,6 @@ class get_activity_feed extends external_api {
                 'hasmore' => (int) ($response['rawcount'] ?? 0) >= self::PAGE_SIZE,
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ];
-
         } catch (blocked_exception $e) {
             return [
                 'status' => 'blocked',
@@ -176,8 +176,10 @@ class get_activity_feed extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA,
-                        'Item kind: message, exchange, practice, objectives, stack, motivation, complete or web.'),
+                    'kind' => new external_value(
+                        PARAM_ALPHA,
+                        'Item kind: message, exchange, practice, objectives, stack, motivation, complete or web.'
+                    ),
                     'title' => new external_value(PARAM_TEXT, 'Title (objectives, web).', VALUE_OPTIONAL),
                     'message' => new external_value(PARAM_RAW, 'Rendered message HTML (objectives).', VALUE_OPTIONAL),
                     'objectives' => practice_labels::objectives_structure(),

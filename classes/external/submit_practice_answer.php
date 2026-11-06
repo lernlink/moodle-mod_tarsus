@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,11 +40,10 @@ use moodle_exception;
  * the clarifications and the updated experience figures.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submit_practice_answer extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -83,8 +80,12 @@ class submit_practice_answer extends external_api {
                 VALUE_DEFAULT,
                 []
             ),
-            'state' => new external_value(PARAM_ALPHA,
-                'practice (Test knowledge) or learn (the check question of a learning unit).', VALUE_DEFAULT, 'practice'),
+            'state' => new external_value(
+                PARAM_ALPHA,
+                'practice (Test knowledge) or learn (the check question of a learning unit).',
+                VALUE_DEFAULT,
+                'practice'
+            ),
         ]);
     }
 
@@ -101,8 +102,16 @@ class submit_practice_answer extends external_api {
      * @return array Status, verdict, feedback, choices and progress.
      * @throws moodle_exception
      */
-    public static function execute(int $cmid, string $widgetid, string $widgettype, string $answer,
-            array $answers = [], array $table = [], array $columns = [], string $state = 'practice'): array {
+    public static function execute(
+        int $cmid,
+        string $widgetid,
+        string $widgettype,
+        string $answer,
+        array $answers = [],
+        array $table = [],
+        array $columns = [],
+        string $state = 'practice'
+    ): array {
         global $DB, $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -193,15 +202,18 @@ class submit_practice_answer extends external_api {
         ];
 
         try {
-            $response = $pipeline->execute(function() use ($client, $callparams) {
+            $response = $pipeline->execute(function () use ($client, $callparams) {
                 return $client->evaluate_practice_answer($callparams);
             }, 6);
 
             scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
-                (int) $coursecontext->id, (int) $USER->id,
-                $params['state'] === 'learn' ? 'learn_check' : 'practice_eval', (int) ($response['credits'] ?? 6));
+                (int) $coursecontext->id,
+                (int) $USER->id,
+                $params['state'] === 'learn' ? 'learn_check' : 'practice_eval',
+                (int) ($response['credits'] ?? 6)
+            );
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
 
@@ -227,7 +239,6 @@ class submit_practice_answer extends external_api {
                 'answertable' => practice_labels::table($response['answertable'] ?? []),
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
-
         } catch (blocked_exception $e) {
             return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {
@@ -258,8 +269,11 @@ class submit_practice_answer extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'hasverdict' => new external_value(PARAM_BOOL, 'Whether the brain judged the answer.', VALUE_OPTIONAL),
             'correct' => new external_value(PARAM_BOOL, 'Whether the answer was correct.', VALUE_OPTIONAL),
-            'score' => new external_value(PARAM_FLOAT, 'The brain\'s score 0-100 (partial credit as a fraction); -1 when unknown.',
-                VALUE_OPTIONAL),
+            'score' => new external_value(
+                PARAM_FLOAT,
+                'The brain\'s score 0-100 (partial credit as a fraction); -1 when unknown.',
+                VALUE_OPTIONAL
+            ),
             'feedback' => new external_value(PARAM_RAW, 'Rendered feedback HTML.', VALUE_OPTIONAL),
             'answer' => new external_value(PARAM_RAW, 'Rendered model answer HTML, may be empty.', VALUE_OPTIONAL),
             'choices' => new external_multiple_structure(

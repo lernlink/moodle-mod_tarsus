@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Erase the current user's conversation with the assistant, after confirming.
@@ -24,7 +24,7 @@
  * learning progress.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -66,15 +66,23 @@ if ($confirm) {
             pseudonymizer::pseudonymize((int) $USER->id)
         ));
     } catch (blocked_exception | transport_exception $e) {
-        redirect($viewurl, get_string('resetchat_failed', 'mod_tarsus'), null,
-            \core\output\notification::NOTIFY_ERROR);
+        redirect(
+            $viewurl,
+            get_string('resetchat_failed', 'mod_tarsus'),
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
 
     // The brain forgot everything, so the grade and the figures go too.
     \mod_tarsus\local\scoring::clear($moduleinstance, (int) $USER->id);
 
-    redirect($viewurl, get_string('resetchat_done', 'mod_tarsus'), null,
-        \core\output\notification::NOTIFY_SUCCESS);
+    redirect(
+        $viewurl,
+        get_string('resetchat_done', 'mod_tarsus'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
 echo $OUTPUT->header();

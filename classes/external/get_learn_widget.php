@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,11 +40,10 @@ use moodle_exception;
  * one micro-learning stack of slides per call.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_learn_widget extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -96,7 +93,7 @@ class get_learn_widget extends external_api {
         $callparams = conversation::params($cm, $allowed);
 
         try {
-            $response = $pipeline->execute(function() use ($client, $callparams) {
+            $response = $pipeline->execute(function () use ($client, $callparams) {
                 return $client->generate_learn_widget($callparams);
             }, 6);
 
@@ -108,7 +105,11 @@ class get_learn_widget extends external_api {
             scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
-                (int) $coursecontext->id, (int) $USER->id, 'learn_next', (int) ($response['credits'] ?? 6));
+                (int) $coursecontext->id,
+                (int) $USER->id,
+                'learn_next',
+                (int) ($response['credits'] ?? 6)
+            );
 
             $render = static fn(string $text): string => format_text($text, FORMAT_MARKDOWN, ['context' => $context]);
             // Only the brain's own farewell ends the course: learnProgress
@@ -121,7 +122,6 @@ class get_learn_widget extends external_api {
                 'progress' => practice_labels::progress($response['progress'] ?? []),
                 'complete' => $done,
             ]);
-
         } catch (blocked_exception $e) {
             return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {
@@ -152,8 +152,10 @@ class get_learn_widget extends external_api {
             'error' => new external_value(PARAM_RAW, 'Error message if failed or blocked.'),
             'items' => new external_multiple_structure(
                 new external_single_structure([
-                    'kind' => new external_value(PARAM_ALPHA,
-                        'Item kind: objectives, stack, motivation, complete, message or web.'),
+                    'kind' => new external_value(
+                        PARAM_ALPHA,
+                        'Item kind: objectives, stack, motivation, complete, message or web.'
+                    ),
                     'id' => new external_value(PARAM_RAW, 'The widget or stack id.'),
                     'text' => new external_value(PARAM_RAW, 'Rendered HTML (complete, message, web).', VALUE_OPTIONAL),
                     'title' => new external_value(PARAM_TEXT, 'Title (objectives, web).', VALUE_OPTIONAL),

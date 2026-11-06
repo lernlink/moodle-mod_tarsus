@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
-
-defined('MOODLE_INTERNAL') || die();
 
 use mod_tarsus\external\send_chat_message;
 use mod_tarsus\external\get_activity_feed;
@@ -29,11 +27,10 @@ use mod_tarsus\output\learner_chat;
  * @covers     \mod_tarsus\external\send_chat_message
  * @covers     \mod_tarsus\external\get_activity_feed
  * @covers     \mod_tarsus\output\learner_chat
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class chat_test extends \advanced_testcase {
-
     /**
      * Set up tests.
      */
@@ -148,8 +145,10 @@ final class chat_test extends \advanced_testcase {
         // a chat exchange and the practice questions in original order.
         $feed = get_activity_feed::execute((int) $tz->cmid);
         $this->assertEquals('success', $feed['status']);
-        $this->assertSame(['message', 'exchange', 'practice', 'practice', 'stack', 'motivation', 'complete'],
-            array_column($feed['items'], 'kind'));
+        $this->assertSame(
+            ['message', 'exchange', 'practice', 'practice', 'stack', 'motivation', 'complete'],
+            array_column($feed['items'], 'kind')
+        );
         $this->assertStringContainsString('<strong>step</strong>', $feed['items'][5]['text']);
         $this->assertStringContainsString('<strong>completed</strong>', $feed['items'][6]['text']);
         // A stored learning unit renders its slides.
@@ -174,8 +173,11 @@ final class chat_test extends \advanced_testcase {
         $this->make_included_page($course, $tz);
         $this->setUser($student);
 
-        $result = send_chat_message::execute((int) $tz->cmid, 'Explain this in simpler words.',
-            'f02dcbf7-282d-461b-925b-a71d6a20347d');
+        $result = send_chat_message::execute(
+            (int) $tz->cmid,
+            'Explain this in simpler words.',
+            'f02dcbf7-282d-461b-925b-a71d6a20347d'
+        );
         $this->assertEquals('success', $result['status']);
         $this->assertStringContainsString('[reply: f02dcbf7-282d-461b-925b-a71d6a20347d]', $result['answer']);
 

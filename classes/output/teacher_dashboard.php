@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\output;
 
@@ -26,11 +26,10 @@ use templatable;
  * The teacher reconciliation dashboard: per-activity brain status + index action.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_dashboard implements renderable, templatable {
-
     /** @var int Number of course materials shown per page. */
     private const PER_PAGE = 10;
 
@@ -43,9 +42,13 @@ class teacher_dashboard implements renderable, templatable {
      * @param int  $page      Zero-based page of the reconciliation list.
      */
     public function __construct(
+        /** @var int The course module id */
         private int $cmid,
+        /** @var int The course id */
         private int $courseid,
+        /** @var bool Whether the viewer may change the included material */
         private bool $canmanage,
+        /** @var int The current page of the material list */
         private int $page = 0
     ) {
     }
@@ -89,7 +92,7 @@ class teacher_dashboard implements renderable, templatable {
                     'type' => $bit['type'],
                     'url' => $activity['url'],
                     'hasurl' => !empty($activity['url']),
-                    // caninclude comes from the presenter; the stored choice
+                    // The caninclude flag comes from the presenter; the stored choice
                     // only counts while the resource is actually indexed.
                     'isincluded' => $controls['caninclude'] && isset($includedset[$bit['resourceid']]),
                 ];

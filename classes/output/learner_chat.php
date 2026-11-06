@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\output;
-
-defined('MOODLE_INTERNAL') || die();
 
 use local_tarsus\config;
 use mod_tarsus\local\didactics;
@@ -28,17 +26,19 @@ use renderer_base;
  * Renderable for the learner chat container.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class learner_chat implements renderable, templatable {
-
     /**
      * Constructor.
      *
      * @param int $cmid The course module id.
      */
-    public function __construct(protected int $cmid) {
+    public function __construct(
+        /** @var int The course module id */
+        protected int $cmid
+    ) {
     }
 
     /**
@@ -75,8 +75,10 @@ class learner_chat implements renderable, templatable {
         // the first enabled one opens by default.
         $cm = get_coursemodule_from_id('tarsus', $this->cmid, 0, false, MUST_EXIST);
         $activity = $DB->get_record('tarsus', ['id' => $cm->instance], '*', MUST_EXIST);
-        $modes = array_values(array_filter(didactics::MODES,
-            static fn(string $mode): bool => didactics::mode_enabled($activity, $mode)));
+        $modes = array_values(array_filter(
+            didactics::MODES,
+            static fn(string $mode): bool => didactics::mode_enabled($activity, $mode)
+        ));
 
         return [
             'cmid'          => $this->cmid,

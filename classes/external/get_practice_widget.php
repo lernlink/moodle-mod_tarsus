@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,11 +40,10 @@ use moodle_exception;
  * evaluation call, so this response carries the question alone.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_practice_widget extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -96,12 +93,14 @@ class get_practice_widget extends external_api {
         $callparams = conversation::params($cm, $allowed);
 
         try {
-            $response = $pipeline->execute(function() use ($client, $callparams) {
+            $response = $pipeline->execute(function () use ($client, $callparams) {
                 return $client->generate_practice_widget($callparams);
             }, 6);
 
-            $widgets = array_filter((array) ($response['widgets'] ?? []),
-                static fn($widget) => is_array($widget) && (string) ($widget['id'] ?? '') !== '');
+            $widgets = array_filter(
+                (array) ($response['widgets'] ?? []),
+                static fn($widget) => is_array($widget) && (string) ($widget['id'] ?? '') !== ''
+            );
             if ($widgets === []) {
                 // The brain sent no question this time; nothing to show.
                 return self::result('error', get_string('practice_nowidget', 'mod_tarsus'));
@@ -110,7 +109,11 @@ class get_practice_widget extends external_api {
             scoring::record($activity, (int) $USER->id, (array) ($response['progress'] ?? []));
 
             (new usage_meter())->record(
-                (int) $coursecontext->id, (int) $USER->id, 'practice_next', (int) ($response['credits'] ?? 6));
+                (int) $coursecontext->id,
+                (int) $USER->id,
+                'practice_next',
+                (int) ($response['credits'] ?? 6)
+            );
 
             $out = [];
             foreach ($widgets as $widget) {
@@ -139,7 +142,6 @@ class get_practice_widget extends external_api {
                 'widgets' => $out,
                 'progress' => practice_labels::progress($response['progress'] ?? []),
             ]);
-
         } catch (blocked_exception $e) {
             return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {
@@ -187,7 +189,9 @@ class get_practice_widget extends external_api {
                         new external_value(PARAM_RAW, 'An asked quantity.'),
                         'Quantities a rule-of-three question asks for; empty for other types.'
                     ),
-                    'table' => practice_labels::table_structure('The costing table of a spreadsheet calculation; empty for other types.'),
+                    'table' => practice_labels::table_structure(
+                        'The costing table of a spreadsheet calculation; empty for other types.'
+                    ),
                     'columns' => new external_multiple_structure(
                         new external_value(PARAM_RAW, 'A column name.'),
                         'The three column names the costing table came with, to send back with the answer.',

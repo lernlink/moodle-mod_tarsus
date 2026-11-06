@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -41,11 +39,10 @@ use moodle_exception;
  * in the brain; the history endpoint reads it back from there.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_chat_message extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -55,9 +52,12 @@ class send_chat_message extends external_api {
         return new external_function_parameters([
             'cmid'  => new external_value(PARAM_INT, 'The course module id of the tarsus activity.'),
             'query' => new external_value(PARAM_RAW, 'The query that is sent to the brain.'),
-            'replytowidget' => new external_value(PARAM_ALPHANUMEXT,
+            'replytowidget' => new external_value(
+                PARAM_ALPHANUMEXT,
                 'The id of the widget (e.g. a slide of a learning unit) the question is about; empty for none.',
-                VALUE_DEFAULT, ''),
+                VALUE_DEFAULT,
+                ''
+            ),
         ]);
     }
 
@@ -133,7 +133,7 @@ class send_chat_message extends external_api {
             // Outbound API request through the guardrail pipeline. The brain
             // keeps the dialogue memory per (context, user), so only the new
             // question travels.
-            $response = $pipeline->execute(function() use ($client, $chatparams) {
+            $response = $pipeline->execute(function () use ($client, $chatparams) {
                 return $client->generate_widgets($chatparams);
             }, $estimatedcredits);
 
@@ -143,8 +143,10 @@ class send_chat_message extends external_api {
             // Informational widgets (welcome and whatever Tarsus adds) are
             // relayed exactly as often as Tarsus sends them — when they
             // appear is its decision, not ours.
-            $messages = array_values(array_filter((array) ($response['messages'] ?? []),
-                static fn($message): bool => is_array($message) && trim((string) ($message['text'] ?? '')) !== ''));
+            $messages = array_values(array_filter(
+                (array) ($response['messages'] ?? []),
+                static fn($message): bool => is_array($message) && trim((string) ($message['text'] ?? '')) !== ''
+            ));
 
             // Record local context-level usage.
             $usage = new usage_meter();
@@ -167,7 +169,11 @@ class send_chat_message extends external_api {
                 if (($item['kind'] ?? '') === 'web' && trim((string) ($item['code'] ?? '')) !== '') {
                     $items[] = ['kind' => 'web', 'id' => (string) ($item['id'] ?? ''), 'html' => (string) $item['code']];
                 } else if (trim((string) ($item['text'] ?? '')) !== '') {
-                    $items[] = ['kind' => 'answer', 'id' => (string) ($item['id'] ?? ''), 'html' => $render((string) $item['text'])];
+                    $items[] = [
+                        'kind' => 'answer',
+                        'id' => (string) ($item['id'] ?? ''),
+                        'html' => $render((string) $item['text']),
+                    ];
                 }
             }
 
@@ -185,7 +191,6 @@ class send_chat_message extends external_api {
                 'sources'  => [],
                 'error'    => '',
             ];
-
         } catch (blocked_exception $e) {
             // Safe user-facing feedback for blocked guardrails.
             return [

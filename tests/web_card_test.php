@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use mod_tarsus\external\get_activity_feed;
@@ -33,11 +31,10 @@ use mod_tarsus\local\didactics;
  * @covers     \mod_tarsus\external\get_activity_feed
  * @covers     \mod_tarsus\external\practice_labels
  * @covers     \mod_tarsus\local\didactics
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class web_card_test extends \advanced_testcase {
-
     /**
      * Set up tests.
      */

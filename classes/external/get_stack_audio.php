@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -37,11 +35,10 @@ use moodle_exception;
  * External function that has the brain read a learning unit aloud.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_stack_audio extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -97,7 +94,7 @@ class get_stack_audio extends external_api {
         $callparams['voice'] = \local_tarsus\voices::choose((string) $callparams['userlanguage']);
 
         try {
-            $response = $pipeline->execute(function() use ($client, $callparams) {
+            $response = $pipeline->execute(function () use ($client, $callparams) {
                 return $client->generate_stack_audio($callparams);
             }, 6);
 
@@ -106,14 +103,17 @@ class get_stack_audio extends external_api {
             }
 
             (new usage_meter())->record(
-                (int) $coursecontext->id, (int) $USER->id, 'learn_audio', (int) ($response['credits'] ?? 6));
+                (int) $coursecontext->id,
+                (int) $USER->id,
+                'learn_audio',
+                (int) ($response['credits'] ?? 6)
+            );
 
             return self::result('success', '', [
                 'audio' => 'data:' . $response['mimetype'] . ';base64,' . preg_replace('/\s+/', '', $response['audio']),
                 'mimetype' => (string) $response['mimetype'],
                 'voice' => (string) ($response['voice'] ?? ''),
             ]);
-
         } catch (blocked_exception $e) {
             return self::result('blocked', get_string('guardrail_blocked_' . $e->reason, 'mod_tarsus'));
         } catch (transport_exception $e) {

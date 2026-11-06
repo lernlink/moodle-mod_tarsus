@@ -22,7 +22,7 @@
  * assistant — the welcome above all — appear as gradient-bordered cards.
  *
  * @module     mod_tarsus/chat
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_filters/events', 'mod_tarsus/processing'],

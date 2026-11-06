@@ -22,7 +22,7 @@
  * against the brain once on open and whenever the sync button is pressed.
  *
  * @module     mod_tarsus/dashboard
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import Ajax from 'core/ajax';

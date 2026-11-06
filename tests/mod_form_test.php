@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
 
@@ -27,11 +27,10 @@ require_once($CFG->dirroot . '/mod/tarsus/mod_form.php');
  *
  * @package    mod_tarsus
  * @covers     \mod_tarsus_mod_form
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class mod_form_test extends \advanced_testcase {
-
     /**
      * Set up tests.
      */
@@ -88,16 +87,22 @@ final class mod_form_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $tz = $this->getDataGenerator()->create_module('tarsus', ['course' => $course->id]);
-        $DB->set_field('tarsus', 'questiontypes',
+        $DB->set_field(
+            'tarsus',
+            'questiontypes',
             '{"1":["tradeCostingQuestionWidget"],"2":["tradeCostingQuestionWidget"],"3":["tradeCostingQuestionWidget"]}',
-            ['id' => $tz->id]);
+            ['id' => $tz->id]
+        );
         $DB->set_field('tarsus', 'taxonomylevels', '2', ['id' => $tz->id]);
 
         $form = $this->edit_form($course, (int) $tz->cmid);
 
         foreach ([1, 2, 3] as $grade) {
-            $this->assertSame(['tradeCostingQuestionWidget'], array_values((array) $this->element_value($form, 'qtypes' . $grade)),
-                "Grade $grade shows only the stored type");
+            $this->assertSame(
+                ['tradeCostingQuestionWidget'],
+                array_values((array) $this->element_value($form, 'qtypes' . $grade)),
+                "Grade $grade shows only the stored type"
+            );
         }
         $this->assertSame(['2'], array_map('strval', array_values((array) $this->element_value($form, 'taxonomylevels'))));
     }

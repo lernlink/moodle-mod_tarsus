@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,11 +40,10 @@ use moodle_exception;
  * costs a single API call regardless of how large the course is.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sync_page_status extends external_api {
-
     /**
      * Declares parameters for execute().
      *
@@ -119,8 +116,12 @@ class sync_page_status extends external_api {
         foreach ($resourceids as $resourceid) {
             $row = $repo->get($resourceid);
             $current = $row->status ?? status::NOT_INDEXED;
-            $rows[] = status_presenter::present($resourceid, $current, status::label($current),
-                (int) ($row->timemodified ?? 0));
+            $rows[] = status_presenter::present(
+                $resourceid,
+                $current,
+                status::label($current),
+                (int) ($row->timemodified ?? 0)
+            );
         }
 
         return $rows;

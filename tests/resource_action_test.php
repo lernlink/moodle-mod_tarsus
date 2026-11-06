@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
 
@@ -25,13 +25,12 @@ use mod_tarsus\external\get_index_status;
  * Tests for the per-resource index action external functions.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \mod_tarsus\external\set_resource_action
  * @covers     \mod_tarsus\external\get_index_status
  */
 final class resource_action_test extends \advanced_testcase {
-
     /**
      * Build a course with one page and a tarsus activity.
      *
@@ -110,8 +109,12 @@ final class resource_action_test extends \advanced_testcase {
         $this->assertTrue($fresh['inflight']);
         $this->assertFalse($fresh['canremove']);
 
-        $DB->set_field('local_tarsus_index', 'timemodified',
-            time() - \mod_tarsus\local\status_presenter::STUCK_AFTER - 1, ['resourceid' => $data['resourceid']]);
+        $DB->set_field(
+            'local_tarsus_index',
+            'timemodified',
+            time() - \mod_tarsus\local\status_presenter::STUCK_AFTER - 1,
+            ['resourceid' => $data['resourceid']]
+        );
         $stuck = $this->status_row($data['tz']->cmid, $data['resourceid']);
         $this->assertTrue($stuck['canremove']);
         $this->assertFalse($stuck['canindex']);

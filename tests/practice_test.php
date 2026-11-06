@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_tarsus;
-
-defined('MOODLE_INTERNAL') || die();
 
 use mod_tarsus\external\get_practice_widget;
 use mod_tarsus\external\submit_practice_answer;
@@ -29,11 +27,10 @@ use mod_tarsus\external\submit_practice_answer;
  * @covers     \mod_tarsus\external\get_activity_feed
  * @covers     \mod_tarsus\external\submit_practice_answer
  * @covers     \mod_tarsus\local\conversation
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class practice_test extends \advanced_testcase {
-
     /**
      * Set up tests.
      */
@@ -210,7 +207,11 @@ final class practice_test extends \advanced_testcase {
         [$tz] = $this->make_ready_activity();
 
         $result = submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-1', 'singleChoiceQuestionWidget', 'Alpha');
+            (int) $tz->cmid,
+            'mock-widget-1',
+            'singleChoiceQuestionWidget',
+            'Alpha'
+        );
 
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
@@ -229,7 +230,11 @@ final class practice_test extends \advanced_testcase {
         [$tz] = $this->make_ready_activity();
 
         $result = submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-1', 'singleChoiceQuestionWidget', 'Beta');
+            (int) $tz->cmid,
+            'mock-widget-1',
+            'singleChoiceQuestionWidget',
+            'Beta'
+        );
 
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
@@ -246,8 +251,12 @@ final class practice_test extends \advanced_testcase {
         [$tz] = $this->make_ready_activity();
 
         $result = submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-3', 'crossMultiplicationQuestionWidget', '',
-            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '42']]);
+            (int) $tz->cmid,
+            'mock-widget-3',
+            'crossMultiplicationQuestionWidget',
+            '',
+            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '42']]
+        );
 
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
@@ -260,8 +269,12 @@ final class practice_test extends \advanced_testcase {
 
         $this->expectException(\moodle_exception::class);
         submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-3', 'crossMultiplicationQuestionWidget', '',
-            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '   ']]);
+            (int) $tz->cmid,
+            'mock-widget-3',
+            'crossMultiplicationQuestionWidget',
+            '',
+            [['variable' => 'A_E', 'answer' => 'Alpha'], ['variable' => 'A_D', 'answer' => '   ']]
+        );
     }
 
     /**
@@ -277,7 +290,13 @@ final class practice_test extends \advanced_testcase {
             ['position' => '- Liefererskonto', 'rate' => '2,00 %', 'amount' => '3,60 EUR'],
         ];
         $result = submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table);
+            (int) $tz->cmid,
+            'mock-widget-4',
+            'tradeCostingQuestionWidget',
+            '',
+            [],
+            $table
+        );
 
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
@@ -340,16 +359,34 @@ final class practice_test extends \advanced_testcase {
         [$tz] = $this->make_ready_activity();
 
         $result = \mod_tarsus\external\submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
+            (int) $tz->cmid,
+            'mock-learn-q',
+            'singleChoiceQuestionWidget',
+            'Alpha',
+            [],
+            [],
+            [],
+            'learn'
+        );
         $result = \core_external\external_api::clean_returnvalue(
-            \mod_tarsus\external\submit_practice_answer::execute_returns(), $result);
+            \mod_tarsus\external\submit_practice_answer::execute_returns(),
+            $result
+        );
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['correct']);
         $this->assertSame(1.0, $result['progress']['earnedunits']);
 
         $DB->set_field('tarsus', 'buildenabled', 0, ['id' => $tz->id]);
         $refused = \mod_tarsus\external\submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-learn-q', 'singleChoiceQuestionWidget', 'Alpha', [], [], [], 'learn');
+            (int) $tz->cmid,
+            'mock-learn-q',
+            'singleChoiceQuestionWidget',
+            'Alpha',
+            [],
+            [],
+            [],
+            'learn'
+        );
         $this->assertEquals('disabled', $refused['status']);
     }
 
@@ -365,7 +402,9 @@ final class practice_test extends \advanced_testcase {
         set_config('voice', 'Daniel', 'local_tarsus');
         $result = \mod_tarsus\external\get_stack_audio::execute((int) $tz->cmid, 'mock-stack-1');
         $result = \core_external\external_api::clean_returnvalue(
-            \mod_tarsus\external\get_stack_audio::execute_returns(), $result);
+            \mod_tarsus\external\get_stack_audio::execute_returns(),
+            $result
+        );
         $this->assertEquals('success', $result['status']);
         $this->assertStringStartsWith('data:audio/wav;base64,', $result['audio']);
         $this->assertSame('Daniel', $result['voice']);
@@ -395,7 +434,11 @@ final class practice_test extends \advanced_testcase {
 
         $this->assertEquals('disabled', get_practice_widget::execute((int) $tz->cmid)['status']);
         $this->assertEquals('disabled', submit_practice_answer::execute(
-            (int) $tz->cmid, 'mock-widget-1', 'singleChoiceQuestionWidget', 'Alpha')['status']);
+            (int) $tz->cmid,
+            'mock-widget-1',
+            'singleChoiceQuestionWidget',
+            'Alpha'
+        )['status']);
     }
 
     /**

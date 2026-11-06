@@ -8,17 +8,17 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Instance settings form for mod_tarsus.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,11 +32,10 @@ use mod_tarsus\local\didactics;
  * The mod_tarsus instance configuration form.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_tarsus_mod_form extends moodleform_mod {
-
     /**
      * Define the form fields.
      *
@@ -63,7 +62,7 @@ class mod_tarsus_mod_form extends moodleform_mod {
         // reappear padded with default entries.
         $isnew = empty($this->_instance);
 
-        // --- General -------------------------------------------------------
+        // General.
         $mform->addElement('header', 'settings_general', get_string('settings_general', 'mod_tarsus'));
         $mform->setExpanded('settings_general');
 
@@ -96,12 +95,17 @@ class mod_tarsus_mod_form extends moodleform_mod {
             2 => get_string('taxonomy_understanding', 'mod_tarsus'),
             3 => get_string('taxonomy_application', 'mod_tarsus'),
         ];
-        $mform->addElement('autocomplete', 'taxonomylevels', get_string('taxonomylevels', 'mod_tarsus'),
-            $taxonomies, [
+        $mform->addElement(
+            'autocomplete',
+            'taxonomylevels',
+            get_string('taxonomylevels', 'mod_tarsus'),
+            $taxonomies,
+            [
                 'multiple' => true,
                 'placeholder' => get_string('taxonomylevels_placeholder', 'mod_tarsus'),
                 'noselectionstring' => get_string('taxonomylevels_none', 'mod_tarsus'),
-            ]);
+            ]
+        );
         $mform->setType('taxonomylevels', PARAM_INT);
         $mform->addHelpButton('taxonomylevels', 'taxonomylevels', 'mod_tarsus');
         if ($isnew) {
@@ -117,7 +121,7 @@ class mod_tarsus_mod_form extends moodleform_mod {
         $mform->setDefault('anticheat', 0);
         $mform->addHelpButton('anticheat', 'anticheat', 'mod_tarsus');
 
-        // --- Ask a question ------------------------------------------------
+        // Ask a question.
         $mform->addElement('header', 'settings_ask', get_string('settings_ask', 'mod_tarsus'));
         $mform->setExpanded('settings_ask');
 
@@ -137,7 +141,7 @@ class mod_tarsus_mod_form extends moodleform_mod {
         $mform->setDefault('conversationstyle', 3);
         $mform->addHelpButton('conversationstyle', 'conversationstyle', 'mod_tarsus');
 
-        // --- Test knowledge ------------------------------------------------
+        // Test knowledge.
         $mform->addElement('header', 'settings_test', get_string('settings_test', 'mod_tarsus'));
         $mform->setExpanded('settings_test');
 
@@ -167,12 +171,17 @@ class mod_tarsus_mod_form extends moodleform_mod {
         $defaultmap = didactics::default_question_types();
         foreach ($grades as $grade => $gradelabel) {
             $name = self::qtypes_field($grade);
-            $mform->addElement('autocomplete', $name,
-                get_string('questiontypes_grade', 'mod_tarsus', $gradelabel), $qtypes, [
+            $mform->addElement(
+                'autocomplete',
+                $name,
+                get_string('questiontypes_grade', 'mod_tarsus', $gradelabel),
+                $qtypes,
+                [
                     'multiple' => true,
                     'placeholder' => get_string('questiontypes_placeholder', 'mod_tarsus'),
                     'noselectionstring' => get_string('questiontypes_none', 'mod_tarsus'),
-                ]);
+                ]
+            );
             $mform->setType($name, PARAM_ALPHANUMEXT);
             if ($isnew) {
                 $mform->setDefault($name, $defaultmap[$grade] ?? []);
@@ -191,7 +200,7 @@ class mod_tarsus_mod_form extends moodleform_mod {
         $mform->setDefault('learntempo', (string) didactics::LEARN_TEMPO_DEFAULT);
         $mform->addHelpButton('learntempo', 'learntempo', 'mod_tarsus');
 
-        // --- Build knowledge -----------------------------------------------
+        // Build knowledge.
         $mform->addElement('header', 'settings_build', get_string('settings_build', 'mod_tarsus'));
         $mform->setExpanded('settings_build');
 

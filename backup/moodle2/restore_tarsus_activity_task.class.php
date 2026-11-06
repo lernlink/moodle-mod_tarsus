@@ -8,17 +8,17 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * Restore task for the Tarsus activity.
  *
  * @package    mod_tarsus
- * @copyright  2026 lern.link GmbH
+ * @copyright  2026 lern.link GmbH | Vadym Nersesov <nersesov.vadim@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,6 @@ use local_tarsus\material\resource_id;
  * Restores one Tarsus activity and remaps its inclusion list.
  */
 class restore_tarsus_activity_task extends restore_activity_task {
-
     /**
      * No activity-specific settings.
      */
@@ -100,8 +99,10 @@ class restore_tarsus_activity_task extends restore_activity_task {
             if ($parts !== null && $parts['sitetoken'] === resource_id::site_token()) {
                 $mapping = restore_dbops::get_backup_ids_record($this->get_restoreid(), 'course_module', $parts['cmid']);
                 $newcmid = $mapping ? (int) $mapping->newitemid : 0;
-                if ($newcmid === 0 && (int) $parts['courseid'] === $courseid
-                        && $DB->record_exists('course_modules', ['id' => $parts['cmid'], 'course' => $courseid])) {
+                if (
+                    $newcmid === 0 && (int) $parts['courseid'] === $courseid
+                        && $DB->record_exists('course_modules', ['id' => $parts['cmid'], 'course' => $courseid])
+                ) {
                     $newcmid = (int) $parts['cmid'];
                 }
             }
