@@ -15,9 +15,9 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="conversationstyle" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="Didactic conversation style 1-5 (Geschlossen..Offen)."/>
         <FIELD NAME="dqr" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="6" SEQUENCE="false" COMMENT="Difficulty level 3-7."/>
-        <FIELD NAME="industry" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="Domain / field of expertise; empty means unset."/>
+        <FIELD NAME="industry" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Domain / field of expertise; null or empty means unset."/>
         <FIELD NAME="taxonomylevels" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="1,2,3" SEQUENCE="false" COMMENT="Enabled Bloom taxonomy levels for practice questions (CSV of 1..3)."/>
-        <FIELD NAME="questiontypes" TYPE="char" LENGTH="1333" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="JSON map difficulty grade (1..3) to allowed question widget types; empty means plugin defaults."/>
+        <FIELD NAME="questiontypes" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false" COMMENT="JSON map difficulty grade (1..3) to allowed question widget types; null or empty means plugin defaults."/>
         <FIELD NAME="operators" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="standard" SEQUENCE="false" COMMENT="Operator taxonomy for practice questions: standard or ihk."/>
         <FIELD NAME="anticheat" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the learner may not ask the chat about the current practice question."/>
         <FIELD NAME="learntempo" TYPE="number" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" DECIMALS="2" COMMENT="Learning pace 0.1-2 steering XP growth; 1 is recommended."/>

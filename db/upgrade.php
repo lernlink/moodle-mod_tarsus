@@ -60,5 +60,24 @@ function xmldb_tarsus_upgrade(int $oldversion): bool {
         upgrade_mod_savepoint(true, 2026110600, 'tarsus');
     }
 
+    if ($oldversion < 2026110604) {
+        // A NOT NULL char column must not default to the empty string (XMLDB
+        // rejects it on install): industry and questiontypes become nullable,
+        // which the code already treats like the empty string.
+        $table = new xmldb_table('tarsus');
+        $industry = new xmldb_field('industry', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'dqr');
+        if ($dbman->field_exists($table, $industry)) {
+            $dbman->change_field_notnull($table, $industry);
+            $dbman->change_field_default($table, $industry);
+        }
+        $questiontypes = new xmldb_field('questiontypes', XMLDB_TYPE_CHAR, '1333', null, null, null, null, 'taxonomylevels');
+        if ($dbman->field_exists($table, $questiontypes)) {
+            $dbman->change_field_notnull($table, $questiontypes);
+            $dbman->change_field_default($table, $questiontypes);
+        }
+
+        upgrade_mod_savepoint(true, 2026110604, 'tarsus');
+    }
+
     return true;
 }

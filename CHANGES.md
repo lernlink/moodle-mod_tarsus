@@ -1,5 +1,9 @@
 # Changes
 
+## 1.0.1 (2026-11-06)
+
+- Database: industry and questiontypes are nullable, since XMLDB rejects NOT NULL char columns with an empty default on install.
+
 ## 1.0.0 (2026-11-06)
 
 - First stable release prepared for the Moodle plugins directory.
