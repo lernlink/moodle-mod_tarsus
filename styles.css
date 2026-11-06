@@ -410,9 +410,19 @@
         display: none;
     }
 
+    /* Without its label the send button would be as short as its glyph:
+       stretch it to the height of the mode switcher beside it. */
     .tarsus-chat-box .tarsus-chat-submit {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
+        align-self: stretch;
+        justify-content: center;
+        min-width: 2.75rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .tarsus-chat-box .tarsus-chat-submit .icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 1.25rem;
     }
 
     .tarsus-chat-box .tarsus-xp-badge {

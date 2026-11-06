@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_tarsus';
-$plugin->version   = 2026110601;
+$plugin->version   = 2026110602;
 $plugin->requires  = 2025041400; // Moodle 5.0+ (target platform: Moodle 5.2).
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '0.33.1 (Responsive composer on phones)';
