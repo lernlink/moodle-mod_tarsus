@@ -82,10 +82,22 @@ The learner side, taken in the plugin on Moodle 5.3 with a live Tarsus brain (co
 | <img src="docs/screenshots/11_build_learning_card_audio.jpg" alt="A learning unit below its objectives, with the narration player and previous/next navigation" width="440"> | <img src="docs/screenshots/13_test_single_choice.jpg" alt="A single-choice question, answered correctly, with its explanation" width="440"> | <img src="docs/screenshots/15_ask_about_a_task.jpg" alt="The learner asks what is still missing in an answer and then for a simpler explanation; the coach answers both" width="440"> |
 | Learning units card by card, read aloud on request. | Tasks with a verdict, an explanation and experience points. | "What is still missing in my answer?" and "Please explain it more simply." after a task. |
 
-| Learning objectives | Interactive answer (Agent-driven) | Interactive learning step (Agent-driven) |
+With the *Agent-driven* interaction type a leading question is enough – "show me this in 3D", "give me an interactive comparison table", "explain it with an animated diagram" – and the coach builds the card inside the Moodle chat:
+
+| 3D model | Interactive comparison table | Animated diagram |
 |:--:|:--:|:--:|
-| <img src="docs/screenshots/10_build_objectives.jpg" alt="The learning objectives of a course with their taxonomy levels" width="440"> | <img src="docs/screenshots/16_agent_interactive_answer.jpg" alt="An agent-driven answer in the Moodle chat: an interactive card with a slider" width="440"> | <img src="docs/screenshots/17_agent_learning_step.jpg" alt="An agent-driven learning step in Build knowledge, rendered as an interactive card" width="440"> |
-| Build knowledge opens with the objectives the coach derived from the material. | "…as an interactive diagram with a slider" – the agent builds the card. | With *Agent-driven*, learning steps arrive as interactive cards too. |
+| <img src="docs/screenshots/16_agent_3d_model.jpg" alt="Show me the Solar System in 3D: a model the learner can turn with the mouse or the arrow keys" width="440"> | <img src="docs/screenshots/17_agent_comparison_table.jpg" alt="An interactive comparison table of the eight planets, sortable by column" width="440"> | <img src="docs/screenshots/18_agent_animated_diagram.jpg" alt="An animated top-view diagram of the planets orbiting the Sun, with a pause button" width="440"> |
+| "Show me the Solar System in 3D so I can turn it." | "Give me an interactive comparison table of the planets." | "Explain with an animated diagram how the planets orbit the Sun." |
+
+| Slider simulation | Clickable graphic | Step-by-step calculation |
+|:--:|:--:|:--:|
+| <img src="docs/screenshots/19_agent_interactive_slider.jpg" alt="A slider picks a planet and shows its distance from the Sun and its orbital period" width="440"> | <img src="docs/screenshots/20_agent_labelled_graphic.jpg" alt="A labelled cross-section of the Sun whose layers can be selected one by one" width="440"> | <img src="docs/screenshots/21_agent_step_by_step.jpg" alt="The distance of Mars from the Sun, calculated in three numbered steps" width="440"> |
+| "Make it interactive: a slider for the distance from the Sun…" | "Show the layers of the Sun as a labelled graphic I can click through." | "…Show the calculation step by step." |
+
+| Learning objectives | Dark mode |
+|:--:|:--:|
+| <img src="docs/screenshots/10_build_objectives.jpg" alt="The learning objectives of a course with their taxonomy levels" width="640"> | <img src="docs/screenshots/22_dark_mode.jpg" alt="Practice cards in the site's dark colour mode" width="640"> |
+| Build knowledge opens with the objectives the coach derived from the material. | The cards follow the site's light or dark colour mode. |
 
 The teacher side – the material tab, the activity settings and the site-wide connection (shown in mock mode, so every field is a placeholder):
 
@@ -95,7 +107,7 @@ The teacher side – the material tab, the activity settings and the site-wide c
 | Every page, file and URL of the course with its state in the brain. Switch it on to let the coach use it. | Interaction type, DQR level, taxonomy levels, target group – and one section per mode. |
 
 <details>
-<summary><b>All screenshots</b> (15)</summary>
+<summary><b>All screenshots</b> (20)</summary>
 
 | | |
 |:--:|:--:|
@@ -105,8 +117,10 @@ The teacher side – the material tab, the activity settings and the site-wide c
 | <img src="docs/screenshots/07_admin_brains.png" alt="The Tarsus brains page lists the brains the key can reach with their state" width="440"><br><sub>Tarsus brains page (mock values)</sub> | <img src="docs/screenshots/10_build_objectives.jpg" alt="Learning objectives with taxonomy levels" width="440"><br><sub>Build knowledge: the objectives</sub> |
 | <img src="docs/screenshots/11_build_learning_card_audio.jpg" alt="Learning unit with narration" width="440"><br><sub>Build knowledge: a unit, read aloud</sub> | <img src="docs/screenshots/12_test_true_false.jpg" alt="True or false, answered correctly" width="440"><br><sub>Test knowledge: true or false</sub> |
 | <img src="docs/screenshots/13_test_single_choice.jpg" alt="Single choice with explanation" width="440"><br><sub>Test knowledge: single choice</sub> | <img src="docs/screenshots/14_test_open_question.jpg" alt="Open question with partial credit and feedback on what is missing" width="440"><br><sub>Test knowledge: open question, with feedback on what is missing</sub> |
-| <img src="docs/screenshots/15_ask_about_a_task.jpg" alt="Questions about a task and a simpler explanation" width="440"><br><sub>Ask a question: about a task, then a simpler explanation</sub> | <img src="docs/screenshots/16_agent_interactive_answer.jpg" alt="Interactive card with a slider" width="440"><br><sub>Agent-driven: interactive answer</sub> |
-| <img src="docs/screenshots/17_agent_learning_step.jpg" alt="Interactive learning step" width="440"><br><sub>Agent-driven: interactive learning step</sub> |  |
+| <img src="docs/screenshots/15_ask_about_a_task.jpg" alt="Questions about a task and a simpler explanation" width="440"><br><sub>Ask a question: about a task, then a simpler explanation</sub> | <img src="docs/screenshots/16_agent_3d_model.jpg" alt="3D model of the Solar System" width="440"><br><sub>Agent-driven: 3D model</sub> |
+| <img src="docs/screenshots/17_agent_comparison_table.jpg" alt="Sortable comparison table" width="440"><br><sub>Agent-driven: interactive comparison table</sub> | <img src="docs/screenshots/18_agent_animated_diagram.jpg" alt="Animated orbit diagram" width="440"><br><sub>Agent-driven: animated diagram</sub> |
+| <img src="docs/screenshots/19_agent_interactive_slider.jpg" alt="Slider simulation" width="440"><br><sub>Agent-driven: slider simulation</sub> | <img src="docs/screenshots/20_agent_labelled_graphic.jpg" alt="Clickable cross-section of the Sun" width="440"><br><sub>Agent-driven: clickable graphic</sub> |
+| <img src="docs/screenshots/21_agent_step_by_step.jpg" alt="Step-by-step calculation" width="440"><br><sub>Agent-driven: step-by-step calculation</sub> | <img src="docs/screenshots/22_dark_mode.jpg" alt="Dark colour mode" width="440"><br><sub>Dark colour mode</sub> |
 
 </details>
 
