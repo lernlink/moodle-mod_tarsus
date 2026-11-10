@@ -42,6 +42,7 @@
         "variables": [],
         "hastable": false,
         "table": [],
+        "columns": [],
         "columnsjson": "[]",
         "taxonomy": "Understand",
         "difficulty": "Easy",
@@ -92,23 +93,18 @@
     <table class="tarsus-practice-table" data-region="table">
         <thead>
             <tr>
-                <th>{{#str}}practice_table_position, mod_tarsus{{/str}}</th>
-                <th>{{#str}}practice_table_rate, mod_tarsus{{/str}}</th>
-                <th>{{#str}}practice_table_amount, mod_tarsus{{/str}}</th>
+                {{#columns}}<th scope="col">{{.}}</th>{{/columns}}
             </tr>
         </thead>
         <tbody>
             {{#table}}
-            <tr class="tarsus-practice-table__row" data-position="{{position}}">
-                <td class="tarsus-practice-table__position">{{position}}</td>
-                <td class="tarsus-practice-table__cell" data-cell="rate">
-                    {{#askrate}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="rate" autocomplete="off">{{/askrate}}
-                    {{^askrate}}<span class="tarsus-practice-table__value" data-cell="rate">{{rate}}</span>{{/askrate}}
+            <tr class="tarsus-practice-table__row">
+                {{#cells}}
+                <td class="tarsus-practice-table__cell">
+                    {{#ask}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" aria-label="{{label}}" autocomplete="off">{{/ask}}
+                    {{^ask}}<span class="tarsus-practice-table__value">{{value}}</span>{{/ask}}
                 </td>
-                <td class="tarsus-practice-table__cell" data-cell="amount">
-                    {{#askamount}}<input type="text" class="tarsus-practice-table__input form-control form-control-sm" data-cell="amount" autocomplete="off">{{/askamount}}
-                    {{^askamount}}<span class="tarsus-practice-table__value" data-cell="amount">{{amount}}</span>{{/askamount}}
-                </td>
+                {{/cells}}
             </tr>
             {{/table}}
         </tbody>

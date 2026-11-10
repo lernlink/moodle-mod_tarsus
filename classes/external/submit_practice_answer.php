@@ -44,6 +44,12 @@ use moodle_exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class submit_practice_answer extends external_api {
+    /** @var int The most rows an answered table may carry. */
+    private const MAX_TABLE_ROWS = 200;
+
+    /** @var int The most columns an answered table may carry. */
+    private const MAX_TABLE_COLUMNS = 50;
+
     /**
      * Declares parameters for execute().
      *
@@ -66,17 +72,18 @@ class submit_practice_answer extends external_api {
             ),
             'table' => new external_multiple_structure(
                 new external_single_structure([
-                    'position' => new external_value(PARAM_RAW, 'The row label.'),
-                    'rate' => new external_value(PARAM_RAW, 'The rate cell, given or answered.'),
-                    'amount' => new external_value(PARAM_RAW, 'The amount cell, given or answered.'),
+                    'cells' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'A cell, given or answered.'),
+                        'The cells of the row, one per column, in column order.'
+                    ),
                 ]),
-                'Every row of a spreadsheet calculation with the asked cells filled.',
+                'Every row of a table question with the asked cells filled.',
                 VALUE_DEFAULT,
                 []
             ),
             'columns' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'A column name.'),
-                'The three column names the costing table came with.',
+                'The column names the table came with.',
                 VALUE_DEFAULT,
                 []
             ),
@@ -97,8 +104,8 @@ class submit_practice_answer extends external_api {
      * @param string $widgettype The question widget type.
      * @param string $answer     The learner's answer (single-answer types).
      * @param array  $answers    Per-variable answers (rule of three).
-     * @param array  $table      The filled costing table (spreadsheet calculation).
-     * @param array  $columns    The costing table's column names as the question came with them.
+     * @param array  $table      The filled table (table question), rows of cells in column order.
+     * @param array  $columns    The table's column names as the question came with them.
      * @param string $state      'practice' (Test knowledge) or 'learn' (the check question of a learning unit).
      * @return array Status, verdict, feedback, choices and progress.
      * @throws moodle_exception
@@ -150,20 +157,19 @@ class submit_practice_answer extends external_api {
             if ($useranswers === []) {
                 throw new moodle_exception('empty_query', 'mod_tarsus');
             }
-        } else if ($params['widgettype'] === \mod_tarsus\local\didactics::TYPE_TRADECOSTING) {
-            // A spreadsheet calculation travels as the whole table; no
-            // asked cell may stay blank or unanswered ('?').
+        } else if ($params['table'] !== []) {
+            // A table question travels as the whole table under the column
+            // names it came with; no asked cell may stay unanswered ('?').
+            $columns = array_values(array_map('trim', $params['columns']));
+            if ($columns === [] || count($columns) > self::MAX_TABLE_COLUMNS || count($params['table']) > self::MAX_TABLE_ROWS) {
+                throw new moodle_exception('empty_query', 'mod_tarsus');
+            }
             foreach ($params['table'] as $row) {
-                $position = trim((string) $row['position']);
-                $rate = trim((string) $row['rate']);
-                $amount = trim((string) $row['amount']);
-                if ($position === '' || $rate === '?' || $amount === '?') {
+                $cells = array_map(static fn($cell): string => trim((string) $cell), array_values($row['cells']));
+                if (count($cells) !== count($columns) || in_array('?', $cells, true)) {
                     throw new moodle_exception('empty_query', 'mod_tarsus');
                 }
-                $usertable[] = ['position' => $position, 'rate' => $rate, 'amount' => $amount];
-            }
-            if ($usertable === []) {
-                throw new moodle_exception('empty_query', 'mod_tarsus');
+                $usertable[] = ['cells' => $cells];
             }
         } else if ($answertext === '') {
             throw new moodle_exception('empty_query', 'mod_tarsus');
@@ -288,8 +294,8 @@ class submit_practice_answer extends external_api {
                 VALUE_OPTIONAL
             ),
             'answers' => practice_labels::answers_structure('The model per-variable answers with verdicts (rule of three).'),
-            'usertable' => practice_labels::table_structure('The learner\'s costing rows as evaluated (spreadsheet calculation).'),
-            'answertable' => practice_labels::table_structure('The model costing rows with verdicts (spreadsheet calculation).'),
+            'usertable' => practice_labels::table_structure('The learner\'s table rows as evaluated (table question).'),
+            'answertable' => practice_labels::table_structure('The model table rows with verdicts (table question).'),
             'progress' => practice_labels::progress_structure(),
         ]);
     }

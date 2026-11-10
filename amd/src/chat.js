@@ -53,6 +53,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         PRACTICE_VARIABLE: '.tarsus-practice-variable',
         PRACTICE_VARIABLE_INPUT: '.tarsus-practice-variable__input',
         PRACTICE_TABLE_ROW: '.tarsus-practice-table__row',
+        PRACTICE_TABLE_CELL: '.tarsus-practice-table__cell',
         PRACTICE_TABLE_INPUT: '.tarsus-practice-table__input',
         PRACTICE_FEEDBACK: '[data-region="feedback"]',
         PRACTICE_SCORE: '[data-region="score"]',
@@ -176,37 +177,31 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
     }
 
     /**
-     * Spreadsheet calculation: restore the learner's cells and mark the
-     * wrong ones. Correct cells stay plain and no model figure is shown,
-     * the feedback text already explains the solution.
+     * Table question: restore the learner's cells and mark the wrong
+     * ones. Correct cells stay plain and no model figure is shown, the
+     * feedback text already explains the solution. Rows and cells are
+     * matched by their place in the table.
      *
      * @param {Element} card The practice card element.
      * @param {Object} verdict The verdict with usertable and answertable.
      */
     function restoreTableAnswers(card, verdict) {
-        var userRows = {};
-        (verdict.usertable || []).forEach(function(row) {
-            userRows[row.position] = row;
-        });
-        var modelRows = {};
-        (verdict.answertable || []).forEach(function(row) {
-            modelRows[row.position] = row;
-        });
-        card.querySelectorAll(SELECTORS.PRACTICE_TABLE_ROW).forEach(function(row) {
-            var position = row.getAttribute('data-position');
-            row.querySelectorAll(SELECTORS.PRACTICE_TABLE_INPUT).forEach(function(input) {
-                var cell = input.getAttribute('data-cell');
-                if (input.value === '' && userRows[position]) {
-                    input.value = userRows[position][cell] || '';
-                }
-                input.disabled = true;
-                var model = modelRows[position];
-                if (!model) {
+        var userRows = verdict.usertable || [];
+        var modelRows = verdict.answertable || [];
+        card.querySelectorAll(SELECTORS.PRACTICE_TABLE_ROW).forEach(function(row, rowIndex) {
+            var userCells = (userRows[rowIndex] || {}).cells || [];
+            var modelCells = (modelRows[rowIndex] || {}).cells || [];
+            row.querySelectorAll(SELECTORS.PRACTICE_TABLE_CELL).forEach(function(cell, cellIndex) {
+                var input = cell.querySelector(SELECTORS.PRACTICE_TABLE_INPUT);
+                if (!input) {
                     return;
                 }
-                var mark = cell === 'rate' ? model.rateverdict : model.amountverdict;
-                if (mark < 0) {
-                    input.parentNode.classList.add('tarsus-practice-table__cell--incorrect');
+                if (input.value === '' && userCells[cellIndex]) {
+                    input.value = userCells[cellIndex].value || '';
+                }
+                input.disabled = true;
+                if (modelCells[cellIndex] && modelCells[cellIndex].verdict < 0) {
+                    cell.classList.add('tarsus-practice-table__cell--incorrect');
                 }
             });
         });
@@ -335,6 +330,8 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             return {name: name};
         });
 
+        var columns = widget.columns || [];
+
         return {
             widgetid: widget.id,
             widgettype: widget.type,
@@ -344,8 +341,17 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
             hasvariables: variables.length > 0,
             variables: variables,
             hastable: (widget.table || []).length > 0,
-            table: widget.table || [],
-            columnsjson: JSON.stringify(widget.columns || []),
+            // The table is laid out as the brain sent it: its own column
+            // names, however many; each asked cell is named after its column.
+            columns: columns,
+            table: (widget.table || []).map(function(row) {
+                return {
+                    cells: (row.cells || []).map(function(cell, index) {
+                        return {value: cell.value, ask: cell.ask, label: columns[index] || ''};
+                    })
+                };
+            }),
+            columnsjson: JSON.stringify(columns),
             taxonomy: widget.taxonomy,
             difficulty: widget.difficulty,
             bars: bars,
@@ -1376,26 +1382,20 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
         var variableInputs = card.querySelectorAll(SELECTORS.PRACTICE_VARIABLE_INPUT);
         var tableRows = card.querySelectorAll(SELECTORS.PRACTICE_TABLE_ROW);
         if (tableRows.length) {
-            // Spreadsheet calculation: the whole table travels, given cells
-            // echoed and every asked cell filled.
+            // Table question: the whole table travels, given cells echoed
+            // and every asked cell filled.
             var complete = true;
             tableRows.forEach(function(row) {
-                var cells = {position: row.getAttribute('data-position')};
-                ['rate', 'amount'].forEach(function(cell) {
-                    var input = row.querySelector('input[data-cell="' + cell + '"]');
-                    var given = row.querySelector('span[data-cell="' + cell + '"]');
-                    var value = '';
-                    if (input) {
-                        value = input.value.trim();
-                    } else if (given) {
-                        value = given.textContent;
-                    }
+                var cells = [];
+                row.querySelectorAll(SELECTORS.PRACTICE_TABLE_CELL).forEach(function(cell) {
+                    var input = cell.querySelector(SELECTORS.PRACTICE_TABLE_INPUT);
+                    var value = (input ? input.value : cell.textContent).trim();
                     if (input && value === '') {
                         complete = false;
                     }
-                    cells[cell] = (value || '').trim();
+                    cells.push(value);
                 });
-                table.push(cells);
+                table.push({cells: cells});
             });
             if (!complete) {
                 return;
@@ -1462,7 +1462,7 @@ define(['core/ajax', 'core/templates', 'core/notification', 'core/str', 'core_fi
                 useranswer: answer,
                 useranswers: answers,
                 answers: result.answers || [],
-                usertable: result.usertable || table,
+                usertable: result.usertable || [],
                 answertable: result.answertable || []
             });
 

@@ -47,13 +47,17 @@ final class didactics {
     /** @var string Spreadsheet calculation (Tabellenkalkulation) question widget type. */
     public const TYPE_TRADECOSTING = 'tradeCostingQuestionWidget';
 
-    /** @var string[] Every question widget type the plugin supports. */
+    /** @var string Account exercise question type; the brain answers it with table questions. */
+    public const TYPE_ACCOUNTING = 'accountingWidget';
+
+    /** @var string[] Every question type a teacher can request from the brain. */
     public const TYPES = [
         self::TYPE_SINGLECHOICE,
         self::TYPE_TRUEFALSE,
         self::TYPE_OPEN,
         self::TYPE_CROSSMULTIPLICATION,
         self::TYPE_TRADECOSTING,
+        self::TYPE_ACCOUNTING,
     ];
 
     /** @var int[] The difficulty grades (1 Einfach, 2 Mittel, 3 Schwer). */
@@ -171,6 +175,7 @@ final class didactics {
             self::TYPE_OPEN => 'qtype_open',
             self::TYPE_CROSSMULTIPLICATION => 'qtype_crossmultiplication',
             self::TYPE_TRADECOSTING => 'qtype_tradecosting',
+            self::TYPE_ACCOUNTING => 'qtype_accounting',
             default => 'qtype_unknown',
         };
     }

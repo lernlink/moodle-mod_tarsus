@@ -118,29 +118,29 @@ final class practice_labels {
     }
 
     /**
-     * Shape costing table rows for the wire.
+     * Shape table question rows for the wire.
      *
-     * @param array $rows The client's rows ({position, rate, amount} plus optional flags/verdicts).
-     * @return array<int, array<string, mixed>>
+     * @param array $rows The client's rows ({cells: list of {value, ask, verdict}}).
+     * @return array<int, array{cells: array<int, array{value: string, ask: bool, verdict: int}>}>
      */
     public static function table(array $rows): array {
         $out = [];
         foreach ($rows as $row) {
-            $out[] = [
-                'position' => (string) ($row['position'] ?? ''),
-                'rate' => (string) ($row['rate'] ?? ''),
-                'amount' => (string) ($row['amount'] ?? ''),
-                'askrate' => !empty($row['askrate']),
-                'askamount' => !empty($row['askamount']),
-                'rateverdict' => (int) ($row['rateverdict'] ?? 0),
-                'amountverdict' => (int) ($row['amountverdict'] ?? 0),
-            ];
+            $cells = [];
+            foreach ((array) ($row['cells'] ?? []) as $cell) {
+                $cells[] = [
+                    'value' => (string) ($cell['value'] ?? ''),
+                    'ask' => !empty($cell['ask']),
+                    'verdict' => (int) ($cell['verdict'] ?? 0),
+                ];
+            }
+            $out[] = ['cells' => $cells];
         }
         return $out;
     }
 
     /**
-     * The wire structure of costing table rows.
+     * The wire structure of table question rows.
      *
      * @param string $description What the list holds.
      * @return external_multiple_structure
@@ -148,13 +148,14 @@ final class practice_labels {
     public static function table_structure(string $description): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
-                'position' => new external_value(PARAM_RAW, 'The row label (costing position).'),
-                'rate' => new external_value(PARAM_RAW, 'The rate cell (percentage), may be empty.'),
-                'amount' => new external_value(PARAM_RAW, 'The amount cell.'),
-                'askrate' => new external_value(PARAM_BOOL, 'Whether the rate cell is asked.'),
-                'askamount' => new external_value(PARAM_BOOL, 'Whether the amount cell is asked.'),
-                'rateverdict' => new external_value(PARAM_INT, 'Verdict of the rate cell: 1 correct, -1 wrong, 0 given.'),
-                'amountverdict' => new external_value(PARAM_INT, 'Verdict of the amount cell: 1 correct, -1 wrong, 0 given.'),
+                'cells' => new external_multiple_structure(
+                    new external_single_structure([
+                        'value' => new external_value(PARAM_RAW, 'The cell text; "?" in an asked cell of the question.'),
+                        'ask' => new external_value(PARAM_BOOL, 'Whether the learner fills this cell.'),
+                        'verdict' => new external_value(PARAM_INT, 'After evaluation: 1 correct, -1 wrong, 0 given.'),
+                    ]),
+                    'The cells of the row, one per column, in column order.'
+                ),
             ]),
             $description,
             VALUE_OPTIONAL
@@ -267,14 +268,14 @@ final class practice_labels {
             ),
             'useranswers' => self::answers_structure('The learner\'s per-variable answers (practice, answered).'),
             'answers' => self::answers_structure('The model per-variable answers (practice, answered).'),
-            'table' => self::table_structure('The costing table of a spreadsheet calculation (practice).'),
+            'table' => self::table_structure('The rows of a table question (practice).'),
             'columns' => new external_multiple_structure(
                 new external_value(PARAM_RAW, 'A column name.'),
-                'The three column names the costing table came with (practice).',
+                'The column names the table came with (practice).',
                 VALUE_OPTIONAL
             ),
-            'usertable' => self::table_structure('The learner\'s costing rows (practice, answered).'),
-            'answertable' => self::table_structure('The model costing rows with verdicts (practice, answered).'),
+            'usertable' => self::table_structure('The learner\'s table rows (practice, answered).'),
+            'answertable' => self::table_structure('The model table rows with verdicts (practice, answered).'),
         ];
     }
 

@@ -638,8 +638,8 @@
     background: var(--tz-danger-soft);
 }
 
-/* Spreadsheet calculation questions: the costing table with asked cells
-   as inputs; after evaluation the wrong cells are marked, the feedback
+/* Table questions: the table as the brain lays it out, asked cells as
+   inputs; after evaluation the wrong cells are marked, the feedback
    text carries the solution. */
 .tarsus-practice-card__table-wrap {
     overflow-x: auto;
@@ -666,10 +666,6 @@
     padding: 0.3rem 0.5rem;
     border-bottom: 1px solid var(--tz-line-soft);
     vertical-align: middle;
-}
-
-.tarsus-practice-table__position {
-    white-space: nowrap;
 }
 
 .tarsus-practice-table__cell {

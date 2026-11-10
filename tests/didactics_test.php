@@ -70,6 +70,19 @@ final class didactics_test extends \advanced_testcase {
     }
 
     /**
+     * The account exercise is a requestable type under the brain's own
+     * name and has a label of its own.
+     */
+    public function test_account_exercise_is_requestable(): void {
+        $this->assertSame('accountingWidget', didactics::TYPE_ACCOUNTING);
+        $this->assertContains(didactics::TYPE_ACCOUNTING, didactics::TYPES);
+        $this->assertSame('qtype_accounting', didactics::type_label_key(didactics::TYPE_ACCOUNTING));
+
+        $encoded = didactics::encode_question_types([1 => [didactics::TYPE_ACCOUNTING]]);
+        $this->assertSame([didactics::TYPE_ACCOUNTING], didactics::decode_question_types($encoded)[1]);
+    }
+
+    /**
      * Unknown grades and widget types are dropped; nothing left means
      * defaults — the behaviour legacy rows with an empty column rely on.
      */

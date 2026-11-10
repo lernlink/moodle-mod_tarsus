@@ -190,11 +190,11 @@ class get_practice_widget extends external_api {
                         'Quantities a rule-of-three question asks for; empty for other types.'
                     ),
                     'table' => practice_labels::table_structure(
-                        'The costing table of a spreadsheet calculation; empty for other types.'
+                        'The rows of a table question; empty for other types.'
                     ),
                     'columns' => new external_multiple_structure(
                         new external_value(PARAM_RAW, 'A column name.'),
-                        'The three column names the costing table came with, to send back with the answer.',
+                        'The column names the table came with, to send back with the answer.',
                         VALUE_OPTIONAL
                     ),
                 ]),

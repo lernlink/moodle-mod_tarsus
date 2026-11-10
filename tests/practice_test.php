@@ -285,33 +285,49 @@ final class practice_test extends \advanced_testcase {
         [$tz] = $this->make_ready_activity();
 
         $table = [
-            ['position' => '= Listeneinkaufspreis', 'rate' => '', 'amount' => '200,00 EUR'],
-            ['position' => '- Liefererrabatt', 'rate' => '10,00 %', 'amount' => 'Alpha'],
-            ['position' => '- Liefererskonto', 'rate' => '2,00 %', 'amount' => '3,60 EUR'],
+            ['cells' => ['= Listeneinkaufspreis', '', '200,00 EUR']],
+            ['cells' => ['- Liefererrabatt', '10,00 %', 'Alpha']],
+            ['cells' => ['- Liefererskonto', '2,00 %', '3,60 EUR']],
         ];
+        $columns = ['Position', 'Satz', 'Betrag'];
         $result = submit_practice_answer::execute(
             (int) $tz->cmid,
             'mock-widget-4',
             'tradeCostingQuestionWidget',
             '',
             [],
-            $table
+            $table,
+            $columns
         );
 
         $this->assertEquals('success', $result['status']);
         $this->assertTrue($result['hasverdict']);
         $this->assertFalse($result['correct']);
         $this->assertCount(3, $result['answertable']);
-        $this->assertSame(0, $result['answertable'][0]['amountverdict']);
-        $this->assertSame(1, $result['answertable'][1]['amountverdict']);
-        $this->assertSame(-1, $result['answertable'][2]['amountverdict']);
-        $this->assertSame('3,60 EUR', $result['usertable'][2]['amount']);
+        $this->assertSame(0, $result['answertable'][0]['cells'][2]['verdict']);
+        $this->assertSame(1, $result['answertable'][1]['cells'][2]['verdict']);
+        $this->assertSame(-1, $result['answertable'][2]['cells'][2]['verdict']);
+        $this->assertSame('3,60 EUR', $result['usertable'][2]['cells'][2]['value']);
+
+        // The table is the brain's: two columns under their own names work the same.
+        $narrow = submit_practice_answer::execute(
+            (int) $tz->cmid,
+            'mock-widget-5',
+            'tradeCostingQuestionWidget',
+            '',
+            [],
+            [['cells' => ['Pluto', 'Alpha']], ['cells' => ['Ceres', 'Planet']]],
+            ['Himmelskörper', 'Einordnung']
+        );
+        $this->assertCount(2, $narrow['answertable'][0]['cells']);
+        $this->assertSame(1, $narrow['answertable'][0]['cells'][1]['verdict']);
+        $this->assertSame(-1, $narrow['answertable'][1]['cells'][1]['verdict']);
         // One wrong cell earns partial credit.
         $this->assertSame(50.0, $result['score']);
 
         $this->expectException(\moodle_exception::class);
-        $table[2]['amount'] = '?';
-        submit_practice_answer::execute((int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table);
+        $table[2]['cells'][2] = '?';
+        submit_practice_answer::execute((int) $tz->cmid, 'mock-widget-4', 'tradeCostingQuestionWidget', '', [], $table, $columns);
     }
 
     /**

@@ -1,5 +1,11 @@
 # Changes
 
+## 1.1.0 (2026-11-10)
+
+- New question type "Account Exercise" (accountingWidget) in the activity settings.
+- Table questions follow the brain's table: its own column names and any number of columns, instead of the fixed Position / Rate / Amount layout.
+- Web service change: `mod_tarsus_submit_practice_answer` takes table rows as `{cells: [...]}`; table rows in results are `{cells: [{value, ask, verdict}]}`.
+
 ## 1.0.2 (2026-11-06)
 
 - Templates carry example contexts; ESLint-clean JavaScript (flattened promise chains); stylelint-clean CSS.
