@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Moodle 5.0 or later" src="https://img.shields.io/badge/Moodle-5.0%20%7C%205.2%20%7C%205.3-f98012">
+  <img alt="Tested on Moodle 5.2 and 5.3" src="https://img.shields.io/badge/Moodle-5.2%20%7C%205.3-f98012">
   <img alt="PHP 8.2 or later" src="https://img.shields.io/badge/PHP-8.2%2B-777bb4">
   <img alt="Plugin type: activity module" src="https://img.shields.io/badge/plugin-mod__tarsus-0077be">
   <img alt="Licence GPL-3.0-or-later" src="https://img.shields.io/badge/licence-GPL--3.0--or--later-39ff14">
@@ -32,18 +32,20 @@
 
 The activity builds on the connector plugin **[local_tarsus](https://github.com/lernlink/moodle-local_tarsus)**, which holds the credentials, indexes the course material and guards every outbound call. Both plugins are free and open source; Tarsus itself is billed by usage.
 
-> **No secrets in this repository.** There are **no API keys and no brain IDs** in the code, the history or the screenshots. The credentials for a real brain are entered once by an administrator in the connector's site settings; they are stored in the Moodle database and never sent to a browser. Without them the plugins run in **mock mode** with simulated answers, so you can explore every screen before you [request access](#getting-access).
+> **No secrets in this repository.** There are **no API keys and no brain IDs** in the code, the history or the screenshots. The credentials for a real brain are entered once by an administrator in the connector's site settings; they are stored in the Moodle database and are never shown to teachers or learners. Without them the plugins run in **mock mode** with simulated answers, so you can explore every screen before you [request access](#getting-access).
 
 **Contents** · [What the coach does](#what-the-coach-does) · [Inside Moodle](#inside-moodle) · [Watch](#watch) · [Getting access](#getting-access) · [The plugin set](#the-plugin-set) · [Requirements](#requirements) · [Installation](#installation) · [First steps in a course](#first-steps-in-a-course) · [Configuration](#configuration) · [Interaction types](#interaction-types) · [Grades, completion and progress](#grades-completion-and-progress) · [Capabilities](#capabilities) · [Data and privacy](#data-and-privacy) · [Development](#development) · [Credits](#credits) · [Licence](#licence)
 
 ## What the coach does
+
+The pictures in this section are Tarsus product visuals and show the coach in the Tarsus web app. The Moodle activity offers the same three modes in Moodle's own look; see [Inside Moodle](#inside-moodle) for screenshots of the plugin itself.
 
 ### Three ways to learn
 
 | Build knowledge | Test knowledge | Ask a question |
 |:--:|:--:|:--:|
 | <img src="https://framerusercontent.com/images/s0fmuHNzzQzugFWdZ64BNRzBZVE.webp" alt="Explanation card built from the course material" width="400"> | <img src="https://framerusercontent.com/images/hgagwUKE5rL19zOgU4zCXHDL8wk.webp" alt="Spreadsheet task with line-by-line feedback" width="400"> | <img src="https://framerusercontent.com/images/Gg6PdLZrXoksmnEkebq2iomzcCM.webp" alt="The coach answers a question and shows the calculation path" width="400"> |
-| Learning units with objectives, explanation cards and check questions, optionally read aloud. One idea at a time, with examples for the target group. | Tasks like in the exam: single choice, true/false, open questions, rule of three and spreadsheet calculations – with feedback that says what is still missing, experience points and a progress bar. | Questions in the learner's own words, by text or voice, answered from the included material only. Learners can also ask about any learning card or task ("Ask about this"). |
+| Learning units with objectives, explanation cards and check questions, optionally read aloud. One idea at a time, with examples for the target group. | Tasks like in the exam: single choice, true/false, open questions, rule of three and spreadsheet calculations – with feedback that says what is still missing, experience points and a progress bar. | Questions in the learner's own words, answered from the included material only. Learners can also ask about any learning card or task ("Ask about this"). |
 
 Teachers switch each mode on or off per activity; learners switch between the enabled modes at the bottom of the chat.
 
@@ -54,7 +56,7 @@ Teachers switch each mode on or off per activity; learners switch between the en
 | <img src="https://framerusercontent.com/images/Cosivt9X6HrNKgVnRe4uAuwSXI.webp" alt="Rotatable 3D cylinder with diameter and height" width="400"> | <img src="https://framerusercontent.com/images/uZ93hce6VN7ddmDdqNunRz8mg.webp" alt="Interactive characteristic curve: a slider moves the operating point" width="400"> | <img src="https://framerusercontent.com/images/XuhQqOxDZ7REyDl40HnvMnVjpms.webp" alt="Decision tree: what does the body orbit?" width="400"> |
 | **3D models** that learners can turn and measure. | **Simulations** where a slider changes the physics and the result follows. | **Diagrams and animations** drawn for the question at hand. |
 
-With the *Agent-driven* interaction type the coach answers inside Moodle with such interactive cards. See [Interaction types](#interaction-types).
+With the *Agent-driven* interaction type the coach answers inside Moodle with interactive cards of this kind. See [Interaction types](#interaction-types).
 
 ### Many task formats
 
@@ -69,21 +71,21 @@ The coach adapts to the **DQR level**, the **taxonomy stages** (knowledge, under
 
 ## Inside Moodle
 
-The learner side, recorded in a Moodle course (the coach speaks the learner's language – this course is in German):
+The learner side, taken in the plugin on Moodle 5.3 with a live Tarsus brain (course language English; the coach answers in the learner's language):
 
 <p align="center">
-  <img src="docs/screenshots/12_test_true_false.jpg" alt="Test knowledge in a Moodle course: a true-or-false task is checked and explained, the next task follows; at the bottom the learner asks the coach about the task" width="900">
+  <img src="docs/screenshots/14_test_open_question.jpg" alt="Test knowledge in Moodle: an open question is answered, scored with 55 % and the feedback says what is still missing; the mode switcher and the experience points sit at the bottom" width="900">
 </p>
 
-| Build knowledge | Ask about a task | Explain it simpler |
+| Build knowledge | Test knowledge | Ask about a task |
 |:--:|:--:|:--:|
-| <img src="docs/screenshots/10_build_learning_card_audio.jpg" alt="A learning card with narration playing and previous/next navigation" width="440"> | <img src="docs/screenshots/17_ask_about_a_task.jpg" alt="After a wrong answer the learner asks 'what would be right?' and the coach explains the correct assignment" width="440"> | <img src="docs/screenshots/19_ask_explain_simpler.jpg" alt="The learner asks for a simpler explanation and gets one with a small diagram" width="440"> |
-| Learning units card by card, read aloud on request. | "What would be right?" – the coach explains the correct answer to the task the learner was just working on. | Mark a passage, ask for a simpler version, get it – with a small diagram. |
+| <img src="docs/screenshots/11_build_learning_card_audio.jpg" alt="A learning unit below its objectives, with the narration player and previous/next navigation" width="440"> | <img src="docs/screenshots/13_test_single_choice.jpg" alt="A single-choice question, answered correctly, with its explanation" width="440"> | <img src="docs/screenshots/15_ask_about_a_task.jpg" alt="The learner asks what is still missing in an answer and then for a simpler explanation; the coach answers both" width="440"> |
+| Learning units card by card, read aloud on request. | Tasks with a verdict, an explanation and experience points. | "What is still missing in my answer?" and "Please explain it more simply." after a task. |
 
-| Interactive curve | Animated diagrams | 3D model |
+| Learning objectives | Interactive answer (Agent-driven) | Interactive learning step (Agent-driven) |
 |:--:|:--:|:--:|
-| <img src="docs/screenshots/20_ask_interactive_curve.jpg" alt="An interactive characteristic curve with a slider for the voltage at the operating point" width="440"> | <img src="docs/screenshots/21_ask_animated_diagrams.jpg" alt="Two animated diagrams explain diameter and height" width="440"> | <img src="docs/screenshots/22_ask_3d_model.jpg" alt="A rotatable 3D cylinder with diameter and height marked" width="440"> |
-| "Please make it interactive" – a slider moves the operating point. | "Please explain with graphics" – the coach draws them. | "I need a 3D animation" – a cylinder to turn with the mouse. |
+| <img src="docs/screenshots/10_build_objectives.jpg" alt="The learning objectives of a course with their taxonomy levels" width="440"> | <img src="docs/screenshots/16_agent_interactive_answer.jpg" alt="An agent-driven answer in the Moodle chat: an interactive card with a slider" width="440"> | <img src="docs/screenshots/17_agent_learning_step.jpg" alt="An agent-driven learning step in Build knowledge, rendered as an interactive card" width="440"> |
+| Build knowledge opens with the objectives the coach derived from the material. | "…as an interactive diagram with a slider" – the agent builds the card. | With *Agent-driven*, learning steps arrive as interactive cards too. |
 
 The teacher side – the material tab, the activity settings and the site-wide connection (shown in mock mode, so every field is a placeholder):
 
@@ -93,20 +95,18 @@ The teacher side – the material tab, the activity settings and the site-wide c
 | Every page, file and URL of the course with its state in the brain. Switch it on to let the coach use it. | Interaction type, DQR level, taxonomy levels, target group – and one section per mode. |
 
 <details>
-<summary><b>All screenshots</b> (23)</summary>
+<summary><b>All screenshots</b> (15)</summary>
 
 | | |
 |:--:|:--:|
 | <img src="docs/screenshots/01_course_page.png" alt="A Moodle course page with the Tarsus activity between the pages of a section" width="440"><br><sub>The activity on the course page</sub> | <img src="docs/screenshots/02_material_tab.png" alt="Material tab with indexed and included resources" width="440"><br><sub>Material tab (teacher)</sub> |
 | <img src="docs/screenshots/03_settings_general.png" alt="Activity settings: general and Ask a question" width="440"><br><sub>Settings: general, Ask a question</sub> | <img src="docs/screenshots/04_settings_test_build.png" alt="Activity settings: Test knowledge with question types per difficulty, learning pace, and Build knowledge" width="440"><br><sub>Settings: Test knowledge, Build knowledge</sub> |
 | <img src="docs/screenshots/05_admin_connection.png" alt="Site settings of the connector: API key, brain ID, base URL and the assistant's identity" width="440"><br><sub>Site settings: connection and assistant (mock values)</sub> | <img src="docs/screenshots/06_admin_guardrails.png" alt="Site settings of the connector: mock mode, kill switch, rate limit and credit budget" width="440"><br><sub>Site settings: guardrails (mock values)</sub> |
-| <img src="docs/screenshots/07_admin_brains.png" alt="The Tarsus brains page lists the brains the key can reach with their state" width="440"><br><sub>Tarsus brains page (mock values)</sub> | <img src="docs/screenshots/10_build_learning_card_audio.jpg" alt="Learning card with narration" width="440"><br><sub>Build knowledge: a card, read aloud</sub> |
-| <img src="docs/screenshots/11_build_next_card.jpg" alt="The next learning card" width="440"><br><sub>Build knowledge: the next card</sub> | <img src="docs/screenshots/12_test_true_false.jpg" alt="True or false" width="440"><br><sub>Test knowledge: true or false</sub> |
-| <img src="docs/screenshots/13_test_single_choice.jpg" alt="Single choice with explanation of the mistake" width="440"><br><sub>Test knowledge: single choice, with the mistake explained</sub> | <img src="docs/screenshots/14_test_open_question.jpg" alt="Open question with feedback on what is missing" width="440"><br><sub>Test knowledge: open question, with feedback on what is missing</sub> |
-| <img src="docs/screenshots/15_test_calculation.jpg" alt="Calculation task with two answer fields" width="440"><br><sub>Test knowledge: calculation with two answer fields</sub> | <img src="docs/screenshots/16_test_spreadsheet.jpg" alt="Spreadsheet calculation with line-by-line feedback" width="440"><br><sub>Test knowledge: spreadsheet calculation, checked line by line</sub> |
-| <img src="docs/screenshots/17_ask_about_a_task.jpg" alt="Ask about a task" width="440"><br><sub>Ask a question: about the task just answered</sub> | <img src="docs/screenshots/18_ask_search_status.jpg" alt="The coach relates the question to the marked passage and searches the indexed course material" width="440"><br><sub>Ask a question: the coach relates the question to the marked passage and searches the course</sub> |
-| <img src="docs/screenshots/19_ask_explain_simpler.jpg" alt="Explain it simpler" width="440"><br><sub>Ask a question: "explain it simpler"</sub> | <img src="docs/screenshots/20_ask_interactive_curve.jpg" alt="Interactive curve" width="440"><br><sub>Ask a question: interactive curve</sub> |
-| <img src="docs/screenshots/21_ask_animated_diagrams.jpg" alt="Animated diagrams" width="440"><br><sub>Ask a question: animated diagrams</sub> | <img src="docs/screenshots/22_ask_3d_model.jpg" alt="3D model" width="440"><br><sub>Ask a question: 3D model</sub> |
+| <img src="docs/screenshots/07_admin_brains.png" alt="The Tarsus brains page lists the brains the key can reach with their state" width="440"><br><sub>Tarsus brains page (mock values)</sub> | <img src="docs/screenshots/10_build_objectives.jpg" alt="Learning objectives with taxonomy levels" width="440"><br><sub>Build knowledge: the objectives</sub> |
+| <img src="docs/screenshots/11_build_learning_card_audio.jpg" alt="Learning unit with narration" width="440"><br><sub>Build knowledge: a unit, read aloud</sub> | <img src="docs/screenshots/12_test_true_false.jpg" alt="True or false, answered correctly" width="440"><br><sub>Test knowledge: true or false</sub> |
+| <img src="docs/screenshots/13_test_single_choice.jpg" alt="Single choice with explanation" width="440"><br><sub>Test knowledge: single choice</sub> | <img src="docs/screenshots/14_test_open_question.jpg" alt="Open question with partial credit and feedback on what is missing" width="440"><br><sub>Test knowledge: open question, with feedback on what is missing</sub> |
+| <img src="docs/screenshots/15_ask_about_a_task.jpg" alt="Questions about a task and a simpler explanation" width="440"><br><sub>Ask a question: about a task, then a simpler explanation</sub> | <img src="docs/screenshots/16_agent_interactive_answer.jpg" alt="Interactive card with a slider" width="440"><br><sub>Agent-driven: interactive answer</sub> |
+| <img src="docs/screenshots/17_agent_learning_step.jpg" alt="Interactive learning step" width="440"><br><sub>Agent-driven: interactive learning step</sub> |  |
 
 </details>
 
@@ -227,7 +227,7 @@ Replace the folder with the new version (or `git pull` in it) and visit *Site ad
 
 | Setting | Meaning |
 |---|---|
-| API key, Brain ID, Base URL | The connection. One brain per site; the key is stored site-wide and never sent to the browser. |
+| API key, Brain ID, Base URL | The connection. One brain per site; the key is stored site-wide and never shown to teachers or learners. |
 | Tarsus brains | A page listing every brain the key can reach, with its state, to pick the one the site uses. |
 | Assistant name, ID, description, avatar | How the assistant appears in the chat. |
 | Voice selection, Voice | The voice that reads learning units aloud: by the learner's language, or one fixed voice. |
@@ -258,7 +258,7 @@ At least one mode must be enabled, and every difficulty grade needs at least one
 
 ### Reset a learner's chat
 
-The *Reset chat history* tab (capability `mod/tarsus:resetchat`) clears one learner's conversation with the coach – for example after a demo or when a learner wants a fresh start.
+The *Reset chat history* tab (capability `mod/tarsus:resetchat`) erases the **current user's own** conversation with the coach, in the brain as well – for example after a teacher has tried the activity or given a demo. Nobody can erase another person's conversation, and learners cannot erase theirs at all, because the conversation carries their learning progress.
 
 ## Interaction types
 
@@ -280,10 +280,10 @@ Both types answer only from the included material.
 
 | Capability | Default roles |
 |---|---|
-| `mod/tarsus:view` | Everyone enrolled |
+| `mod/tarsus:view` | Student, teacher, editing teacher, manager |
 | `mod/tarsus:addinstance` | Editing teacher, manager |
 | `mod/tarsus:manage` | Editing teacher, manager |
-| `mod/tarsus:resetchat` | Editing teacher, manager |
+| `mod/tarsus:resetchat` | Teacher, editing teacher, manager |
 
 ## Data and privacy
 
